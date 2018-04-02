@@ -328,6 +328,7 @@ void *workingset_eviction(struct address_space *mapping, struct page *page)
 	unsigned long eviction;
 	struct lruvec *lruvec;
 
+	return NULL;
 	/* Page is fully exclusive and pins page->mem_cgroup */
 	VM_BUG_ON_PAGE(PageLRU(page), page);
 	VM_BUG_ON_PAGE(page_count(page), page);
