@@ -1064,11 +1064,7 @@ bool out_of_memory(struct oom_control *oc)
 	unsigned long freed = 0;
 	enum oom_constraint constraint = CONSTRAINT_NONE;
 
-	/* Return true since Simple LMK automatically kills in the background */
-	if (IS_ENABLED(CONFIG_ANDROID_SIMPLE_LMK))
-		return true;
-
-	if (oom_killer_disabled)
+	if (oom_killer_disabled || IS_ENABLED(CONFIG_ANDROID_SIMPLE_LMK))
 		return false;
 
 	if (!is_memcg_oom(oc)) {
