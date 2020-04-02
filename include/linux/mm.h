@@ -353,6 +353,7 @@ extern pgprot_t protection_map[16];
 #define FAULT_FLAG_SPECULATIVE	0x200	/* Speculative fault,
 					 * not holding mmap_sem
 					 */
+#define FAULT_FLAG_INTERRUPTIBLE  0x800 /* The fault can be interrupted by non-fatal signals. */
 
 /**
  * fault_flag_allow_retry_first - check ALLOW_RETRY the first time
@@ -376,7 +377,8 @@ static inline bool fault_flag_allow_retry_first(unsigned int flags)
  * arch-specific page fault handlers.
  */
 #define FAULT_FLAG_DEFAULT  (FAULT_FLAG_ALLOW_RETRY | \
-			     FAULT_FLAG_KILLABLE)
+			     FAULT_FLAG_KILLABLE | \
+			     FAULT_FLAG_INTERRUPTIBLE)
 
 #define FAULT_FLAG_TRACE \
 	{ FAULT_FLAG_WRITE,		"WRITE" }, \
@@ -387,7 +389,8 @@ static inline bool fault_flag_allow_retry_first(unsigned int flags)
 	{ FAULT_FLAG_TRIED,		"TRIED" }, \
 	{ FAULT_FLAG_USER,		"USER" }, \
 	{ FAULT_FLAG_REMOTE,		"REMOTE" }, \
-	{ FAULT_FLAG_INSTRUCTION,	"INSTRUCTION" }
+	{ FAULT_FLAG_INSTRUCTION,	"INSTRUCTION" }, \
+	{ FAULT_FLAG_INTERRUPTIBLE,	"INTERRUPTIBLE" }
 
 /*
  * vm_fault is filled by the the pagefault handler and passed to the vma's
