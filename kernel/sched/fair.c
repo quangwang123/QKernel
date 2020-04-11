@@ -9557,7 +9557,7 @@ static int group_balance_cpu_not_isolated(struct sched_group *sg)
 static int should_we_balance(struct lb_env *env)
 {
 	struct sched_group *sg = env->sd->groups;
-	int cpu, balance_cpu = -1;
+	int cpu;
 
 	/*
 	 * Ensure the balancing environment is consistent; can happen
@@ -9578,25 +9578,12 @@ static int should_we_balance(struct lb_env *env)
 		if (!idle_cpu(cpu))
 			continue;
 
-		if (!cpu_isolated(cpu))
-			continue;
-
-		balance_cpu = cpu;
-		break;
+		/* Are we the first idle CPU? */
+		return cpu == env->dst_cpu;
 	}
 
-	if (balance_cpu == -1)
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		balance_cpu = group_balance_cpu_not_isolated(sg);
-#else
-		balance_cpu = group_balance_cpu(sg);
-#endif
-
-	/*
-	 * First idle CPU or the first CPU(busiest) in this sched group
-	 * is eligible for doing load balancing at this and above domains.
-	 */
-	return balance_cpu == env->dst_cpu;
+	/* Are we the first CPU of this group ? */
+	return group_balance_cpu(sg) == env->dst_cpu;
 }
 
 /*
