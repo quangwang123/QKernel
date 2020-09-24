@@ -254,7 +254,7 @@ static bool swap_sched_async_compress(struct page *page)
 		return false;
 
 	sis = page_swap_info(page);
-	if (data_race(sis->flags & SWP_SYNCHRONOUS_IO)) {
+	if (sis->flags & SWP_SYNCHRONOUS_IO) {
 		if (kfifo_avail(&pgdat->kcompress_fifo) >= sizeof(page) &&
 			kfifo_in(&pgdat->kcompress_fifo, &page, sizeof(page))) {
 			wake_up_interruptible(&pgdat->kcompressd_wait);
@@ -292,7 +292,7 @@ int swap_writepage(struct page *page, struct writeback_control *wbc)
 	if (swap_sched_async_compress(page))
 		return 0;
 
-	ret = __swap_writepage(page, wbc);
+	ret = __swap_writepage(page, wbc, end_swap_bio_write);
 out:
 	return ret;
 }
@@ -315,7 +315,7 @@ int kcompressd(void *p)
 
 		while (!kfifo_is_empty(&pgdat->kcompress_fifo)) {
 			if (kfifo_out(&pgdat->kcompress_fifo, &page, sizeof(page))) {
-				__swap_writepage(page, &wbc);
+				__swap_writepage(page, &wbc, end_swap_bio_write);
 			}
 		}
 	}
@@ -439,15 +439,17 @@ int swap_readpage(struct page *page, bool synchronous)
 		goto out;
 	}
 
-	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
-	if (!ret) {
+	if (sis->flags & SWP_SYNCHRONOUS_IO) {
 		if (trylock_page(page)) {
 			swap_slot_free_notify(page);
 			unlock_page(page);
 		}
 
-		count_vm_event(PSWPIN);
-		goto out;
+		ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
+		if (!ret) {
+			count_vm_event(PSWPIN);
+			goto out;
+		}
 	}
 
 	ret = 0;
