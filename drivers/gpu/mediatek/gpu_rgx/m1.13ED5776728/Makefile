@@ -1,24 +1,8 @@
 OPTIM = -Os -fdata-sections -ffunction-sections -finline-functions -ftree-vectorize -funroll-loops
 
-$(info [GPU_DEBUG] MTK_PLATFORM = $(MTK_PLATFORM))
+ccflags-y += -DCONFIG_MACH_MT6765
 
-ifeq ($(MTK_PLATFORM),mt6765)
-	ccflags-y += -DCONFIG_MACH_MT6765
-else ifeq ($(MTK_PLATFORM),mt6779)
-	ccflags-y += -DCONFIG_MACH_MT6779
-else ifeq ($(MTK_PLATFORM),mt6761)
-	ccflags-y += -DCONFIG_MACH_MT6761
-else ifeq ($(MTK_PLATFORM),mt6739)
-	ccflags-y += -DCONFIG_MACH_MT6739
-endif
-
-ifeq ($(word 2,$(MTK_GPU_VERSION)),marlowe)
-	ECO := v2
-	ccflags-y += -DMTCMOS_MFG3
-	ccflags-y += -DMTK_MARLOWE
-else
-	ECO := ""
-endif
+ECO := ""
 
 RGX_TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
