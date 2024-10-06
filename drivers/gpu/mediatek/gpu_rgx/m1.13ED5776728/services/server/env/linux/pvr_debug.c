@@ -316,6 +316,7 @@ static IMG_BOOL BAppend(IMG_CHAR *pszBuf, IMG_UINT32 ui32BufSiz, const IMG_CHAR 
 	return bTrunc;
 }
 
+#if 0
 /*************************************************************************/ /*!
 @Function       PVRSRVDebugPrintf
 @Description    To output a debug message to the user
@@ -454,6 +455,15 @@ void PVRSRVDebugPrintf(IMG_UINT32 ui32DebugLevel,
 
 	va_end (vaArgs);
 }
+#else
+inline void PVRSRVDebugPrintf(IMG_UINT32 ui32DebugLevel,
+					   const IMG_CHAR *pszFullFileName,
+					   IMG_UINT32 ui32Line,
+					   const IMG_CHAR *pszFormat,
+					   ...)
+{
+}
+#endif /* if 0 */
 
 #endif /* PVRSRV_NEED_PVR_DPF */
 

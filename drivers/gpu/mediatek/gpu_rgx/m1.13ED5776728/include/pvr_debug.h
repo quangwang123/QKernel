@@ -244,6 +244,8 @@ PVRSRVDebugAssertFail(const IMG_CHAR *pszFile,
 	#define PVR_LOG_RETURN_IF_INVALID_PARAM(_expr, _param) do	{} while(0)
 	#define PVR_LOG_GOTO_IF_INVALID_PARAM(_expr, _err, _go) do	{} while(0)
 	#undef PVR_DPF_FUNCTION_TRACE_ON
+
+#if 0
 /*************************************************************************/ /*!
 @Function       PVRSRVDebugPrintf
 @Description    Output a debug message to the user, using an OS-specific
@@ -273,6 +275,13 @@ IMG_EXPORT void IMG_CALLCONV PVRSRVDebugPrintf(IMG_UINT32 ui32DebugLevel,
                                                IMG_UINT32 ui32Line,
                                                const IMG_CHAR *pszFormat,
                                                ...) __printf(4, 5);
+#else
+IMG_EXPORT inline void IMG_CALLCONV PVRSRVDebugPrintf(IMG_UINT32 ui32DebugLevel,
+                                                      const IMG_CHAR *pszFileName,
+                                                      IMG_UINT32 ui32Line,
+                                                      const IMG_CHAR *pszFormat,
+                                                      ...) __printf(4, 5);
+#endif
 
 /*************************************************************************/ /*!
 @Function       PVRSRVDebugPrintfDumpCCB
