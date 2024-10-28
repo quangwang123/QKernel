@@ -149,7 +149,7 @@
  * Report Pressure in multitouch
  * 1:enable(default),0:disable
 */
-#define FTS_REPORT_PRESSURE_EN                  1
+#define FTS_REPORT_PRESSURE_EN                  0
 
 /*
  * Gesture function enable
@@ -161,13 +161,13 @@
  * ESD check & protection
  * default: disable
  */
-#define FTS_ESDCHECK_EN                         1
+#define FTS_ESDCHECK_EN                         0
 
 /*
  * Production test enable
  * 1: enable, 0:disable(default)
  */
-#define FTS_TEST_EN                             1
+#define FTS_TEST_EN                             0
 
 /*
  * Pinctrl enable
@@ -185,17 +185,17 @@
 /*
  * enable/disable touchpad
  */
-#define LCT_TP_WORK_EN                          1
+#define LCT_TP_WORK_EN                          0
 
 /*
  * enable/disable 'grip area' feature
  */
-#define LCT_TP_GRIP_AREA_EN                     1
+#define LCT_TP_GRIP_AREA_EN                     0
 
 /*
  * enable tp usb plugin feature
  */
-#define LCT_TP_USB_PLUGIN                       1
+#define LCT_TP_USB_PLUGIN                       0
 
 /****************************************************/
 
@@ -243,19 +243,19 @@
  * define your own fw_file, the sample one to be replaced is invalid
  * NOTE: if FTS_GET_MODULE_NUM > 1, it's the fw corresponding with FTS_VENDOR_ID
  */
-#define FTS_UPGRADE_FW_FILE                      "include/firmware/fw_helitai_v0e.i"
+#define FTS_UPGRADE_FW_FILE                      "include/firmware/fw_helitai_v0e.h"
 
 /*
  * if FTS_GET_MODULE_NUM >= 2, fw corrsponding with FTS_VENDOR_ID2
  * define your own fw_file, the sample one is invalid
  */
-#define FTS_UPGRADE_FW2_FILE                     "include/firmware/fw_sample.i"
+#define FTS_UPGRADE_FW2_FILE                     "include/firmware/fw_sample.h"
 
 /*
  * if FTS_GET_MODULE_NUM >= 3, fw corrsponding with FTS_VENDOR_ID3
  * define your own fw_file, the sample one is invalid
  */
-#define FTS_UPGRADE_FW3_FILE                     "include/firmware/fw_sample.i"
+#define FTS_UPGRADE_FW3_FILE                     "include/firmware/fw_sample.h"
 
 /*********************************************************/
 
