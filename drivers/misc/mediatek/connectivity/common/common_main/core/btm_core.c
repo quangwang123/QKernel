@@ -36,11 +36,11 @@
 INT32 gBtmDbgLevel = STP_BTM_LOG_INFO;
 
 #define STP_BTM_PR_LOUD(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_BTM_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_BTM_pr_no_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 #define ASSERT(expr)
 

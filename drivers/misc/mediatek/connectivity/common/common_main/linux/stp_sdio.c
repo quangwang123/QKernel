@@ -253,16 +253,16 @@ INT32 gStpSdioDbgLvl = STPSDIO_LOG_INFO;
 ********************************************************************************
 */
 #define STPSDIO_PR_LOUD(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 #define STPSDIO_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 #define STPSDIO_PR_HINT(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 #define STPSDIO_pr_no_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 /*******************************************************************************
 *                              F U N C T I O N S

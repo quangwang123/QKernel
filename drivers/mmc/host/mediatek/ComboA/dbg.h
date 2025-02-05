@@ -60,24 +60,24 @@ enum {
 #define DBG_EVT_MASK        (DBG_EVT_ALL)
 
 #define TAGMSDC "msdc"
-#define N_MSG(evt, fmt, args...) do {} while (0)
+#define N_MSG(evt, fmt, args...) ((void)0)
 
 #ifndef MTK_MMC_PRINT_PERIOD
-#define ERR_MSG(fmt, args...) do {} while (0)
+#define ERR_MSG(fmt, args...) ((void)0)
 
 #else
 #define MAX_PRINT_PERIOD            (500000000)  /* 500ms */
 #define MAX_PRINT_NUMS_OVER_PERIOD  (50)
-#define ERR_MSG(fmt, args...) do {} while (0)
+#define ERR_MSG(fmt, args...) ((void)0)
 #endif
 
-#define INIT_MSG(fmt, args...) do {} while (0)
+#define INIT_MSG(fmt, args...) ((void)0)
 
-#define INFO_MSG(fmt, args...) do {} while (0)
+#define INFO_MSG(fmt, args...) ((void)0)
 
 #ifdef MTK_MMC_PRINT_IRQ_MSG
 /* PID in ISR in not corrent */
-#define IRQ_MSG(fmt, args...) do {} while (0)
+#define IRQ_MSG(fmt, args...) ((void)0)
 #else
 #define IRQ_MSG(fmt, args...)
 #endif
@@ -87,7 +87,7 @@ enum {
  * that the output was truncated, thus be careful of "more"
  * case.
  */
-#define SPREAD_PRINTF(buff, size, evt, fmt, args...) do {} while (0)
+#define SPREAD_PRINTF(buff, size, evt, fmt, args...) ((void)0)
 
 #define MAGIC_CQHCI_DBG_TYPE 5
 #define MAGIC_CQHCI_DBG_NUM_L 100

@@ -16,38 +16,38 @@
 #define LOG_TAG
 #endif
 
-#define DDPSVPMSG(fmt, args...) do {} while (0)
+#define DDPSVPMSG(fmt, args...) ((void)0)
 
-#define DISP_LOG_I(fmt, args...)	do {} while (0)
+#define DISP_LOG_I(fmt, args...)	((void)0)
 
-#define DISP_LOG_V(fmt, args...)	do {} while (0)
+#define DISP_LOG_V(fmt, args...)	((void)0)
 
-#define DISP_LOG_D(fmt, args...)	do {} while (0)
+#define DISP_LOG_D(fmt, args...)	((void)0)
 
-#define DISP_LOG_W(fmt, args...)    do {} while (0)
+#define DISP_LOG_W(fmt, args...)    ((void)0)
 
-#define DISP_LOG_E(fmt, args...)	do {} while (0)
+#define DISP_LOG_E(fmt, args...)	((void)0)
 
-#define DDPIRQ(fmt, args...)	do {} while (0)
+#define DDPIRQ(fmt, args...)	((void)0)
 
-#define DDPDBG(fmt, args...) do {} while (0)
+#define DDPDBG(fmt, args...) ((void)0)
 
-#define DDPMSG(fmt, args...) do {} while (0)
+#define DDPMSG(fmt, args...) ((void)0)
 
-#define DDPWRN(fmt, args...) do {} while (0)
+#define DDPWRN(fmt, args...) ((void)0)
 
-#define DDPERR(fmt, args...) do {} while (0)
+#define DDPERR(fmt, args...) ((void)0)
 
-#define DDPDUMP(fmt, ...)	do {} while (0)
+#define DDPDUMP(fmt, ...)	((void)0)
 
 #ifndef ASSERT
-#define ASSERT(expr)	do {} while (0)
+#define ASSERT(expr)	((void)0)
 #endif
 
 #ifdef CONFIG_MTK_AEE_FEATURE
-#define DDPAEE(string, args...)	do {} while (0)
+#define DDPAEE(string, args...)	((void)0)
 #else
-#define DDPAEE(string, args...)	do {} while (0)
+#define DDPAEE(string, args...)	((void)0)
 #endif
 
 #endif

@@ -60,9 +60,9 @@
 static INT32 gDbgLevel = UART_LOG_INFO;
 
 #define UART_PR_DBG(fmt, arg...)	\
-do {} while (0)
+((void)0)
 #define UART_pr_no_info(fmt, arg...)	\
-do {} while (0)
+((void)0)
 
 #include <linux/kfifo.h>
 #define LDISC_RX_TASKLET  0

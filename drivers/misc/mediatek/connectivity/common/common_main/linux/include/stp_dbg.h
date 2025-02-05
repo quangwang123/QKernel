@@ -56,11 +56,11 @@
 extern INT32 gStpDbgDbgLevel;
 
 #define STP_DBG_PR_LOUD(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_DBG_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_DBG_pr_no_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 typedef enum {
 	STP_DBG_EN = 0,

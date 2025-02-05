@@ -12,7 +12,7 @@
 //#include <mt-plat/met_drv.h>
 /* FIXME: Remove TRACE_PUTS definition */
 #undef TRACE_PUTS
-#define TRACE_PUTS(buf) do {} while (0)
+#define TRACE_PUTS(buf) ((void)0)
 #include "vpu_cmn.h"
 #include "vpu_reg.h"
 #include "vpu_profile.h"

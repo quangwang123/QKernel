@@ -35,11 +35,11 @@ static UINT32 stp_traffic_start;
 static UINT32 stp_traffic_current;
 
 #define STP_PSM_PR_LOUD(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_PSM_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define STP_PSM_pr_no_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 
 static inline INT32 _stp_psm_notify_wmt(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_ACTION_T action);

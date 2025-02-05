@@ -92,7 +92,7 @@ do { \
 
 
 
-#define CMDQ_ERR(string, args...) do {} while (0)
+#define CMDQ_ERR(string, args...) ((void)0)
 
 #define CMDQ_CHECK_AND_BREAK_STATUS(status)\
 {					\
@@ -101,7 +101,7 @@ if (status < 0)		\
 }
 
 
-#define CMDQ_AEE(tag, string, args...) do {} while (0)
+#define CMDQ_AEE(tag, string, args...) ((void)0)
 
 /*#define CMDQ_PROFILE*/
 
@@ -109,12 +109,12 @@ if (status < 0)		\
 #define CMDQ_TIME unsigned long long
 
 #ifdef CMDQ_PROFILE
-#define CMDQ_PROF_INIT()	do {} while (0)
+#define CMDQ_PROF_INIT()	((void)0)
 
-#define CMDQ_PROF_START(args...)	do {} while (0)
+#define CMDQ_PROF_START(args...)	((void)0)
 
-#define CMDQ_PROF_END(args...)	do {} while (0)
-#define CMDQ_PROF_ONESHOT(args...)	do {} while (0)
+#define CMDQ_PROF_END(args...)	((void)0)
+#define CMDQ_PROF_ONESHOT(args...)	((void)0)
 #else
 #define CMDQ_PROF_INIT()
 #define CMDQ_PROF_START(args...)
@@ -125,14 +125,14 @@ if (status < 0)		\
 #define CMDQ_PROF_MMP(args...)
 
 /* CMDQ FTRACE */
-#define CMDQ_TRACE_FORCE_BEGIN(fmt, args...) do {} while (0)
+#define CMDQ_TRACE_FORCE_BEGIN(fmt, args...) ((void)0)
 
-#define CMDQ_TRACE_FORCE_END() do {} while (0)
+#define CMDQ_TRACE_FORCE_END() ((void)0)
 
 
-#define CMDQ_SYSTRACE_BEGIN(fmt, args...) do {} while (0)
+#define CMDQ_SYSTRACE_BEGIN(fmt, args...) ((void)0)
 
-#define CMDQ_SYSTRACE_END() do {} while (0)
+#define CMDQ_SYSTRACE_END() ((void)0)
 
 #define CMDQ_GET_TIME_IN_MS(start, end, duration)	\
 {	\

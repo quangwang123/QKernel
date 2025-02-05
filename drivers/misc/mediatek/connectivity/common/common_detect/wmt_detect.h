@@ -53,11 +53,11 @@
 extern int gWmtDetectDbgLvl;
 
 #define WMT_DETECT_PR_LOUD(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define WMT_DETECT_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define WMT_DETECT_pr_no_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 #define WMT_DETECT_IOC_MAGIC            'w'
 #define COMBO_IOCTL_GET_CHIP_ID       _IOR(WMT_DETECT_IOC_MAGIC, 0, int)

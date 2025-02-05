@@ -1,4 +1,4 @@
-OPTIM = -Os -fdata-sections -ffunction-sections -finline-functions -ftree-vectorize -funroll-loops
+OPTIM = -O2
 
 ccflags-y += -DCONFIG_MACH_MT6765
 
