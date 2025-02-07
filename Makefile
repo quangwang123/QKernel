@@ -455,7 +455,7 @@ KBUILD_AFLAGS_MODULE  := -DMODULE
 KBUILD_CFLAGS_MODULE  := -DMODULE
 KBUILD_LDFLAGS_MODULE := -T $(srctree)/scripts/module-common.lds
 KBUILD_LDFLAGS := -O3 -mcpu=cortex-a53+crypto+crc -mtune=cortex-a53
-KBUILD_CFLAGS := -mcpu=cortex-a53+crypto+crc -mtune=cortex-a53 -fdata-sections -ffunction-sections -fno-exceptions -ggdb -Wno-address-of-packed-member -fmerge-all-constants
+KBUILD_CFLAGS := -mcpu=cortex-a53+crypto+crc -mtune=cortex-a53 -fno-exceptions -ggdb -Wno-address-of-packed-member -fmerge-all-constants
 GCC_PLUGINS_CFLAGS :=
 CLANG_FLAGS :=
 
