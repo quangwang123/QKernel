@@ -21,7 +21,7 @@ static inline void *task_stack_page(const struct task_struct *task)
 	return task->stack;
 }
 
-#define setup_thread_stack(new,old)	do { } while(0)
+#define setup_thread_stack(new,old)	((void)0)
 
 static inline unsigned long *end_of_stack(const struct task_struct *task)
 {

@@ -2186,11 +2186,11 @@ static void check_spinlock_acquired_node(struct kmem_cache *cachep, int node)
 }
 
 #else
-#define check_irq_off()	do { } while(0)
-#define check_irq_on()	do { } while(0)
-#define check_mutex_acquired()	do { } while(0)
-#define check_spinlock_acquired(x) do { } while(0)
-#define check_spinlock_acquired_node(x, y) do { } while(0)
+#define check_irq_off()	((void)0)
+#define check_irq_on()	((void)0)
+#define check_mutex_acquired()	((void)0)
+#define check_spinlock_acquired(x) ((void)0)
+#define check_spinlock_acquired_node(x, y) ((void)0)
 #endif
 
 static void drain_array_locked(struct kmem_cache *cachep, struct array_cache *ac,

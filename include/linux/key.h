@@ -412,16 +412,16 @@ extern void key_init(void);
 #define key_validate(k)			0
 #define key_serial(k)			0
 #define key_get(k) 			({ NULL; })
-#define key_revoke(k)			do { } while(0)
-#define key_invalidate(k)		do { } while(0)
-#define key_put(k)			do { } while(0)
-#define key_ref_put(k)			do { } while(0)
+#define key_revoke(k)			((void)0)
+#define key_invalidate(k)		((void)0)
+#define key_put(k)			((void)0)
+#define key_ref_put(k)			((void)0)
 #define make_key_ref(k, p)		NULL
 #define key_ref_to_ptr(k)		NULL
 #define is_key_possessed(k)		0
-#define key_fsuid_changed(t)		do { } while(0)
-#define key_fsgid_changed(t)		do { } while(0)
-#define key_init()			do { } while(0)
+#define key_fsuid_changed(t)		((void)0)
+#define key_fsgid_changed(t)		((void)0)
+#define key_init()			((void)0)
 
 #endif /* CONFIG_KEYS */
 #endif /* __KERNEL__ */

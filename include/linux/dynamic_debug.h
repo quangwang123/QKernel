@@ -230,11 +230,11 @@ void __dynamic_netdev_dbg(struct _ddebug *descriptor,
 #endif
 
 #ifdef CONFIG_NO_DEBUG
-#define dynamic_pr_debug(fmt, ...) do {} while(0)
-#define dynamic_dev_dbg(dev, fmt, ...)	do {} while(0)
-#define dynamic_netdev_dbg(dev, fmt, ...)	do {} while(0)
+#define dynamic_pr_debug(fmt, ...) ((void)0)
+#define dynamic_dev_dbg(dev, fmt, ...)	((void)0)
+#define dynamic_netdev_dbg(dev, fmt, ...)	((void)0)
 #define dynamic_hex_dump(prefix_str, prefix_type, rowsize,	\
-			 groupsize, buf, len, ascii)	do {} while(0)
+			 groupsize, buf, len, ascii)	((void)0)
 #else
 #define dynamic_pr_debug(fmt, ...)				\
 do {								\

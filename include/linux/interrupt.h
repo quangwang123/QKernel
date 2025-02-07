@@ -453,7 +453,7 @@ extern bool force_irqthreads;
  * implement the following hook.
  */
 #ifndef hard_irq_disable
-#define hard_irq_disable()	do { } while(0)
+#define hard_irq_disable()	((void)0)
 #endif
 
 /* PLEASE, avoid to allocate new softirqs, if you need not _really_ high

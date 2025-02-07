@@ -213,9 +213,9 @@ static inline void pvr_fence_cleanup(void)
 #define PVR_FENCE_CTX_TRACE(c, fmt, ...)
 #endif
 
-#define PVR_FENCE_CTX_WARN(c, fmt, ...) do {} while(0)
+#define PVR_FENCE_CTX_WARN(c, fmt, ...) ((void)0)
 
-#define PVR_FENCE_CTX_ERR(c, fmt, ...) do {} while(0)
+#define PVR_FENCE_CTX_ERR(c, fmt, ...) ((void)0)
 
 #if defined(PVR_FENCE_DEBUG)
 #define PVR_FENCE_TRACE(f, fmt, ...)                                       \
@@ -224,9 +224,9 @@ static inline void pvr_fence_cleanup(void)
 #define PVR_FENCE_TRACE(f, fmt, ...)
 #endif
 
-#define PVR_FENCE_WARN(f, fmt, ...) do {} while(0)
+#define PVR_FENCE_WARN(f, fmt, ...) ((void)0)
 
-#define PVR_FENCE_ERR(f, fmt, ...) do {} while(0)
+#define PVR_FENCE_ERR(f, fmt, ...) ((void)0)
 
 #endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)) */
 #endif /* !defined(__PVR_FENCE_H__) */

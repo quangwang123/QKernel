@@ -428,9 +428,9 @@ extern int kptr_restrict;
 #ifdef CONFIG_NO_DEBUG
 #if defined(CONFIG_DYNAMIC_DEBUG)
 #include <linux/dynamic_debug.h>
-#define pr_debug(fmt, ...) do {} while(0)
+#define pr_debug(fmt, ...) ((void)0)
 #else
-#define pr_debug(fmt, ...) do {} while(0)
+#define pr_debug(fmt, ...) ((void)0)
 #endif
 #else
 #if defined(CONFIG_DYNAMIC_DEBUG)
@@ -561,7 +561,7 @@ extern int kptr_restrict;
 
 /* If you are writing a driver, please use dev_dbg instead */
 #ifdef CONFIG_NO_DEBUG
-#define pr_debug_ratelimited(fmt, ...) do {} while(0)
+#define pr_debug_ratelimited(fmt, ...) ((void)0)
 #else
 #if defined(CONFIG_DYNAMIC_DEBUG)
 /* descriptor check is first to prevent flooding with "callbacks suppressed" */

@@ -183,8 +183,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 #endif
 
 #ifndef instrumentation_begin
-#define instrumentation_begin()		do { } while(0)
-#define instrumentation_end()		do { } while(0)
+#define instrumentation_begin()		((void)0)
+#define instrumentation_end()		((void)0)
 #endif
 
 #ifndef ASM_UNREACHABLE

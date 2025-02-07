@@ -176,16 +176,16 @@ do { \
 	pr_notice("[cmdq][err] "fmt"\n", ##args)
 
 /* CMDQ FTRACE */
-#define cmdq_trace_begin(fmt, args...) do {} while (0)
+#define cmdq_trace_begin(fmt, args...) ((void)0)
 
-#define cmdq_trace_end() do {} while (0)
+#define cmdq_trace_end() ((void)0)
 
 extern int cmdq_trace;
-#define cmdq_trace_ex_begin(fmt, args...) do {} while (0)
+#define cmdq_trace_ex_begin(fmt, args...) ((void)0)
 
-#define cmdq_trace_ex_end() do {} while (0)
+#define cmdq_trace_ex_end() ((void)0)
 
-#define cmdq_trace_c(fmt, args...) do {} while (0)
+#define cmdq_trace_c(fmt, args...) ((void)0)
 
 dma_addr_t cmdq_thread_get_pc(struct cmdq_thread *thread);
 dma_addr_t cmdq_thread_get_end(struct cmdq_thread *thread);
