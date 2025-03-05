@@ -23,6 +23,11 @@ choice
 	  with lots of processors that may show reduced performance if
 	  too many timer interrupts are occurring.
 
+	config HZ_180
+		bool "180 HZ"
+	help
+	 180 Hz is a good choice for mobile phones.
+
 	config HZ_250
 		bool "250 HZ"
 	help
@@ -50,6 +55,7 @@ endchoice
 config HZ
 	int
 	default 100 if HZ_100
+	default 180 if HZ_180
 	default 250 if HZ_250
 	default 300 if HZ_300
 	default 1000 if HZ_1000
