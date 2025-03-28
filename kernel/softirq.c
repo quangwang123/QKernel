@@ -526,9 +526,7 @@ static void tasklet_action_common(struct softirq_action *a,
 				if (!test_and_clear_bit(TASKLET_STATE_SCHED,
 							&t->state))
 					BUG();
-				check_start_time(ts);
 				t->func(t->data);
-				check_process_time("tasklet %ps", ts, t->func);
 				tasklet_unlock(t);
 				continue;
 			}
