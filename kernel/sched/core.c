@@ -5908,7 +5908,7 @@ SYSCALL_DEFINE3(sched_setaffinity, pid_t, pid, unsigned int, len,
 		unsigned long __user *, user_mask_ptr)
 {
 	return 0;
-
+/*
 	cpumask_var_t new_mask;
 	int retval;
 
@@ -5919,7 +5919,7 @@ SYSCALL_DEFINE3(sched_setaffinity, pid_t, pid, unsigned int, len,
 	if (retval == 0)
 		retval = msm_sched_setaffinity(pid, new_mask);
 	free_cpumask_var(new_mask);
-	return retval;
+	return retval; */
 }
 
 long sched_getaffinity(pid_t pid, struct cpumask *mask)
