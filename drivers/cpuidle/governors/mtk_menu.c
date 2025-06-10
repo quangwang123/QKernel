@@ -426,8 +426,9 @@ static int menu_select(struct cpuidle_driver *drv, struct cpuidle_device *dev,
 
 		s = &drv->states[1];
 		/*
-		 * Default to a physical idle state, not to busy polling, unless
-		 * a timer is going to trigger really really soon.
+		 * We want to default to C1 (hlt), not to busy polling
+		 * unless the timer is happening really really soon, or
+		 * C1's exit latency exceeds the user configured limit.
 		 */
 		polling_threshold =
 			max_t(unsigned int, 20, s->target_residency);
