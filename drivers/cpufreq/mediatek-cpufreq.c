@@ -27,7 +27,7 @@
 
 #define MIN_VOLT_SHIFT		(10000)
 #define MAX_VOLT_SHIFT		(20000)
-#define MAX_VOLT_LIMIT		(115000)
+#define MAX_VOLT_LIMIT		(145000)
 #define VOLT_TOL		(1000)
 
 /*
@@ -113,28 +113,28 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
 				 * If the target Vsram hits the maximum voltage,
 				 * try to set the exact voltage value first.
 				 */
-				ret = regulator_set_voltage(sram_reg, vsram * 9 / 10,
-							    vsram * 9 / 10);
+				ret = regulator_set_voltage(sram_reg, vsram,
+							    vsram);
 				if (ret)
 					ret = regulator_set_voltage(sram_reg,
-							vsram * 9 / 10,
-							vsram * 9 / 10);
+							vsram - VOLT_TOL,
+							vsram);
 
 				vproc = new_vproc;
 			} else {
-				ret = regulator_set_voltage(sram_reg, vsram * 9 / 10,
-							    vsram * 9 / 10 + VOLT_TOL);
+				ret = regulator_set_voltage(sram_reg, vsram,
+							    vsram + VOLT_TOL);
 
 				vproc = vsram - MIN_VOLT_SHIFT;
 			}
 			if (ret)
 				return ret;
 
-			ret = regulator_set_voltage(proc_reg, vproc * 9 / 10,
-						    vproc * 9 / 10 + VOLT_TOL);
+			ret = regulator_set_voltage(proc_reg, vproc,
+						    vproc + VOLT_TOL);
 			if (ret) {
-				regulator_set_voltage(sram_reg, old_vsram * 9 / 10,
-						      old_vsram * 9 / 10);
+				regulator_set_voltage(sram_reg, old_vsram,
+						      old_vsram);
 				return ret;
 			}
 		} while (vproc < new_vproc || vsram < new_vsram);
@@ -160,8 +160,8 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
 			}
 
 			vproc = max(new_vproc, old_vsram - MAX_VOLT_SHIFT);
-			ret = regulator_set_voltage(proc_reg, vproc * 9 / 10,
-						    vproc * 9 / 10 + VOLT_TOL);
+			ret = regulator_set_voltage(proc_reg, vproc,
+						    vproc + VOLT_TOL);
 			if (ret)
 				return ret;
 
@@ -177,20 +177,20 @@ static int mtk_cpufreq_voltage_tracking(struct mtk_cpu_dvfs_info *info,
 				 * If the target Vsram hits the maximum voltage,
 				 * try to set the exact voltage value first.
 				 */
-				ret = regulator_set_voltage(sram_reg, vsram * 9 / 10,
-							    vsram * 9 / 10);
+				ret = regulator_set_voltage(sram_reg, vsram,
+							    vsram);
 				if (ret)
 					ret = regulator_set_voltage(sram_reg,
-							vsram * 9 / 10,
-							vsram * 9 / 10);
+							vsram - VOLT_TOL,
+							vsram);
 			} else {
-				ret = regulator_set_voltage(sram_reg, vsram * 9 / 10,
-							    vsram * 9 / 10 + VOLT_TOL);
+				ret = regulator_set_voltage(sram_reg, vsram,
+							    vsram + VOLT_TOL);
 			}
 
 			if (ret) {
-				regulator_set_voltage(proc_reg, old_vproc * 9 / 10,
-						      old_vproc * 9 / 10);
+				regulator_set_voltage(proc_reg, old_vproc,
+						      old_vproc);
 				return ret;
 			}
 		} while (vproc > new_vproc + VOLT_TOL ||
@@ -205,8 +205,8 @@ static int mtk_cpufreq_set_voltage(struct mtk_cpu_dvfs_info *info, int vproc)
 	if (info->need_voltage_tracking)
 		return mtk_cpufreq_voltage_tracking(info, vproc);
 	else
-		return regulator_set_voltage(info->proc_reg, vproc * 9 / 10,
-					     vproc  * 9 / 10 + VOLT_TOL);
+		return regulator_set_voltage(info->proc_reg, vproc,
+					     vproc + VOLT_TOL);
 }
 
 static int mtk_cpufreq_set_target(struct cpufreq_policy *policy,
@@ -554,6 +554,7 @@ static const struct of_device_id mtk_cpufreq_machines[] __initconst = {
 
 	{ }
 };
+MODULE_DEVICE_TABLE(of, mtk_cpufreq_machines);
 
 static int __init mtk_cpufreq_driver_init(void)
 {

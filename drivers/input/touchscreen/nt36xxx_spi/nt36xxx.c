@@ -1563,13 +1563,8 @@ static int32_t nvt_ts_get_regulator(bool get)
 	} else {
         if (regulator_count_voltages(ts->pwr_vdd) > 0) {
             ret = regulator_set_voltage(ts->pwr_vdd,
-<<<<<<< HEAD
-                                        1800000,
-                                        1800000);
-=======
-                                        1600000,
-                                        1600000);
->>>>>>> parent of 42f7d1872dd3 (Undervolt and misc changes)
+                                        1500000,
+                                        1500000);
             if (ret) {
                 NVT_ERR("vddio regulator set_vtg failed,ret=%d", ret);
                 goto put_regulator;
