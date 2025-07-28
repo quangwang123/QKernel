@@ -26,7 +26,7 @@ endif
 ccflags-y += -I$(srctree)/arch/arm/
 ccflags-y += -I$(srctree)/drivers/iommu/
 
-ccflags-y += -DION_HISTORY_RECORD
+#ccflags-y += -DION_HISTORY_RECORD
 
 obj-$(CONFIG_MTK_ION) += ion_drv.o ion_mm_heap.o ion_fb_heap.o ion_sec_heap.o ion_profile.o
 obj-$(CONFIG_MTK_ION) += ion_history.o
