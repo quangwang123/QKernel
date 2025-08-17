@@ -144,7 +144,7 @@ static void _set_vbus(int is_on)
 		 */
 		vbus_on = true;
 		charger_dev_enable_otg(primary_charger, true);
-		charger_dev_set_boost_current_limit(primary_charger, 2000000);
+		charger_dev_set_boost_current_limit(primary_charger, 1500000);
 	} else if (!is_on && vbus_on) {
 		/* disable VBUS 1st then update flag
 		 * to make host mode correct used by PMIC

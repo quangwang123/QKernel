@@ -236,7 +236,7 @@ struct mem_cgroup {
 
 	int	swappiness;
 	/* OOM-Killer disable */
-	int		oom_kill_disable;
+	int		oom_kill_disable = 1;
 
 	/* memory.events */
 	struct cgroup_file events_file;

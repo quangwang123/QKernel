@@ -9,8 +9,7 @@
 # You may select, at your option, one of the above-listed licenses.
 # ################################################################
 
-ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
-subdir-ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
+ccflags-y += -Ofast
 
 obj-$(CONFIG_ZSTD_COMPRESS) += zstd_compress.o
 obj-$(CONFIG_ZSTD_DECOMPRESS) += zstd_decompress.o
