@@ -13,7 +13,7 @@
 /* mv */
 #define V_OF_FUSE_CPU 1000
 #define V_OF_FUSE_GPU 800
-#define V_OF_FUSE_VCORE 800
+#define V_OF_FUSE_VCORE 900
 #define V_OF_FUSE_VMD 800
 #define V_OF_FUSE_MODEM 800
 #define T_OF_FUSE 30
