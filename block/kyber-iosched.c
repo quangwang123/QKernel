@@ -344,8 +344,8 @@ static struct kyber_queue_data *kyber_queue_data_alloc(struct request_queue *q)
 	shift = kyber_sched_tags_shift(kqd);
 	kqd->async_depth = (1U << shift) * KYBER_ASYNC_PERCENT / 100U;
 
-	kqd->read_lat_nsec = 2000000ULL;
-	kqd->write_lat_nsec = 10000000ULL;
+	kqd->read_lat_nsec = 1ULL;
+	kqd->write_lat_nsec = 1ULL;
 
 	return kqd;
 
