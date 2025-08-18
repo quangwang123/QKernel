@@ -3062,7 +3062,7 @@ static int nvt_pm_suspend(struct device *dev)
 
 	ts->dev_pm_suspend = true;
 	reinit_completion(&ts->dev_pm_suspend_completion);
-	NVT_LOG("pm suspend");
+	//NVT_LOG("pm suspend");
 
 	return 0;
 }
@@ -3073,7 +3073,7 @@ static int nvt_pm_resume(struct device *dev)
 
 	ts->dev_pm_suspend = false;
 	complete(&ts->dev_pm_suspend_completion);
-	NVT_LOG("pm resume");
+	//NVT_LOG("pm resume");
 
 	return 0;
 }
