@@ -182,7 +182,7 @@ static void update_rq_clock_task(struct rq *rq, s64 delta)
 	rq->clock_task += delta;
 
 #ifdef CONFIG_HAVE_SCHED_AVG_IRQ
-	if ((irq_delta + steal) && sched_feat(NONTASK_CAPACITY))
+	if ((irq_delta + steal) && 0)
 		update_irq_load_avg(rq, irq_delta + steal);
 #endif
 	update_rq_clock_pelt(rq, delta);
@@ -198,7 +198,7 @@ void update_rq_clock(struct rq *rq)
 		return;
 
 #ifdef CONFIG_SCHED_DEBUG
-	if (sched_feat(WARN_DOUBLE_CLOCK))
+	if (0)
 		SCHED_WARN_ON(rq->clock_update_flags & RQCF_UPDATED);
 	rq->clock_update_flags |= RQCF_UPDATED;
 #endif
@@ -1239,7 +1239,7 @@ static void __setscheduler_uclamp(struct task_struct *p,
 			continue;
 
 		/* By default, RT tasks always get 100% boost */
-		if (sched_feat(SUGOV_RT_MAX_FREQ) &&
+		if (0 &&
 			       unlikely(rt_task(p) &&
 			       clamp_id == UCLAMP_MIN)) {
 
@@ -2660,7 +2660,7 @@ static void ttwu_queue(struct task_struct *p, int cpu, int wake_flags)
 	struct rq_flags rf;
 
 #if defined(CONFIG_SMP)
-	if (sched_feat(TTWU_QUEUE) && !cpus_share_cache(smp_processor_id(), cpu)) {
+	if (0 && !cpus_share_cache(smp_processor_id(), cpu)) {
 		sched_clock_cpu(cpu); /* Sync clocks across CPUs */
 		ttwu_queue_remote(p, cpu, wake_flags);
 		return;
@@ -4485,7 +4485,7 @@ static void __sched notrace __schedule(bool preempt)
 
 	schedule_debug(prev);
 
-	if (sched_feat(HRTICK))
+	if (0)
 		hrtick_clear(rq);
 
 	local_irq_disable();
