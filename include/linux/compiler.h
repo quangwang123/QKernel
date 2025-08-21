@@ -141,7 +141,7 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
 #define instrumentation_end()		((void)0)
 #endif
 
-// #ifndef ASM_UNREACHABLE
+#ifndef ASM_UNREACHABLE
 # define ASM_UNREACHABLE
 #endif
 #ifndef unreachable
