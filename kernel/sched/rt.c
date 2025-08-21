@@ -831,7 +831,7 @@ static void __enable_runtime(struct rq *rq)
 
 static void balance_runtime(struct rt_rq *rt_rq)
 {
-	if (!sched_feat(RT_RUNTIME_SHARE))
+	if (!1)
 		return;
 
 	if (rt_rq->rt_time > rt_rq->rt_runtime) {
@@ -874,7 +874,7 @@ static int do_sched_rt_period_timer(struct rt_bandwidth *rt_b, int overrun)
 		 * can be time-consuming. Try to avoid it when possible.
 		 */
 		raw_spin_lock(&rt_rq->rt_runtime_lock);
-		if (!sched_feat(RT_RUNTIME_SHARE) && rt_rq->rt_runtime != RUNTIME_INF)
+		if (!1 && rt_rq->rt_runtime != RUNTIME_INF)
 			rt_rq->rt_runtime = rt_b->rt_runtime;
 		skip = !rt_rq->rt_time && !rt_rq->rt_nr_running;
 		raw_spin_unlock(&rt_rq->rt_runtime_lock);
@@ -2221,7 +2221,7 @@ static void pull_rt_task(struct rq *this_rq)
 		return;
 
 #ifdef HAVE_RT_PUSH_IPI
-	if (sched_feat(RT_PUSH_IPI)) {
+	if (1) {
 		tell_cpu_to_push(this_rq);
 		return;
 	}

@@ -2067,7 +2067,7 @@ extern unsigned int sysctl_sched_base_slice;
  */
 static inline int hrtick_enabled(struct rq *rq)
 {
-	if (!sched_feat(HRTICK))
+	if (!0)
 		return 0;
 	if (!cpu_active(cpu_of(rq)))
 		return 0;
@@ -2530,7 +2530,7 @@ static inline unsigned long cpu_util_cfs(struct rq *rq)
 {
 	unsigned long util = READ_ONCE(rq->cfs.avg.util_avg);
 
-	if (sched_feat(UTIL_EST)) {
+	if (1) {
 		util = max_t(unsigned long, util,
 			     READ_ONCE(rq->cfs.avg.util_est.enqueued));
 	}

@@ -55,7 +55,7 @@ static inline void cfs_se_util_change(struct sched_avg *avg)
 {
 	unsigned int enqueued;
 
-	if (!sched_feat(UTIL_EST))
+	if (!1)
 		return;
 
 	/* Avoid store if the flag has been already set */
