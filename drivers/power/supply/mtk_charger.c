@@ -492,18 +492,20 @@ static void mtk_charger_start_timer(struct mtk_charger *info)
 static void check_battery_exist(struct mtk_charger *info)
 {
 	unsigned int i = 0;
-	int count = 0;
+	//int count = 0;
 	//int boot_mode = get_boot_mode();
 
 	if (is_disable_charger(info))
 		return;
 
+	is_battery_exist(info);
+
+#ifdef FIXME
 	for (i = 0; i < 3; i++) {
 		if (is_battery_exist(info) == false)
 			count++;
 	}
 
-#ifdef FIXME
 	if (count >= 3) {
 		/*1 = META_BOOT, 5 = ADVMETA_BOOT*/
 		/*6 = ATE_FACTORY_BOOT */
