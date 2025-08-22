@@ -11,9 +11,9 @@
 /* #define WITHOUT_LKG_EFUSE */
 
 /* mv */
-#define V_OF_FUSE_CPU 1000
-#define V_OF_FUSE_GPU 800
-#define V_OF_FUSE_VCORE 900
+#define V_OF_FUSE_CPU 1500
+#define V_OF_FUSE_GPU 900
+#define V_OF_FUSE_VCORE 1568
 #define V_OF_FUSE_VMD 800
 #define V_OF_FUSE_MODEM 800
 #define T_OF_FUSE 30
