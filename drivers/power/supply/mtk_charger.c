@@ -1581,6 +1581,7 @@ static int charger_routine_thread(void *arg)
 		spin_unlock_irqrestore(&info->slock, flags);
 		info->charger_thread_timeout = false;
 
+#if 0
 		info->battery_temp = get_battery_temperature(info);
 		chr_err("Vbat=%d vbus:%d ibus:%d I=%d T=%d uisoc:%d type:%s>%s pd:%d\n",
 			get_battery_voltage(info),
@@ -1592,6 +1593,7 @@ static int charger_routine_thread(void *arg)
 			dump_charger_type(info->chr_type),
 			dump_charger_type(get_charger_type(info)),
 			info->pd_type);
+#endif
 
 		is_charger_on = mtk_is_charger_on(info);
 
@@ -1615,17 +1617,11 @@ static int charger_routine_thread(void *arg)
 			info->can_charging == true) {
 			if (info->algo.do_algorithm)
 				info->algo.do_algorithm(info);
-		} else
-			chr_debug("disable charging %d %d %d\n",
-			is_disable_charger(info),
-			is_charger_on,
-			info->can_charging);
+		}
 
 		spin_lock_irqsave(&info->slock, flags);
 		__pm_relax(info->charger_wakelock);
 		spin_unlock_irqrestore(&info->slock, flags);
-		chr_debug("%s end , %d\n",
-			__func__, info->charger_thread_timeout);
 		mutex_unlock(&info->charger_lock);
 	}
 
