@@ -226,7 +226,7 @@ static unsigned int c65Tbl[NR_FREQ * NR_MT_CPU_DVFS][ARRAY_COL_SIZE] = {
 
 static unsigned int c62Tbl[NR_FREQ * NR_MT_CPU_DVFS][ARRAY_COL_SIZE] = {
 	/* Freq, Vproc, post_div, clk_div */
-	{ 3201, 96, 1, 1 },	/* L */
+	{ 2001, 96, 1, 1 },	/* L */
 	{ 1961, 88, 1, 1 },
 	{ 1927, 81, 1, 1 },
 	{ 1897, 75, 1, 1 },
