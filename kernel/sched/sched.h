@@ -2711,16 +2711,6 @@ static inline bool hmp_capable(void)
 	return max_possible_capacity != min_max_possible_capacity;
 }
 
-static inline bool is_max_capacity_cpu(int cpu)
-{
-	return cpu_max_possible_capacity(cpu) == max_possible_capacity;
-}
-
-static inline bool is_min_capacity_cpu(int cpu)
-{
-	return cpu_max_possible_capacity(cpu) == min_max_possible_capacity;
-}
-
 static inline unsigned int task_load(struct task_struct *p)
 {
 	return p->ravg.demand;
@@ -2821,15 +2811,6 @@ static inline void restore_cgroup_boost_settings(void) { }
 extern int alloc_related_thread_groups(void);
 extern int entity_eligible(struct cfs_rq *cfs_rq, struct sched_entity *se);
 
-extern void check_for_migration(struct rq *rq, struct task_struct *p);
-
-static inline int is_reserved(int cpu)
-{
-	struct rq *rq = cpu_rq(cpu);
-
-	return test_bit(CPU_RESERVED, &rq->walt_flags);
-}
-
 static inline int mark_reserved(int cpu)
 {
 	struct rq *rq = cpu_rq(cpu);
@@ -2921,8 +2902,6 @@ static inline bool task_placement_boost_enabled(struct task_struct *p)
 	return false;
 }
 
-static inline void check_for_migration(struct rq *rq, struct task_struct *p) { }
-
 static inline int sched_boost(void)
 {
 	return 0;
@@ -2950,8 +2929,6 @@ task_in_cum_window_demand(struct rq *rq, struct task_struct *p)
 }
 
 static inline bool hmp_capable(void) { return false; }
-static inline bool is_max_capacity_cpu(int cpu) { return true; }
-static inline bool is_min_capacity_cpu(int cpu) { return true; }
 
 static inline int
 preferred_cluster(struct sched_cluster *cluster, struct task_struct *p)
@@ -3019,11 +2996,6 @@ static inline unsigned long thermal_cap(int cpu)
 #endif
 
 static inline void clear_walt_request(int cpu) { }
-
-static inline int is_reserved(int cpu)
-{
-	return 0;
-}
 
 static inline enum sched_boost_policy sched_boost_policy(void)
 {

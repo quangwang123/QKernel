@@ -9018,9 +9018,9 @@ static inline void update_sg_lb_stats(struct lb_env *env,
 		if ((env->flags & LBF_NOHZ_STATS) && update_nohz_stats(rq))
 			env->flags |= LBF_NOHZ_AGAIN;
 
-#ifdef CONFIG_MTK_SCHED_INTEROP
-		load  += mt_rt_load(i);
-#endif
+// #ifdef CONFIG_MTK_SCHED_INTEROP
+// 		load  += mt_rt_load(i);
+// #endif
 
 		sgs->group_load += cpu_runnable_load(rq);
 		sgs->group_util += cpu_util(i);
@@ -9561,9 +9561,9 @@ static struct rq *find_busiest_queue(struct lb_env *env,
 
 		load = cpu_runnable_load(rq);
 
-#ifdef CONFIG_MTK_SCHED_INTEROP
-		wl += mt_rt_load(i);
-#endif
+// #ifdef CONFIG_MTK_SCHED_INTEROP
+// 		wl += mt_rt_load(i);
+// #endif
 
 		/*
 		 * When comparing with imbalance, use cpu_runnable_load()
