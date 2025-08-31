@@ -97,6 +97,8 @@ static inline int try_stop_cpus(const struct cpumask *cpumask,
 
 #endif	/* CONFIG_SMP */
 
+extern void rcu_momentary_dyntick_idle(void);
+
 /*
  * stop_machine "Bogolock": stop the entire machine, disable
  * interrupts.  This is a very heavy lock, which is equivalent to
