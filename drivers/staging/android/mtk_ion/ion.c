@@ -1160,7 +1160,7 @@ void ion_client_destroy(struct ion_client *client)
 	pid_t pid;
 	unsigned long long time_s, time_e_lock, time_e_unlock;
 
-	pr_debug("%s: %d\n", __func__, __LINE__);
+	// pr_debug("%s: %d\n", __func__, __LINE__);
 	get_task_comm(task_comm, task);
 	pid = task_pid_nr(task);
 	time_s = sched_clock();
@@ -1169,7 +1169,7 @@ void ion_client_destroy(struct ion_client *client)
 						     node);
 
 		mutex_lock(&client->lock);
-		IONMSG("%s:dbg=%s\n",__func__,client->dbg_name);
+		// IONMSG("%s:dbg=%s\n",__func__,client->dbg_name);
 		ion_handle_destroy(&handle->ref);
 		mutex_unlock(&client->lock);
 	}
