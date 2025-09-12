@@ -3559,7 +3559,7 @@ firmware_class.path=/vendor/firmware";
 		max_charge_temp_minus_x_degree = <47>;
 
 		/* charging current */
-		usb_charger_current = <2048000>;
+		usb_charger_current = <500000>;
 		ac_charger_current = <2048000>;
 		ac_charger_input_current = <2180000>;
 		charging_host_charger_current = <1500000>;
