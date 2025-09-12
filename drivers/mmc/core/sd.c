@@ -594,6 +594,9 @@ static int mmc_sd_init_uhs_card(struct mmc_card *card)
 	int err;
 	u8 *status;
 
+	if (!card->scr.sda_spec3)
+		return 0;
+
 	if (!(card->csd.cmdclass & CCC_SWITCH))
 		return 0;
 
@@ -602,11 +605,14 @@ static int mmc_sd_init_uhs_card(struct mmc_card *card)
 		return -ENOMEM;
 
 	/* Set 4-bit bus width */
-	err = mmc_app_set_bus_width(card, MMC_BUS_WIDTH_4);
-	if (err)
-		goto out;
+	if ((card->host->caps & MMC_CAP_4_BIT_DATA) &&
+	    (card->scr.bus_widths & SD_SCR_BUS_WIDTH_4)) {
+		err = mmc_app_set_bus_width(card, MMC_BUS_WIDTH_4);
+		if (err)
+			goto out;
 
-	mmc_set_bus_width(card->host, MMC_BUS_WIDTH_4);
+		mmc_set_bus_width(card->host, MMC_BUS_WIDTH_4);
+	}
 
 	/*
 	 * Select the bus speed mode depending on host
@@ -1043,7 +1049,7 @@ retry:
 	}
 
 	/* Initialization sequence for UHS-I cards */
-	if (rocr & SD_ROCR_S18A && mmc_host_uhs(host)) {
+	if (rocr & SD_ROCR_S18A) {
 		err = mmc_sd_init_uhs_card(card);
 		if (err)
 			goto free_card;
