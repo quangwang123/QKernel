@@ -37,8 +37,8 @@
 
 &msdc1 {
 	index = /bits/ 8 <1>;
-	clk_src = /bits/ 8 <MSDC1_CLKSRC_200MHZ>;
-	bus-width = <4>;
+	clk_src = /bits/ 8 <MSDC1_CLKSRC_208MHZ>;
+	bus-width = <8>;
 	max-frequency = <200000000>;
 	cap-sd-highspeed;
 	sd-uhs-sdr12;
