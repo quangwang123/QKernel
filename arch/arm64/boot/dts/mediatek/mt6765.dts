@@ -3392,13 +3392,13 @@ firmware_class.path=/vendor/firmware";
 		fast_charge_voltage = <3000000>;
 
 		/* charging current */
-		usb_charger_current = <2048000>;
-		ac_charger_current = <2048000>;
+		usb_charger_current = <500000>;
+		ac_charger_current = <1500000>;
 		ac_charger_input_current = <3200000>;
-		non_std_ac_charger_current = <2048000>;
-		charging_host_charger_current = <2048000>;
+		non_std_ac_charger_current = <1020000>;
+		charging_host_charger_current = <1500000>;
 		ta_ac_charger_current = <3000000>;
-		pd_charger_current = <2048000>;
+		pd_charger_current = <500000>;
 
 		/* battery temperature protection */
 		temp_t4_threshold = <50>;
