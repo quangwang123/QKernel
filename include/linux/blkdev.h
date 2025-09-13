@@ -45,7 +45,7 @@ struct blk_queue_stats;
 struct blk_stat_callback;
 struct keyslot_manager;
 
-#define BLKDEV_MIN_RQ	2
+#define BLKDEV_MIN_RQ	1
 #define BLKDEV_MAX_RQ	128	/* Default maximum */
 
 /* Must be consistent with blk_mq_poll_stats_bkt() */
