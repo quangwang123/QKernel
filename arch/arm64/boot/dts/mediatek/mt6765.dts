@@ -245,7 +245,7 @@ firmware_class.path=/vendor/firmware";
 			opp-microvolt = <1068750>;
 		};
 		opp15 {
-			opp-hz = /bits/ 64 <1151000000>;
+			opp-hz = /bits/ 64 <1201000000>;
 			opp-microvolt = <1268750>;
 		};
 	};

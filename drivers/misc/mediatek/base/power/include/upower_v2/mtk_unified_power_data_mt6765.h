@@ -1197,7 +1197,7 @@ struct upower_tbl upower_tbl_cci_C62 = {
 			.lkg_pwr = {11262, 11262, 11262, 11262, 11262, 11262} },
 		{.cap = 0, .volt = 106875, .dyn_pwr = 20005,
 			.lkg_pwr = {12652, 12652, 12652, 12652, 12652, 12652} },
-		{.cap = 0, .volt = 116875, .dyn_pwr = 23042,
+		{.cap = 0, .volt = 126875, .dyn_pwr = 23042,
 			.lkg_pwr = {14572, 14572, 14572, 14572, 14572, 14572} },
 	},
 	.lkg_idx = DEFAULT_LKG_IDX,
