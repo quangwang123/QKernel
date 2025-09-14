@@ -27,8 +27,8 @@
 
 #define MIN_VOLT_SHIFT		(100000)
 #define MAX_VOLT_SHIFT		(200000)
-#define MAX_VOLT_LIMIT		(1550000)
-#define VOLT_TOL		(15000)
+#define MAX_VOLT_LIMIT		(1850000)
+#define VOLT_TOL		(18000)
 
 /*
  * The struct mtk_cpu_dvfs_info holds necessary information for doing CPU DVFS
