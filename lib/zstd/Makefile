@@ -11,6 +11,9 @@
 
 ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
 subdir-ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
+ccflags-y += -mllvm -inline-threshold=3750
+ccflags-y += -mllvm -unroll-threshold=2000
+ccflags-y += -mllvm -inlinehint-threshold=1800
 
 obj-$(CONFIG_ZSTD_COMPRESS) += zstd_compress.o
 obj-$(CONFIG_ZSTD_DECOMPRESS) += zstd_decompress.o

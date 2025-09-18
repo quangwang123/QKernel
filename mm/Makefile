@@ -3,6 +3,7 @@
 # Makefile for the linux memory manager.
 #
 
+ccflags-y += -O3 -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
 ccflags-y += -fforce-emit-vtables
 ccflags-y += -mllvm --enable-merge-functions
 ccflags-y += -mllvm -inline-threshold=343
