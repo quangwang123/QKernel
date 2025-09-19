@@ -5578,9 +5578,6 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
 			shrink_node_memcg(pgdat, memcg, sc, &lru_pages);
 			node_lru_pages += lru_pages;
 
-			shrink_slab(sc->gfp_mask, pgdat->node_id,
-				    memcg, sc->priority);
-
 			/* Record the group's reclaim efficiency */
 			vmpressure(sc->gfp_mask, memcg, false,
 				   sc->nr_scanned - scanned,
@@ -6678,6 +6675,43 @@ kswapd_try_sleep:
 	return 0;
 }
 
+static int kshrinkd(void *pgdat)
+{
+	pg_data_t *p = pgdat;
+
+	/* This is technically a kswapd thread */
+	current->flags |= PF_KSWAPD;
+	set_freezable();
+	while (1) {
+		unsigned int pri = DEF_PRIORITY;
+		bool stop;
+
+		wait_event_freezable(p->kshrinkd_wait,
+				     (stop = kthread_should_stop()) ||
+				     atomic_long_read(&kshrinkd_waiters));
+		if (unlikely(stop))
+			break;
+
+		/* Shrink slabs on both kswapd and direct reclaimers' behalf */
+		while (1) {
+			struct mem_cgroup *memcg = NULL;
+
+			do {
+				shrink_slab(GFP_KERNEL, p->node_id, memcg, pri);
+			} while ((memcg = mem_cgroup_iter(NULL, memcg, NULL)));
+
+			if (!atomic_long_read(&kshrinkd_waiters))
+				break;
+
+			/* Iterate down each possible priority and then wrap */
+			pri = (pri - 1) % (DEF_PRIORITY + 1);
+		}
+	}
+	current->flags &= ~PF_KSWAPD;
+
+	return 0;
+}
+
 /*
  * A zone is low on free memory or too fragmented for high-order memory.  If
  * kswapd should reclaim (direct reclaim is deferred), wake it up for the zone's
@@ -6727,6 +6761,7 @@ void wakeup_kswapd(struct zone *zone, gfp_t gfp_flags, int order,
 	trace_mm_vmscan_wakeup_kswapd(pgdat->node_id, classzone_idx, order,
 				      gfp_flags);
 	wake_up_interruptible(&pgdat->kswapd_wait);
+	wake_up_interruptible(&pgdat->kshrinkd_wait);
 }
 
 #ifdef CONFIG_HIBERNATION
@@ -6804,6 +6839,16 @@ int kswapd_run(int nid)
 	if (pgdat->kswapd)
 		return 0;
 
+	pgdat->kshrinkd = kthread_run(kshrinkd, pgdat, "kshrinkd%d", nid);
+	if (IS_ERR(pgdat->kshrinkd)) {
+		/* failure at boot is fatal */
+		BUG_ON(system_state < SYSTEM_RUNNING);
+		pr_err("Failed to start kshrinkd on node %d\n", nid);
+		ret = PTR_ERR(pgdat->kshrinkd);
+		pgdat->kshrinkd = NULL;
+		return ret;
+	}
+
 	pgdat->kswapd = kthread_run(kswapd, pgdat, "kswapd%d", nid);
 	if (IS_ERR(pgdat->kswapd)) {
 		/* failure at boot is fatal */
@@ -6811,7 +6856,29 @@ int kswapd_run(int nid)
 		pr_err("Failed to start kswapd on node %d\n", nid);
 		ret = PTR_ERR(pgdat->kswapd);
 		pgdat->kswapd = NULL;
+		kthread_stop(pgdat->kshrinkd);
+		pgdat->kshrinkd = NULL;
 	}
+
+	ret = kfifo_alloc(&pgdat->kcompress_fifo,
+			KCOMPRESS_FIFO_SIZE * sizeof(struct folio *),
+			GFP_KERNEL);
+	if (ret) {
+		pr_err("%s: fail to kfifo_alloc\n", __func__);
+		return ret;
+	}
+
+	pgdat->kcompressd = kthread_create_on_node(kcompressd, pgdat, nid,
+			"kcompressd%d", nid);
+	if (IS_ERR(pgdat->kcompressd)) {
+		pr_err("Failed to start kcompressd on node %d，ret=%ld\n",
+				nid, PTR_ERR(pgdat->kcompressd));
+		pgdat->kcompressd = NULL;
+		kfifo_free(&pgdat->kcompress_fifo);
+	} else {
+		wake_up_process(pgdat->kcompressd);
+	}
+
 	return ret;
 }
 
@@ -6821,11 +6888,24 @@ int kswapd_run(int nid)
  */
 void kswapd_stop(int nid)
 {
-	struct task_struct *kswapd = NODE_DATA(nid)->kswapd;
+	pg_data_t *pgdat = NODE_DATA(nid);
+	struct task_struct *kswapd = pgdat->kswapd;
+	struct task_struct *kshrinkd = NODE_DATA(nid)->kshrinkd;
 
 	if (kswapd) {
 		kthread_stop(kswapd);
-		NODE_DATA(nid)->kswapd = NULL;
+		pgdat->kswapd = NULL;
+	}
+
+	if (pgdat->kcompressd) {
+		kthread_stop(pgdat->kcompressd);
+		pgdat->kcompressd = NULL;
+		kfifo_free(&pgdat->kcompress_fifo);
+	}
+
+	if (kshrinkd) {
+		kthread_stop(kshrinkd);
+		NODE_DATA(nid)->kshrinkd = NULL;
 	}
 }
 
@@ -7007,7 +7087,7 @@ int node_reclaim(struct pglist_data *pgdat, gfp_t gfp_mask, unsigned int order)
 		return NODE_RECLAIM_NOSCAN;
 
 	ret = __node_reclaim(pgdat, gfp_mask, order);
-	clear_bit(PGDAT_RECLAIM_LOCKED, &pgdat->flags);
+	clear_bit_unlock(PGDAT_RECLAIM_LOCKED, &pgdat->flags);
 
 	if (!ret)
 		count_vm_event(PGSCAN_ZONE_RECLAIM_FAILED);
