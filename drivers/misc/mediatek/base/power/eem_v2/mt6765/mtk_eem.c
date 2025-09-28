@@ -88,7 +88,7 @@ wait_queue_head_t wqStress;
 struct task_struct *threadStress;
 #endif
 
-static unsigned int ctrl_EEM_Enable = 1;
+static unsigned int ctrl_EEM_Enable = 0;
 /* Get time stmp to known the time period */
 static unsigned long long eem_pTime_us, eem_cTime_us, eem_diff_us;
 
