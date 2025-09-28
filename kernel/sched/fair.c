@@ -7393,7 +7393,7 @@ unlock:
 	if (prev_energy == ULONG_MAX)
 		return best_energy_cpu;
 
-#ifdef CONFIG_EXP_SCHED_OPTIM
+#ifdef CONFIG_MTK_SCHED_LB_ENHANCEMENT
 	if (prev_energy > best_energy)
 		return best_energy_cpu;
 
@@ -9397,7 +9397,7 @@ static struct sched_group *find_busiest_group(struct lb_env *env)
 
 	if (sched_energy_enabled()) {
 		struct root_domain *rd = env->dst_rq->rd;
-#ifdef CONFIG_EXP_SCHED_OPTIM
+#ifdef CONFIG_MTK_SCHED_LB_ENHANCEMENT
 		if (sds.busiest) {
 			int local_cpu, busiest_cpu;
 			local_cpu = env->dst_cpu;
