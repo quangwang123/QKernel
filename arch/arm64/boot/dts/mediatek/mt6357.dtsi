@@ -186,15 +186,15 @@
 		};
 		mt_pmic_vcore_buck_reg: buck_vcore {
 			regulator-name = "vcore";
-			regulator-min-microvolt = <1868749>;
-			regulator-max-microvolt = <1868750>;
+			regulator-min-microvolt = <518750>;
+			regulator-max-microvolt = <1312500>;
 			regulator-ramp-delay = <6250>;
 			regulator-enable-ramp-delay = <220>;
 		};
 		mt_pmic_vproc_buck_reg: buck_vproc {
 			regulator-name = "vproc";
-			regulator-min-microvolt = <1812499>;
-			regulator-max-microvolt = <1812500>;
+			regulator-min-microvolt = <518750>;
+			regulator-max-microvolt = <1312500>;
 			regulator-ramp-delay = <6250>;
 			regulator-enable-ramp-delay = <220>;
 		};
