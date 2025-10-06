@@ -35,8 +35,8 @@ extern "C" {
 #endif
 #define COBRA_OPP_NUM	(DVFS_OPP_NUM)
 #define TOTAL_CORE_NUM	(CORE_NUM_L+CORE_NUM_B)
-#define CORE_NUM_L	(6)
-#define CORE_NUM_B	(2)
+#define CORE_NUM_L	(4)
+#define CORE_NUM_B	(4)
 
 
 #define PPM_COBRA_TBL_SRAM_ADDR	(0x0011B800)
