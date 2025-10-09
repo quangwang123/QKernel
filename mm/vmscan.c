@@ -152,7 +152,7 @@ struct scan_control {
 /*
  * Number of active kswapd threads
  */
-#define DEF_KSWAPD_THREADS_PER_NODE 1
+#define DEF_KSWAPD_THREADS_PER_NODE 2
 int kswapd_threads = DEF_KSWAPD_THREADS_PER_NODE;
 int kswapd_threads_current = DEF_KSWAPD_THREADS_PER_NODE;
 
@@ -6964,18 +6964,18 @@ int kswapd_run(int nid)
 void kswapd_stop(int nid)
 {
 	pg_data_t *pgdat = NODE_DATA(nid);
-	struct task_struct *kswapd = pgdat->kswapd;
+	struct task_struct *kswapd;
 	struct task_struct *kshrinkd = NODE_DATA(nid)->kshrinkd;
 	int hid;
 	int nr_threads = kswapd_threads_current;
 
 	for (hid = 0; hid < nr_threads; hid++) {
-		kswapd = pgdat->kswapd[hid];
+		kswapd = NODE_DATA(nid)->kswapd[hid];
 		if (kswapd) {
 			kthread_stop(kswapd);
-			pgdat->kswapd[hid] = NULL;
+			NODE_DATA(nid)->kswapd[hid] = NULL;
 		}
-	}
+ 	}
 	
 	if (pgdat->kcompressd) {
 		kthread_stop(pgdat->kcompressd);
