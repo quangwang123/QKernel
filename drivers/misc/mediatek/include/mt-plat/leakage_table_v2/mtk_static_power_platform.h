@@ -11,9 +11,9 @@
 /* #define WITHOUT_LKG_EFUSE */
 
 /* mv */
-#define V_OF_FUSE_CPU	900
+#define V_OF_FUSE_CPU	1800
 #define V_OF_FUSE_GPU	800
-#define V_OF_FUSE_VCORE	800
+#define V_OF_FUSE_VCORE	1868
 #define V_OF_FUSE_MODEM	850
 #define V_OF_FUSE_VPU	800
 #define T_OF_FUSE		30
@@ -89,9 +89,9 @@ extern struct spower_leakage_info spower_lkg_info[MTK_SPOWER_MAX];
 #define MODEM_DEVINFO_DOMAIN (BIT(MTK_SPOWER_MODEM))
 #define VPU_DEVINFO_DOMAIN (BIT(MTK_SPOWER_VPU))
 /* used to calculate total leakage that search from raw table */
-#define DEFAULT_CORE_INSTANCE 4
-#define DEFAULT_LL_CORE_INSTANCE 6
-#define DEFAULT_L_CORE_INSTANCE 2
+#define DEFAULT_CORE_INSTANCE 8
+#define DEFAULT_LL_CORE_INSTANCE 4
+#define DEFAULT_L_CORE_INSTANCE 4
 #define DEFAULT_INSTANCE 1
 
 extern char *spower_name[];
