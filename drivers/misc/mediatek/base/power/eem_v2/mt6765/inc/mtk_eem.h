@@ -10,7 +10,7 @@
 #include <mt-plat/sync_write.h>
 #include "mtk_eem_config.h"
 
-#define EN_EEM (1) /* enable/disable EEM (SW) */
+#define EN_EEM (0) /* enable/disable EEM (SW) */
 
 /* have 5 banks */
 enum eem_ctrl_id {
