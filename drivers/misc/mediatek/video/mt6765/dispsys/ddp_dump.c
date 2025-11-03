@@ -3,6 +3,7 @@
  * Copyright (c) 2019 MediaTek Inc.
  */
 
+#if 0
 #define LOG_TAG "dump"
 
 #include "ddp_reg.h"
@@ -1632,3 +1633,30 @@ int ddp_dump_analysis(enum DISP_MODULE_ENUM module)
 	}
 	return 0;
 }
+
+#else
+static inline void mutex_dump_reg(void) {}
+static inline void mutex_dump_analysis(void) {}
+static inline void mmsys_config_dump_reg(void) {}
+static inline void mmsys_config_dump_analysis(void) {}
+static inline void gamma_dump_reg(enum DISP_MODULE_ENUM module) {}
+static inline void gamma_dump_analysis(enum DISP_MODULE_ENUM module) {}
+static inline void aal_dump_reg(enum DISP_MODULE_ENUM module) {}
+static inline void aal_dump_analysis(enum DISP_MODULE_ENUM module) {}
+static inline void pwm_dump_reg(enum DISP_MODULE_ENUM module) {}
+static inline void pwm_dump_analysis(enum DISP_MODULE_ENUM module) {}
+static inline void ccorr_dump_reg(enum DISP_MODULE_ENUM module) {}
+static inline void ccorr_dump_analyze(enum DISP_MODULE_ENUM module) {}
+static inline void dither_dump_reg(enum DISP_MODULE_ENUM module) {}
+static inline void dither_dump_analyze(enum DISP_MODULE_ENUM module) {}
+
+int ddp_dump_reg(enum DISP_MODULE_ENUM module)
+{
+	return 0;
+}
+
+int ddp_dump_analysis(enum DISP_MODULE_ENUM module)
+{
+	return 0;
+}
+#endif

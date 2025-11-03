@@ -6,6 +6,7 @@
 #ifndef _DDP_DUMP_H_
 #define _DDP_DUMP_H_
 
+#if 0
 #include "ddp_info.h"
 #include "ddp_path.h"
 
@@ -47,4 +48,5 @@ enum DISP_ENGINE_SIGNAL0 {
 char *ddp_get_fmt_name(enum DISP_MODULE_ENUM module, unsigned int fmt);
 int ddp_dump_analysis(enum DISP_MODULE_ENUM module);
 int ddp_dump_reg(enum DISP_MODULE_ENUM module);
+#endif
 #endif
