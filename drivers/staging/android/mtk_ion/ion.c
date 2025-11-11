@@ -730,13 +730,10 @@ struct ion_handle *ion_alloc(struct ion_client *client, size_t len,
 	ion_history_count_kick(true, len);
 #endif
 #endif
-<<<<<<< HEAD
 
 	handle->dbg.user_ts = end;
 	do_div(handle->dbg.user_ts, 1000000);
 	memcpy(buffer->alloc_dbg, client->dbg_name, ION_MM_DBG_NAME_LEN);
-=======
->>>>>>> 32535d677e74 ([ALPS05548993] iommu: mediatek: drivers: turn_off ion_history)
 
 	return handle;
 }
