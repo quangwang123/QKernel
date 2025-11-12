@@ -10,6 +10,8 @@
 #
 # Copyright (C) 1995-2001 by Russell King
 
+subdir-ccflags-y += -flto
+
 LDFLAGS_vmlinux	:= --no-undefined -X --pic-veneer
 ifeq ($(CONFIG_CPU_ENDIAN_BE8),y)
 LDFLAGS_vmlinux	+= --be8
