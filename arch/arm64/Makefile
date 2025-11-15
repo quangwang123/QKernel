@@ -10,7 +10,9 @@
 #
 # Copyright (C) 1995-2001 by Russell King
 
+ifdef CONFIG_MINIMAL_LTO
 subdir-ccflags-y += -flto
+endif
 
 LDFLAGS_vmlinux	:=--no-undefined -X
 CPPFLAGS_vmlinux.lds = -DTEXT_OFFSET=$(TEXT_OFFSET)

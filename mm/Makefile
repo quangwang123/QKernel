@@ -3,12 +3,17 @@
 # Makefile for the linux memory manager.
 #
 
-ccflags-y += -O3 -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a -flto
+ccflags-y += -O3 -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
 ccflags-y += -fforce-emit-vtables
 ccflags-y += -mllvm --enable-merge-functions
 ccflags-y += -mllvm -inline-threshold=343
 ccflags-y += -mllvm -unroll-threshold=98
 ccflags-y += -mllvm -inlinehint-threshold=169
+
+ifdef CONFIG_MINIMAL_LTO
+ccflags-y += -flto
+subdir-ccflags-y += -flto
+endif
 
 KASAN_SANITIZE_slab_common.o := n
 KASAN_SANITIZE_slab.o := n

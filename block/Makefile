@@ -1,6 +1,12 @@
 # SPDX-License-Identifier: GPL-2.0
 #
 # Makefile for the kernel block layer
+
+ifdef CONFIG_MINIMAL_LTO
+ccflags-y += -flto
+subdir-ccflags-y += -flto
+endif
+
 #
 KBUILD_CFLAGS += -Wno-align-mismatch
 ccflags-y += -I$(srctree)/drivers/mmc/core

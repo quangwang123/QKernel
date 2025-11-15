@@ -3,6 +3,11 @@
 # Makefile for some libs needed in the kernel.
 #
 
+ifdef CONFIG_MINIMAL_LTO
+ccflags-y += -flto
+subdir-ccflags-y += -flto
+endif
+
 ifdef CONFIG_FUNCTION_TRACER
 ORIG_CFLAGS := $(KBUILD_CFLAGS)
 KBUILD_CFLAGS = $(subst $(CC_FLAGS_FTRACE),,$(ORIG_CFLAGS))
