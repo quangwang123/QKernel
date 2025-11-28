@@ -149,8 +149,8 @@ do {			\
 
 #define CMDQ_VERBOSE(string, args...) \
 do {			\
-	if (cmdq_core_should_print_msg()) { \
-		pr_no_debug("[CMDQ]"string, ##args); \
+	if (0) { \
+		pr_debug("[CMDQ]"string, ##args); \
 }			\
 } while (0)
 
