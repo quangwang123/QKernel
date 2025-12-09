@@ -38,7 +38,7 @@
 #endif
 
 #define MAX_CPU_FREQ (3 * 1024 * 1024) /* in kHZ */
-#define MAX_CLUSTER_NUM  3
+#define MAX_CLUSTER_NUM  2
 
 #if KERNEL_VERSION(5, 4, 0) <= CFG80211_VERSION_CODE || !defined(CONFIG_MTK_CPU_CTRL)
 #else
