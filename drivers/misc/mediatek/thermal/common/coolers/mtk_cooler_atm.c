@@ -1275,7 +1275,6 @@ static int P_adaptive(int total_power, unsigned int gpu_loading)
 	// Force max power everytime
 	cpu_power = MAXIMUM_CPU_POWER;
 	gpu_power = MAXIMUM_GPU_POWER;
-	}
 
 #if defined(DDR_STRESS_WORKAROUND)
 	if (tscpu_g_curr_temp > 70000) {
