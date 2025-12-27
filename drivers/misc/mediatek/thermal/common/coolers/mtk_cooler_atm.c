@@ -779,7 +779,7 @@ static void set_adaptive_cpu_power_limit(unsigned int limit)
 #endif
 
 	prv_adp_cpu_pwr_lim = adaptive_cpu_power_limit;
-	adaptive_cpu_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	adaptive_cpu_power_limit = 0x7FFFFFFF;
 #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
 #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
@@ -863,7 +863,7 @@ static void set_adaptive_gpu_power_limit(unsigned int limit)
 #endif
 
 	prv_adp_gpu_pwr_lim = adaptive_gpu_power_limit;
-	adaptive_gpu_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	adaptive_gpu_power_limit = 0x7FFFFFFF;
 #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
 #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
@@ -1272,81 +1272,9 @@ static int P_adaptive(int total_power, unsigned int gpu_loading)
 		return 0;
 	}
 
-	if (total_power <= MINIMUM_TOTAL_POWER) {
-		cpu_power = MINIMUM_CPU_POWER;
-		gpu_power = MINIMUM_GPU_POWER;
-	} else if (total_power >= MAXIMUM_TOTAL_POWER) {
-		cpu_power = MAXIMUM_CPU_POWER;
-		gpu_power = MAXIMUM_GPU_POWER;
-	} else {
-		if (mtk_gpu_power != NULL) {
-			int max_allowed_gpu_power =
-				MIN((total_power - MINIMUM_CPU_POWER),
-							MAXIMUM_GPU_POWER);
-
-			int max_gpu_power = (int) mt_gpufreq_get_max_power();
-			int highest_possible_gpu_power =
-				(max_allowed_gpu_power > max_gpu_power) ?
-							(max_gpu_power+1) : -1;
-
-			/* int highest_possible_gpu_power_idx = 0; */
-			int i = gpu_max_opp;
-
-			unsigned int cur_gpu_freq = mt_gpufreq_get_cur_freq();
-			/* int cur_idx = 0; */
-			unsigned int cur_gpu_power = 0;
-			unsigned int next_lower_gpu_power = 0;
-
-			/* get GPU highest possible power and index and
-			 * current power and index and next lower power
-			 */
-			for (; i < Num_of_GPU_OPP; i++) {
-				if ((mtk_gpu_power[i].gpufreq_power <=
-					max_allowed_gpu_power) &&
-					(-1 == highest_possible_gpu_power)) {
-					/* choose OPP with power "<=" limit */
-					highest_possible_gpu_power =
-					mtk_gpu_power[i].gpufreq_power + 1;
-					/* highest_possible_gpu_power_idx = i;*/
-				}
-
-				if (mtk_gpu_power[i].gpufreq_khz ==
-				cur_gpu_freq) {
-					/* choose OPP with power "<=" limit */
-					next_lower_gpu_power = cur_gpu_power
-					= (mtk_gpu_power[i].gpufreq_power + 1);
-					/* cur_idx = i; */
-
-					if ((i != Num_of_GPU_OPP - 1) &&
-					(mtk_gpu_power[i + 1].gpufreq_power
-					>= MINIMUM_GPU_POWER)) {
-					/* choose OPP with power "<=" limit */
-						next_lower_gpu_power =
-							mtk_gpu_power[i + 1]
-							.gpufreq_power + 1;
-					}
-				}
-			}
-
-			/* decide GPU power limit by loading */
-			if (gpu_loading > GPU_L_H_TRIP) {
-				gpu_power = highest_possible_gpu_power;
-			} else if (gpu_loading <= GPU_L_L_TRIP) {
-				gpu_power = MIN(next_lower_gpu_power,
-						highest_possible_gpu_power);
-
-				gpu_power = MAX(gpu_power, MINIMUM_GPU_POWER);
-			} else {
-				gpu_power = MIN(highest_possible_gpu_power,
-								cur_gpu_power);
-
-				gpu_power = MAX(gpu_power, MINIMUM_GPU_POWER);
-			}
-		}  else {
-			gpu_power = 0;
-		}
-
-		cpu_power = MIN((total_power - gpu_power), MAXIMUM_CPU_POWER);
+	// Force max power everytime
+	cpu_power = MAXIMUM_CPU_POWER;
+	gpu_power = MAXIMUM_GPU_POWER;
 	}
 
 #if defined(DDR_STRESS_WORKAROUND)
@@ -1413,14 +1341,14 @@ static int P_adaptive(int total_power, unsigned int gpu_loading)
 #endif
 
 	if (cpu_power != last_cpu_power)
-		set_adaptive_cpu_power_limit(cpu_power);
+		set_adaptive_cpu_power_limit(MAXIMUM_CPU_POWER);
 
 	if ((gpu_power != last_gpu_power) && (mtk_gpu_power != NULL)) {
 		/* Work-around for unsync GPU power table problem 1. */
 		if (gpu_power >= mtk_gpu_power[gpu_max_opp].gpufreq_power)
 			set_adaptive_gpu_power_limit(0);
 		else
-			set_adaptive_gpu_power_limit(gpu_power);
+			set_adaptive_gpu_power_limit(MAXIMUM_GPU_POWER);
 	}
 
 	tscpu_dprintk("%s cpu %d, gpu %d\n", __func__, cpu_power, gpu_power);
