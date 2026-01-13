@@ -13,8 +13,8 @@ struct blk_mq_tag_set;
 struct blk_mq_ctx {
 	struct {
 		spinlock_t		lock;
-		struct list_head	rq_lists[HCTX_MAX_TYPES];
-	} ____cacheline_aligned_in_smp;
+		struct list_head	rq_list;
+	}  ____cacheline_aligned_in_smp;
 
 	unsigned int		cpu;
 	unsigned int		index_hw;
