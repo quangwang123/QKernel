@@ -7,7 +7,7 @@
 # 
 
 ifdef CONFIG_MINIMAL_LTO
-ccflags-y += -flto
+ccflags-y += -flto=thin
 subdir-ccflags-y += -flto=thin
 endif
 
