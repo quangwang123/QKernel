@@ -916,7 +916,7 @@ static void set_adaptive_vpu_power_limit(unsigned int limit)
 #endif
 
 	prv_adp_vpu_pwr_lim = adaptive_vpu_power_limit;
-	adaptive_vpu_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	adaptive_vpu_power_limit = 0x7FFFFFFF;
 #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
 #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
 		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
