@@ -81,7 +81,7 @@ static void set_static_gpu_power_limit(unsigned int limit);
 static void set_static_cpu_power_limit(unsigned int limit)
 {
 	prv_stc_cpu_pwr_lim = static_cpu_power_limit;
-	static_cpu_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	static_cpu_power_limit = 0x7FFFFFFF;
 
 	if (prv_stc_cpu_pwr_lim != static_cpu_power_limit) {
 #ifdef FAST_RESPONSE_ATM
@@ -104,7 +104,7 @@ static void set_static_cpu_power_limit(unsigned int limit)
 static void set_static_gpu_power_limit(unsigned int limit)
 {
 	prv_stc_gpu_pwr_lim = static_gpu_power_limit;
-	static_gpu_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	static_gpu_power_limit = 0x7FFFFFFF;
 
 	if (prv_stc_gpu_pwr_lim != static_gpu_power_limit) {
 		tscpu_printk("%s %d\n", __func__,
