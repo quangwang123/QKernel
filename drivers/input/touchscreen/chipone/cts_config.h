@@ -26,12 +26,12 @@
 //#define CFG_CTS_MANUAL_CS
 
 /* Handle IRQ whether in workqueue or kthread. */
-#define CFG_CTS_HANDLE_IRQ_USE_WORKQUEUE
+// #define CFG_CTS_HANDLE_IRQ_USE_WORKQUEUE
 
 /* With SCHED_RR option, kthread will get better performance by
  * dramatic decrease delay between irq and work.
  */
-//#define CFG_CTS_HANDLE_IRQ_USE_KTHREAD
+#define CFG_CTS_HANDLE_IRQ_USE_KTHREAD
 
 /* UP event missing by some reason will cause touch remaining when
  * all fingers are lifted or flying line when touch in the next time.
