@@ -4,6 +4,7 @@
 #include "cts_platform.h"
 #include "cts_core.h"
 #include "linux/spi/spi.h"
+#include <uapi/linux/sched/types.h>
 //#include "mt_spi.h"
 #include "cts_firmware.h"
 
