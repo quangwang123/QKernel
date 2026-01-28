@@ -3,7 +3,7 @@
  * Copyright (C) 2019 MediaTek Inc.
  */
 
-#define DEBUG 1
+#define DEBUG 0
 
 #include <linux/debugfs.h>
 #include <linux/blkdev.h>
