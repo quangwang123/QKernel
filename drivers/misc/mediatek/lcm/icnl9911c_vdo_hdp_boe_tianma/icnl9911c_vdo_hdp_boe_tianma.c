@@ -294,7 +294,7 @@ static void lcm_get_params(struct LCM_PARAMS *params)
 	params->dsi.horizontal_active_pixel = FRAME_WIDTH;
 	params->dsi.ssc_disable = 1;
 #ifndef CONFIG_FPGA_EARLY_PORTING
-	params->dsi.PLL_CLOCK = 277;
+	params->dsi.PLL_CLOCK = 300;
 	/* this value must be in MTK suggested table */
 #else
 	params->dsi.pll_div1 = 0;
