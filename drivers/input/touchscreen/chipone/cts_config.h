@@ -19,7 +19,7 @@
 #define CFG_CTS_HAS_RESET_PIN
 #endif
 
-#define CFG_CTS_SPI_SPEED_KHZ               4000
+#define CFG_CTS_SPI_SPEED_KHZ               6000
 
 #endif
 
