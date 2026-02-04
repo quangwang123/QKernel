@@ -3,8 +3,8 @@
 # Cryptographic API
 #
 
-ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
-subdir-ccflags-y += -Ofast -mcpu=cortex-a53 -mtune=cortex-a53 -mfpu=asimd-vfpv4 -march=armv8-a
+ccflags-y += -Ofast
+subdir-ccflags-y += -Ofast
 
 ifdef CONFIG_MINIMAL_LTO
 ccflags-y += -flto
