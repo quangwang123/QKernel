@@ -308,6 +308,8 @@ static void lcm_get_params(struct LCM_PARAMS *params)
 	params->dsi.lcm_esd_check_table[0].cmd = 0x0A;
 	params->dsi.lcm_esd_check_table[0].count = 1;
 	params->dsi.lcm_esd_check_table[0].para_list[0] = 0x9C;
+	params->min_refresh_rate = 64;
+ 	params->max_refresh_rate = 65;
 }
 
 static void lcm_init_power(void)
