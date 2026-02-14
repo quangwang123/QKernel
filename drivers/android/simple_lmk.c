@@ -34,7 +34,7 @@ struct victim_info {
 };
 
 /* Pulled from the Android framework. Lower adj means higher priority. */
-static const unsigned short adjs[] = {
+static unsigned short adjs[] __read_mostly = {
 	SHRT_MAX + 1, /* Include all positive adjs in the final range */
 	950, /* CACHED_APP_LMK_FIRST_ADJ */
 	900, /* CACHED_APP_MIN_ADJ */
@@ -50,6 +50,8 @@ static const unsigned short adjs[] = {
 	50, /* PERCEPTIBLE_RECENT_FOREGROUND_APP_ADJ */
 	0 /* FOREGROUND_APP_ADJ */
 };
+static int adjs_count = ARRAY_SIZE(adjs);
+module_param_array(adjs, ushort, &adjs_count, 0644);
 
 static struct victim_info victims[MAX_VICTIMS] __cacheline_aligned_in_smp;
 static DECLARE_WAIT_QUEUE_HEAD(oom_waitq);
