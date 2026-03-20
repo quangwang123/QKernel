@@ -29,9 +29,9 @@ int lz4_decompress_asm_select(uint8_t **dst_ptr, uint8_t *dst_begin,
 			      const uint8_t *src_end, bool dip) {
 	const unsigned i = smp_processor_id();
 
-	lz4_decompress_asm_fn[i] = _lz4_decompress_asm_noprfm;
-	return _lz4_decompress_asm_noprfm(dst_ptr, dst_begin, dst_end,
-						src_ptr, src_end, dip);
+	lz4_decompress_asm_fn[i] = _lz4_decompress_asm;
+	return _lz4_decompress_asm(dst_ptr, dst_begin, dst_end,
+				   src_ptr, src_end, dip);
 }
 
 int (*lz4_decompress_asm_fn[NR_CPUS])(uint8_t **dst_ptr, uint8_t *dst_begin,
