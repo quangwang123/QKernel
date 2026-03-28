@@ -187,7 +187,7 @@ struct apthermolmt_user *handle, unsigned int limit)
 #endif
 
 	apthermolmt_prev_cpu_pwr_lim = apthermolmt_curr_cpu_pwr_lim;
-	apthermolmt_curr_cpu_pwr_lim = final_limit;
+	apthermolmt_curr_cpu_pwr_lim = 0x7FFFFFFF;
 
 	if (apthermolmt_prev_cpu_pwr_lim != apthermolmt_curr_cpu_pwr_lim) {
 		unsigned long timeout;
@@ -234,7 +234,7 @@ struct apthermolmt_user *handle, unsigned int limit)
 #endif
 
 	apthermolmt_prev_vpu_pwr_lim = apthermolmt_curr_vpu_pwr_lim;
-	apthermolmt_curr_vpu_pwr_lim = final_limit;
+	apthermolmt_curr_vpu_pwr_lim = 0x7FFFFFFF;
 
 	if (apthermolmt_prev_vpu_pwr_lim != apthermolmt_curr_vpu_pwr_lim) {
 #if defined(CONFIG_MTK_VPU_SUPPORT)
@@ -317,7 +317,7 @@ struct apthermolmt_user *handle, unsigned int limit)
 #endif
 
 	apthermolmt_prev_gpu_pwr_lim = apthermolmt_curr_gpu_pwr_lim;
-	apthermolmt_curr_gpu_pwr_lim = final_limit;
+	apthermolmt_curr_gpu_pwr_lim = 0x7FFFFFFF;
 
 	if (apthermolmt_prev_gpu_pwr_lim != apthermolmt_curr_gpu_pwr_lim) {
 		tscpu_dprintk("%s %d\n", __func__, final_limit);
