@@ -4,7 +4,6 @@
 #
 
 ccflags-y += -O3
-ccflags-y += -fforce-emit-vtables
 ccflags-y += -mllvm --enable-merge-functions
 ccflags-y += -mllvm -inline-threshold=343
 ccflags-y += -mllvm -unroll-threshold=98
