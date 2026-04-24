@@ -141,13 +141,25 @@ Debug Notifier Interface
  * is also required as a local variable to serve as a file identifier for the
  * printf function if required.
  */
-#include "mtk_pp.h"
 
 #if defined(MTK_DEBUG_PROC_PRINT)
-#define _MTKPP_GPULOG_FW(...)
-#define PVR_DUMPDEBUG_LOG(...)
+#define _MTKPP_GPULOG_FW(...) MTKPP_LOG(g_use_id, __VA_ARGS__)
+#define PVR_DUMPDEBUG_LOG(...)\
+	do {\
+		if (pfnDumpDebugPrintf)\
+			pfnDumpDebugPrintf(pvDumpDebugFile, __VA_ARGS__);\
+		else\
+			MTKPP_LOG(g_use_id, __VA_ARGS__);\
+	} while (0)
 #else
-#define PVR_DUMPDEBUG_LOG(...)
+#define PVR_DUMPDEBUG_LOG(...)                                \
+	do                                                        \
+	{                                                         \
+		if (pfnDumpDebugPrintf)                               \
+			pfnDumpDebugPrintf(pvDumpDebugFile, __VA_ARGS__); \
+		else                                                  \
+			PVR_LOG((__VA_ARGS__));                           \
+	} while (0)
 #endif
 
 struct _PVRSRV_DEVICE_NODE_;

@@ -52,16 +52,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 /* Log setting */
 #define MTKPVR_TAG "[GPU/PVR]"
-/*
-#define MTK_LOGE(fmt, args...) pr_no_err(MTKPVR_TAG"[ERROR]"fmt, ##args)
+#define MTK_LOGE(fmt, args...) pr_err(MTKPVR_TAG"[ERROR]"fmt, ##args)
 #define MTK_LOGW(fmt, args...) pr_debug(MTKPVR_TAG"[WARNING]"fmt, ##args)
 #define MTK_LOGI(fmt, args...) pr_debug(MTKPVR_TAG"[INFO]"fmt, ##args)
 #define MTK_LOGD(fmt, args...) pr_debug(MTKPVR_TAG"[DEBUG]"fmt, ##args)
-*/
-#define MTK_LOGE(fmt, args...) ((void)0)
-#define MTK_LOGW(fmt, args...) ((void)0)
-#define MTK_LOGI(fmt, args...) ((void)0)
-#define MTK_LOGD(fmt, args...) ((void)0)
 
 /*!< System specific poll/timeout details */
 #if defined(PVR_LINUX_USING_WORKQUEUES)
@@ -81,19 +75,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #define SYS_PHYS_HEAP_COUNT		1
 
-#if defined(CONFIG_MACH_MT8173)
-#define SYS_RGX_OF_COMPATIBLE	"mediatek,mt8173-han"
-#elif defined(CONFIG_MACH_MT8167)
-#define SYS_RGX_OF_COMPATIBLE	"mediatek,mt8167-clark"
-#elif defined(CONFIG_MACH_MT6739)
-#define SYS_RGX_OF_COMPATIBLE	"mediatek,AUCKLAND"
-#elif defined(CONFIG_MACH_MT6765)
+#if defined(CONFIG_MACH_MT6765)
 #define SYS_RGX_OF_COMPATIBLE	"mediatek,doma"
-#elif defined(CONFIG_MACH_MT6761)
-#define SYS_RGX_OF_COMPATIBLE   "mediatek,clark"
-#elif defined(CONFIG_MACH_MT6779)
-#define SYS_RGX_OF_COMPATIBLE   "mediatek,lorne"
-#else
 #endif
 
 #if defined(__linux__)

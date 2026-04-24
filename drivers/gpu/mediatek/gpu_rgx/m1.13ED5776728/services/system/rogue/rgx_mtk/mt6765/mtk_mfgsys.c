@@ -163,8 +163,8 @@ static void MTKWriteBackFreqToRGX(PVRSRV_DEVICE_NODE *psDevNode,
 #ifndef MTK_BRINGUP
 #define MTKCLK_prepare_enable(clk) \
 	do { \
-		if (clk) { \
-			clk_prepare_enable(clk) \
+		if (clk) \
+			clk_prepare_enable(clk); \
 	} while (0)
 
 #define MTKCLK_disable_unprepare(clk) \
@@ -179,10 +179,7 @@ static void MTKWriteBackFreqToRGX(PVRSRV_DEVICE_NODE *psDevNode,
 			clk_set_parent(clkC, clkP) \
 	} while (0)
 #else
-#define MTKCLK_prepare_enable(clk) do { \
-	if (clk) { \
-		clk_prepare_enable(clk) \
-	} while (0)
+#define MTKCLK_prepare_enable(clk)
 
 #define MTKCLK_disable_unprepare(clk)
 
@@ -216,8 +213,6 @@ static void MTKEnableMfgClock(IMG_BOOL bForce)
 
 static void MTKDisableMfgClock(IMG_BOOL bForce)
 {
-	int buck_state;
-
 	mtk_notify_gpu_power_change(0);
 	ged_dvfs_gpu_clock_switch_notify(0);
 
@@ -230,7 +225,7 @@ static void MTKDisableMfgClock(IMG_BOOL bForce)
 #endif
 
 #ifdef MTK_GPU_DVFS
-	buck_state = mt_gpufreq_voltage_enable_set(BUCK_OFF);
+	mt_gpufreq_voltage_enable_set(BUCK_OFF);
 #endif
 	ged_log_buf_print2(_mtk_ged_log, GED_LOG_ATTR_TIME, "BUCK_OFF");
 
@@ -297,7 +292,7 @@ static IMG_BOOL MTKDoGpuDVFS(IMG_UINT32 ui32NewFreqID, IMG_BOOL bIdleDevice)
 		return IMG_FALSE;
 
 	eResult = PVRSRVDevicePreClockSpeedChange(psDevNode,
-											  bIdleDevice, (void *)NULL);
+			bIdleDevice, (void *)NULL);
 	if ((eResult == PVRSRV_OK) || (eResult == PVRSRV_ERROR_RETRY)) {
 		PVRSRVGetDevicePowerState(psDevNode, &ePowerState);
 		if (ePowerState != PVRSRV_DEV_POWER_STATE_ON)
@@ -315,9 +310,9 @@ static IMG_BOOL MTKDoGpuDVFS(IMG_UINT32 ui32NewFreqID, IMG_BOOL bIdleDevice)
 
 		if (eResult == PVRSRV_OK)
 			PVRSRVDevicePostClockSpeedChange(psDevNode,
-											 bIdleDevice, (void *)NULL);
+			bIdleDevice, (void *)NULL);
 
-			return IMG_TRUE;
+		return IMG_TRUE;
 	}
 
 	return IMG_FALSE;
@@ -876,7 +871,12 @@ void MTKMFGSystemDeInit(void)
 
 int MTKRGXDeviceInit(PVRSRV_DEVICE_CONFIG *psDevConfig)
 {
+#if !defined(CONFIG_MTK_ENABLE_GMO)
+	_mtk_ged_log = ged_log_buf_alloc(64, 64 * 32,
+			GED_LOG_BUF_TYPE_RINGBUFFER, "PowerLog", "ppL");
+#else
 	_mtk_ged_log = 0;
+#endif /* CONFIG_MTK_ENABLE_GMO */
 
 #ifdef MTK_GPU_DVFS
 	/* Only Enable buck to get cg & mtcmos */

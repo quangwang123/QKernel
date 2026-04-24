@@ -125,7 +125,6 @@ const IMG_CHAR *PVRSRVGetErrorString(PVRSRV_ERROR eError);
  * correct filename and line number in the warning message.
  */
 #define PVR_ASSERT(EXPR) ((void)0)
-
 #else /* defined(LINUX) && defined(__KERNEL__) */
 
 /*************************************************************************/ /*!
@@ -144,7 +143,6 @@ PVRSRVDebugAssertFail(const IMG_CHAR *pszFile,
                       const IMG_CHAR *pszAssertion);
 
 #define PVR_ASSERT(EXPR) ((void)0)
-
 #endif /* defined(LINUX) && defined(__KERNEL__) */
 #endif /* defined(_WIN32) */
 #endif /* defined(__KLOCWORK__) */
@@ -196,54 +194,164 @@ PVRSRVDebugAssertFail(const IMG_CHAR *pszFile,
 #if defined(PVRSRV_NEED_PVR_DPF) || defined(DOXYGEN)
 
 	/* New logging mechanism */
-	#define PVR_DBG_FATAL     ((void)0)     /*!< Debug level passed to PVRSRVDebugPrintf() for fatal errors. */
-	#define PVR_DBG_ERROR     ((void)0)     /*!< Debug level passed to PVRSRVDebugPrintf() for non-fatal errors. */
-	#define PVR_DBG_WARNING   ((void)0)   /*!< Debug level passed to PVRSRVDebugPrintf() for warnings. */
-	#define PVR_DBG_MESSAGE   ((void)0)   /*!< Debug level passed to PVRSRVDebugPrintf() for information only. */
-	#define PVR_DBG_VERBOSE   ((void)0)   /*!< Debug level passed to PVRSRVDebugPrintf() for very low-priority debug. */
-	#define PVR_DBG_CALLTRACE ((void)0) /*!< Debug level passed to PVRSRVDebugPrintf() for function tracing purposes. */
-	#define PVR_DBG_ALLOC     ((void)0)     /*!< Debug level passed to PVRSRVDebugPrintf() for tracking some of drivers memory operations. */
-	#define PVR_DBG_BUFFERED  ((void)0)  /*!< Debug level passed to PVRSRVDebugPrintf() when debug should be written to the debug circular buffer. */
-	#define PVR_DBG_DEBUG     ((void)0)     /*!< Debug level passed to PVRSRVDebugPrintf() for debug messages. */
+	#define PVR_DBG_FATAL     DBGPRIV_FATAL     /*!< Debug level passed to PVRSRVDebugPrintf() for fatal errors. */
+	#define PVR_DBG_ERROR     DBGPRIV_ERROR     /*!< Debug level passed to PVRSRVDebugPrintf() for non-fatal errors. */
+	#define PVR_DBG_WARNING   DBGPRIV_WARNING   /*!< Debug level passed to PVRSRVDebugPrintf() for warnings. */
+	#define PVR_DBG_MESSAGE   DBGPRIV_MESSAGE   /*!< Debug level passed to PVRSRVDebugPrintf() for information only. */
+	#define PVR_DBG_VERBOSE   DBGPRIV_VERBOSE   /*!< Debug level passed to PVRSRVDebugPrintf() for very low-priority debug. */
+	#define PVR_DBG_CALLTRACE DBGPRIV_CALLTRACE /*!< Debug level passed to PVRSRVDebugPrintf() for function tracing purposes. */
+	#define PVR_DBG_ALLOC     DBGPRIV_ALLOC     /*!< Debug level passed to PVRSRVDebugPrintf() for tracking some of drivers memory operations. */
+	#define PVR_DBG_BUFFERED  DBGPRIV_BUFFERED  /*!< Debug level passed to PVRSRVDebugPrintf() when debug should be written to the debug circular buffer. */
+	#define PVR_DBG_DEBUG     DBGPRIV_DEBUG     /*!< Debug level passed to PVRSRVDebugPrintf() for debug messages. */
 
 	/* These levels are always on with PVRSRV_NEED_PVR_DPF */
 	/*! @cond Doxygen_Suppress */
-	#define __PVR_DPF_0x001UL(...) ((void)0)
-	#define __PVR_DPF_0x002UL(...) ((void)0)
-	#define __PVR_DPF_0x080UL(...) ((void)0)
+	#define __PVR_DPF_0x001UL(...) PVRSRVDebugPrintf(DBGPRIV_FATAL, __VA_ARGS__)
+	#define __PVR_DPF_0x002UL(...) PVRSRVDebugPrintf(DBGPRIV_ERROR, __VA_ARGS__)
+	#define __PVR_DPF_0x080UL(...) PVRSRVDebugPrintf(DBGPRIV_BUFFERED, __VA_ARGS__)
 
-	#define __PVR_DPF_0x100UL(...) ((void)0)
+	/*
+	 * The AdHoc-Debug level is only supported when enabled in the local
+	 * build environment and may need to be used in both debug and release
+	 * builds. An error is generated in the formal build if it is checked in.
+	 */
+#if defined(PVR_DPF_ADHOC_DEBUG_ON)
+	#define __PVR_DPF_0x100UL(...) PVRSRVDebugPrintf(DBGPRIV_DEBUG, __VA_ARGS__)
+#else
+	/* Use an undefined token here to stop compilation dead in the offending module */
+	#define __PVR_DPF_0x100UL(...) __ERROR__PVR_DBG_DEBUG_is_in_use_but_has_not_been_enabled__Note_Debug_DPF_must_not_be_checked_in__Define_PVR_DPF_ADHOC_DEBUG_ON_for_testing
+#endif
+
+	/* Some are compiled out completely in release builds */
+#if defined(DEBUG) || defined(DOXYGEN)
+	#define __PVR_DPF_0x004UL(...) PVRSRVDebugPrintf(DBGPRIV_WARNING, __VA_ARGS__)
+	#define __PVR_DPF_0x008UL(...) PVRSRVDebugPrintf(DBGPRIV_MESSAGE, __VA_ARGS__)
+	#define __PVR_DPF_0x010UL(...) PVRSRVDebugPrintf(DBGPRIV_VERBOSE, __VA_ARGS__)
+	#define __PVR_DPF_0x020UL(...) PVRSRVDebugPrintf(DBGPRIV_CALLTRACE, __VA_ARGS__)
+	#define __PVR_DPF_0x040UL(...) PVRSRVDebugPrintf(DBGPRIV_ALLOC, __VA_ARGS__)
+#else
 	#define __PVR_DPF_0x004UL(...)
 	#define __PVR_DPF_0x008UL(...)
 	#define __PVR_DPF_0x010UL(...)
 	#define __PVR_DPF_0x020UL(...)
 	#define __PVR_DPF_0x040UL(...)
+#endif
 
-	#define __PVR_DPF(lvl, ...) ((void)0)
-
+	/* Translate the different log levels to separate macros
+	 * so they can each be compiled out.
+	 */
+#if defined(DEBUG)
+	#define __PVR_DPF(lvl, ...) __PVR_DPF_ ## lvl (__FILE__, __LINE__, __VA_ARGS__)
+#else
+	#define __PVR_DPF(lvl, ...) __PVR_DPF_ ## lvl ("", __LINE__, __VA_ARGS__)
+#endif
 	/*! @endcond */
 
 	/* Get rid of the double bracketing */
 	#define PVR_DPF(x) __PVR_DPF x
 
-	#define PVR_LOG_ERROR(_rc, _call) ((void)0)
+	#define PVR_LOG_ERROR(_rc, _call) \
+		PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__))
 
-	#define PVR_LOG_IF_ERROR(_rc, _call) ((void)0)
+	#define PVR_LOG_IF_ERROR(_rc, _call) do \
+		{ if (unlikely(_rc != PVRSRV_OK)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+		  } \
+		MSC_SUPPRESS_4127\
+		} while (0)
 
-	#define PVR_WARN_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_RETURN_IF_NOMEM(_expr, _call) ((void)0)
-	#define PVR_LOG_GOTO_IF_NOMEM(_expr, _err, _go) ((void)0)
-	#define PVR_LOG_RETURN_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_RETURN_VOID_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_GOTO_IF_ERROR(_rc, _call, _go) ((void)0)
-	#define PVR_LOG_GOTO_WITH_ERROR(_call, _err, _rc, _go) ((void)0)
-	#define PVR_LOG_IF_FALSE(_expr, _msg) ((void)0)
-	#define PVR_LOG_RETURN_IF_FALSE(_expr, _msg, _rc) ((void)0)
-	#define PVR_LOG_RETURN_VOID_IF_FALSE(_expr, _msg) ((void)0)
-	#define PVR_LOG_GOTO_IF_FALSE(_expr, _msg, _go) ((void)0)
-	#define PVR_LOG_RETURN_IF_INVALID_PARAM(_expr, _param) ((void)0)
-	#define PVR_LOG_GOTO_IF_INVALID_PARAM(_expr, _err, _go) ((void)0)
-	#undef PVR_DPF_FUNCTION_TRACE_ON
+	#define PVR_WARN_IF_ERROR(_rc, _call) do \
+		{ if (unlikely(_rc != PVRSRV_OK)) { \
+			PVR_DPF((PVR_DBG_WARNING, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+		  } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_IF_NOMEM(_expr, _call) do \
+		{ if (unlikely(_expr == NULL)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s failed (PVRSRV_ERROR_OUT_OF_MEMORY) in %s()", _call, __func__)); \
+			return PVRSRV_ERROR_OUT_OF_MEMORY; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_GOTO_IF_NOMEM(_expr, _err, _go) do \
+		{ if (unlikely(_expr == NULL)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s failed (PVRSRV_ERROR_OUT_OF_MEMORY) in %s()", #_expr, __func__)); \
+			_err = PVRSRV_ERROR_OUT_OF_MEMORY; \
+			goto _go; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_IF_ERROR(_rc, _call) do \
+		{ if (unlikely(_rc != PVRSRV_OK)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+			return _rc; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_VOID_IF_ERROR(_rc, _call) do \
+		{ if (unlikely(_rc != PVRSRV_OK)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+			return; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_GOTO_IF_ERROR(_rc, _call, _go) do \
+		{ if (unlikely(_rc != PVRSRV_OK)) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+			goto _go; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_GOTO_WITH_ERROR(_call, _err, _rc, _go) do \
+		{ PVR_DPF((PVR_DBG_ERROR, "%s() failed (%s) in %s()", _call, PVRSRVGETERRORSTRING(_rc), __func__)); \
+			_err = _rc; \
+			goto _go; \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_IF_FALSE(_expr, _msg) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s in %s()", _msg, __func__)); \
+		  } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_IF_FALSE(_expr, _msg, _rc) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s in %s()", _msg, __func__)); \
+			return _rc; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_VOID_IF_FALSE(_expr, _msg) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s in %s()", _msg, __func__)); \
+			return; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_GOTO_IF_FALSE(_expr, _msg, _go) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s in %s()", _msg, __func__)); \
+			goto _go; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_RETURN_IF_INVALID_PARAM(_expr, _param) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s invalid in %s()", _param, __func__)); \
+			return PVRSRV_ERROR_INVALID_PARAMS; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
+
+	#define PVR_LOG_GOTO_IF_INVALID_PARAM(_expr, _err, _go) do \
+		{ if (unlikely(!(_expr))) { \
+			PVR_DPF((PVR_DBG_ERROR, "%s invalid in %s()", #_expr, __func__)); \
+			_err = PVRSRV_ERROR_INVALID_PARAMS; \
+			goto _go; } \
+		MSC_SUPPRESS_4127\
+		} while (0)
 
 #if 0
 /*************************************************************************/ /*!
@@ -299,25 +407,26 @@ IMG_EXPORT void IMG_CALLCONV PVRSRVDebugPrintfDumpCCB(void);
 
 #else /* defined(PVRSRV_NEED_PVR_DPF) */
 
-	#define PVR_DPF(x) __PVR_DPF x
+	#define PVR_DPF(X)  /*!< Null Implementation of PowerVR Debug Printf (does nothing) */
 
-	#define PVR_LOG_ERROR(_rc, _call) ((void)0)
+	#define PVR_LOG_ERROR(_rc, _call) (void)(_rc)
+	#define PVR_LOG_IF_ERROR(_rc, _call) (void)(_rc)
+	#define PVR_WARN_IF_ERROR(_rc, _call) (void)(_rc)
 
-	#define PVR_LOG_IF_ERROR(_rc, _call) ((void)0)
+	#define PVR_LOG_RETURN_IF_NOMEM(_expr, _call) do { if (unlikely(_expr == NULL)) { return PVRSRV_ERROR_OUT_OF_MEMORY; } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_GOTO_IF_NOMEM(_expr, _err, _go) do { if (unlikely(_expr == NULL)) { _err = PVRSRV_ERROR_OUT_OF_MEMORY; goto _go; } MSC_SUPPRESS_4127	} while (0)
+	#define PVR_LOG_RETURN_IF_ERROR(_rc, _call) do { if (unlikely(_rc != PVRSRV_OK)) { return (_rc); } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_RETURN_VOID_IF_ERROR(_rc, _call) do { if (unlikely(_rc != PVRSRV_OK)) { return; } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_GOTO_IF_ERROR(_rc, _call, _go) do { if (unlikely(_rc != PVRSRV_OK)) { goto _go; } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_GOTO_WITH_ERROR(_call, _err, _rc, _go) do { _err = _rc; goto _go; MSC_SUPPRESS_4127 } while (0)
 
-	#define PVR_WARN_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_RETURN_IF_NOMEM(_expr, _call) ((void)0)
-	#define PVR_LOG_GOTO_IF_NOMEM(_expr, _err, _go) ((void)0)
-	#define PVR_LOG_RETURN_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_RETURN_VOID_IF_ERROR(_rc, _call) ((void)0)
-	#define PVR_LOG_GOTO_IF_ERROR(_rc, _call, _go) ((void)0)
-	#define PVR_LOG_GOTO_WITH_ERROR(_call, _err, _rc, _go) ((void)0)
-	#define PVR_LOG_IF_FALSE(_expr, _msg) ((void)0)
-	#define PVR_LOG_RETURN_IF_FALSE(_expr, _msg, _rc) ((void)0)
-	#define PVR_LOG_RETURN_VOID_IF_FALSE(_expr, _msg) ((void)0)
-	#define PVR_LOG_GOTO_IF_FALSE(_expr, _msg, _go) ((void)0)
-	#define PVR_LOG_RETURN_IF_INVALID_PARAM(_expr, _param) ((void)0)
-	#define PVR_LOG_GOTO_IF_INVALID_PARAM(_expr, _err, _go) ((void)0)
+	#define PVR_LOG_IF_FALSE(_expr, _msg) (void)(_expr)
+	#define PVR_LOG_RETURN_IF_FALSE(_expr, _msg, _rc) do { if (unlikely(!(_expr))) { return (_rc); } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_RETURN_VOID_IF_FALSE(_expr, _msg) do { if (unlikely(!(_expr))) { return; } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_GOTO_IF_FALSE(_expr, _msg, _go) do { if (unlikely(!(_expr))) { goto _go; } MSC_SUPPRESS_4127 } while (0)
+
+	#define PVR_LOG_RETURN_IF_INVALID_PARAM(_expr, _param) do { if (unlikely(!(_expr))) { return PVRSRV_ERROR_INVALID_PARAMS; } MSC_SUPPRESS_4127 } while (0)
+	#define PVR_LOG_GOTO_IF_INVALID_PARAM(_expr, _err, _go) do { if (unlikely(!(_expr))) { _err = PVRSRV_ERROR_INVALID_PARAMS; goto _go; } MSC_SUPPRESS_4127 } while (0)
 
 	#undef PVR_DPF_FUNCTION_TRACE_ON
 

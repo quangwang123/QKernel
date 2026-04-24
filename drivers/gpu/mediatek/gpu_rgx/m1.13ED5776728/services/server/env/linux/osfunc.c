@@ -245,11 +245,10 @@ PVRSRV_ERROR OSPhyContigPagesAlloc(PVRSRV_DEVICE_NODE *psDevNode, size_t uiSize,
 void OSPhyContigPagesFree(PVRSRV_DEVICE_NODE *psDevNode, PG_HANDLE *psMemHandle)
 {
 	struct page *psPage = (struct page*) psMemHandle->u.pvHandle;
-	IMG_UINT32	uiSize, uiPageCount=0, ui32Order;
+	IMG_UINT32	uiPageCount=0, ui32Order;
 
 	ui32Order = psMemHandle->uiOrder;
 	uiPageCount = (1 << ui32Order);
-	uiSize = (uiPageCount * PAGE_SIZE);
 
 #if defined(PVRSRV_ENABLE_PROCESS_STATS)
 #if !defined(PVRSRV_ENABLE_MEMORY_STATS)
@@ -745,6 +744,7 @@ static const error_map_t asErrorMap[] =
 	{-ENOTTY, PVRSRV_ERROR_BRIDGE_CALL_FAILED},
 	{-ERANGE, PVRSRV_ERROR_BRIDGE_BUFFER_TOO_SMALL},
 	{-ENOMEM, PVRSRV_ERROR_OUT_OF_MEMORY},
+	{-EACCES, PVRSRV_ERROR_PMR_NOT_PERMITTED},
 	{-EINVAL, PVRSRV_ERROR_INVALID_PARAMS},
 
 	{0,       PVRSRV_OK}

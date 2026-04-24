@@ -140,6 +140,38 @@ AddToBufferCCB(const IMG_CHAR *pszFileName, IMG_UINT32 ui32Line,
 
 void PVRSRVDebugPrintfDumpCCB(void)
 {
+#if 0
+	int i;
+	unsigned long uiFlags;
+
+	spin_lock_irqsave(&gsDebugCCBLock, uiFlags);
+
+	for (i = 0; i < PVRSRV_DEBUG_CCB_MAX; i++)
+	{
+		PVRSRV_DEBUG_CCB *psDebugCCBEntry =
+			&gsDebugCCB[(giOffset + i) % PVRSRV_DEBUG_CCB_MAX];
+
+		/* Early on, we won't have PVRSRV_DEBUG_CCB_MAX messages */
+		if (!psDebugCCBEntry->pszFile)
+		{
+			continue;
+		}
+
+		printk(KERN_ERR "%s:%d: (%ld.%ld, tid=%u, pid=%u) %s\n",
+			   psDebugCCBEntry->pszFile,
+			   psDebugCCBEntry->iLine,
+			   (long)psDebugCCBEntry->sTimeVal.tv_sec,
+			   (long)psDebugCCBEntry->sTimeVal.tv_usec,
+			   psDebugCCBEntry->ui32TID,
+			   psDebugCCBEntry->ui32PID,
+			   psDebugCCBEntry->pcMesg);
+
+		/* Clear this entry so it doesn't get printed the next time again. */
+		psDebugCCBEntry->pszFile = NULL;
+	}
+
+	spin_unlock_irqrestore(&gsDebugCCBLock, uiFlags);
+#endif
 }
 
 #else /* defined(PVRSRV_DEBUG_CCB_MAX) */
@@ -296,6 +328,7 @@ void PVRSRVTrace(const IMG_CHAR *pszFormat, ...)
 
 #if defined(PVRSRV_NEED_PVR_DPF)
 
+#if 0
 /*
  * Append a string to a buffer using formatted conversion.
  * The function takes a variable number of arguments, calling
@@ -316,7 +349,6 @@ static IMG_BOOL BAppend(IMG_CHAR *pszBuf, IMG_UINT32 ui32BufSiz, const IMG_CHAR 
 	return bTrunc;
 }
 
-#if 0
 /*************************************************************************/ /*!
 @Function       PVRSRVDebugPrintf
 @Description    To output a debug message to the user

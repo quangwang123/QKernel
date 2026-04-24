@@ -206,16 +206,26 @@ static inline void pvr_fence_cleanup(void)
 #define PVR_FENCE_CTX_TRACE(c, fmt, ...)                                   \
 	do {                                                               \
 		struct pvr_fence_context *__fctx = (c);                    \
-		pr_no_err("c %llu: (PVR) " fmt, (u64) __fctx->fence_context,  \
+		pr_err("c %llu: (PVR) " fmt, (u64) __fctx->fence_context,  \
 		       ## __VA_ARGS__);                                    \
 	} while (0)
 #else
 #define PVR_FENCE_CTX_TRACE(c, fmt, ...)
 #endif
 
-#define PVR_FENCE_CTX_WARN(c, fmt, ...) ((void)0)
+#define PVR_FENCE_CTX_WARN(c, fmt, ...)                                    \
+	do {                                                               \
+		struct pvr_fence_context *__fctx = (c);                    \
+		pr_warn("c %llu: (PVR) " fmt, (u64) __fctx->fence_context, \
+			## __VA_ARGS__);                                   \
+	} while (0)
 
-#define PVR_FENCE_CTX_ERR(c, fmt, ...) ((void)0)
+#define PVR_FENCE_CTX_ERR(c, fmt, ...)                                     \
+	do {                                                               \
+		struct pvr_fence_context *__fctx = (c);                    \
+		pr_err("c %llu: (PVR) " fmt, (u64) __fctx->fence_context,  \
+		       ## __VA_ARGS__);                                    \
+	} while (0)
 
 #if defined(PVR_FENCE_DEBUG)
 #define PVR_FENCE_TRACE(f, fmt, ...)                                       \
@@ -224,9 +234,11 @@ static inline void pvr_fence_cleanup(void)
 #define PVR_FENCE_TRACE(f, fmt, ...)
 #endif
 
-#define PVR_FENCE_WARN(f, fmt, ...) ((void)0)
+#define PVR_FENCE_WARN(f, fmt, ...)                                        \
+	DMA_FENCE_WARN(f, "(PVR) " fmt, ## __VA_ARGS__)
 
-#define PVR_FENCE_ERR(f, fmt, ...) ((void)0)
+#define PVR_FENCE_ERR(f, fmt, ...)                                         \
+	DMA_FENCE_ERR(f, "(PVR) " fmt, ## __VA_ARGS__)
 
 #endif /* (LINUX_VERSION_CODE < KERNEL_VERSION(3, 17, 0)) */
 #endif /* !defined(__PVR_FENCE_H__) */

@@ -1759,7 +1759,6 @@ err_HWRTDataCommonCookieAlloc:
 */
 PVRSRV_ERROR RGXDestroyHWRTDataSet(RGX_KM_HW_RT_DATASET *psKMHWRTDataSet)
 {
-	PVRSRV_RGXDEV_INFO *psDevInfo;
 	PVRSRV_DEVICE_NODE *psDevNode;
 	PVRSRV_ERROR eError;
 	PRGXFWIF_HWRTDATA psHWRTData;
@@ -1768,7 +1767,6 @@ PVRSRV_ERROR RGXDestroyHWRTDataSet(RGX_KM_HW_RT_DATASET *psKMHWRTDataSet)
 	PVR_ASSERT(psKMHWRTDataSet);
 
 	psDevNode = psKMHWRTDataSet->psDeviceNode;
-	psDevInfo = psDevNode->pvDevice;
 
 	eError = RGXSetFirmwareAddress(&psHWRTData,
 				psKMHWRTDataSet->psHWRTDataFwMemDesc, 0,
@@ -3687,7 +3685,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 		{
 			CHKPT_DBG((PVR_DBG_ERROR, "%s: ...done, returned ERROR (eError=%d)",
 			          __func__, eError));
-			goto fail_resolve_input_fence;
+			goto fail_resolve_input_ta_fence;
 		}
 
 		CHKPT_DBG((PVR_DBG_ERROR, "%s: ...done, fence %d contained %d "
@@ -3724,7 +3722,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 		{
 			CHKPT_DBG((PVR_DBG_ERROR, "%s: ...done, returned ERROR (eError=%d)",
 			          __func__, eError));
-			goto fail_resolve_input_fence;
+			goto fail_resolve_input_3d_fence;
 		}
 
 		CHKPT_DBG((PVR_DBG_ERROR, "%s: ...done, fence %d contained %d "
@@ -4118,8 +4116,8 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 		PVR_DPF((PVR_DBG_ERROR,
 				 "%s: Buffer sync not supported but got %u buffers",
 				 __func__, ui32SyncPMRCount));
-		OSLockRelease(psRenderContext->hLock);
-		return PVRSRV_ERROR_INVALID_PARAMS;
+		eError = PVRSRV_ERROR_INVALID_PARAMS;
+		goto err_no_buffer_sync_invalid_params;
 #endif /* defined(SUPPORT_BUFFER_SYNC) */
 	}
 
@@ -4140,9 +4138,6 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 	if (iCheckTAFence >= 0 || iUpdateTATimeline >= 0 ||
 	    iCheck3DFence >= 0 || iUpdate3DTimeline >= 0)
 	{
-		PRGXFWIF_UFO_ADDR	*pauiClientTAIntUpdateUFOAddress = NULL;
-		PRGXFWIF_UFO_ADDR	*pauiClient3DIntUpdateUFOAddress = NULL;
-
 		CHKPT_DBG((PVR_DBG_ERROR,
 				   "%s: [TA] iCheckFence = %d, iUpdateTimeline = %d",
 				   __func__, iCheckTAFence, iUpdateTATimeline));
@@ -4177,7 +4172,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 							"%s:   SyncCheckpointCreateFence[TA] failed (%s)",
 							__func__,
 							PVRSRVGetErrorString(eError)));
-					goto fail_create_output_fence;
+					goto fail_create_ta_fence;
 				}
 
 				CHKPT_DBG((PVR_DBG_ERROR,
@@ -4188,11 +4183,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 						   (void*)psTAFenceTimelineUpdateSync,
 						   ui32TAFenceTimelineUpdateValue));
 
-				/* Store the FW address of the update sync checkpoint in pauiClientTAIntUpdateUFOAddress */
-				pauiClientTAIntUpdateUFOAddress = SyncCheckpointGetRGXFWIFUFOAddr(psUpdateTASyncCheckpoint);
-				CHKPT_DBG((PVR_DBG_ERROR,
-						   "%s: pauiClientIntUpdateUFOAddress[TA]->ui32Addr=0x%x",
-						   __func__, pauiClientTAIntUpdateUFOAddress->ui32Addr));
+				SyncCheckpointGetRGXFWIFUFOAddr(psUpdateTASyncCheckpoint);
 			}
 
 			/* Append the sync prim update for the TA timeline (if required) */
@@ -4246,7 +4237,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 							"%s:   SyncCheckpointCreateFence[3D] failed (%s)",
 							__func__,
 							PVRSRVGetErrorString(eError)));
-					goto fail_create_output_fence;
+					goto fail_create_3d_fence;
 				}
 
 				CHKPT_DBG((PVR_DBG_ERROR,
@@ -4257,11 +4248,7 @@ PVRSRV_ERROR PVRSRVRGXKickTA3DKM(RGX_SERVER_RENDER_CONTEXT	*psRenderContext,
 						   (void*)ps3DFenceTimelineUpdateSync,
 						   ui323DFenceTimelineUpdateValue));
 
-				/* Store the FW address of the update sync checkpoint in pauiClient3DIntUpdateUFOAddress */
-				pauiClient3DIntUpdateUFOAddress = SyncCheckpointGetRGXFWIFUFOAddr(psUpdate3DSyncCheckpoint);
-				CHKPT_DBG((PVR_DBG_ERROR,
-						   "%s: pauiClientIntUpdateUFOAddress[3D]->ui32Addr=0x%x",
-						   __func__, pauiClient3DIntUpdateUFOAddress->ui32Addr));
+				SyncCheckpointGetRGXFWIFUFOAddr(psUpdate3DSyncCheckpoint);
 			}
 
 			/* Append the sync prim update for the 3D timeline (if required) */
@@ -5163,33 +5150,37 @@ fail_taacquirecmd:
 	}
 
 fail_alloc_update_values_mem_3D:
+	if (iUpdate3DFence != PVRSRV_NO_FENCE)
+	{
+		SyncCheckpointRollbackFenceData(iUpdate3DFence, pv3DUpdateFenceFinaliseData);
+	}
+fail_create_3d_fence:
 fail_alloc_update_values_mem_TA:
 	if (iUpdateTAFence != PVRSRV_NO_FENCE)
 	{
 		SyncCheckpointRollbackFenceData(iUpdateTAFence, pvTAUpdateFenceFinaliseData);
 	}
-	if (iUpdate3DFence != PVRSRV_NO_FENCE)
-	{
-		SyncCheckpointRollbackFenceData(iUpdate3DFence, pv3DUpdateFenceFinaliseData);
-	}
-fail_create_output_fence:
-	/* Drop the references taken on the sync checkpoints in the
-	 * resolved input fence.
-	 * NOTE: 3D fence is always submitted, either via 3D or TA(PR).
-	 */
-	if (bKickTA)
-	{
-		SyncAddrListDeRefCheckpoints(ui32FenceTASyncCheckpointCount, apsFenceTASyncCheckpoints);
-	}
-	SyncAddrListDeRefCheckpoints(ui32Fence3DSyncCheckpointCount, apsFence3DSyncCheckpoints);
-
+fail_create_ta_fence:
+#if !defined(SUPPORT_BUFFER_SYNC)
+err_no_buffer_sync_invalid_params:
+#endif /* !defined(SUPPORT_BUFFER_SYNC) */
 err_pr_fence_address:
 err_populate_sync_addr_list_3d_update:
 err_populate_sync_addr_list_3d_fence:
 err_populate_sync_addr_list_ta_update:
 err_populate_sync_addr_list_ta_fence:
 err_not_enough_space:
-fail_resolve_input_fence:
+	/* Drop the references taken on the sync checkpoints in the
+	 * resolved input fence.
+	 * NOTE: 3D fence is always submitted, either via 3D or TA(PR).
+	 */
+	SyncAddrListDeRefCheckpoints(ui32Fence3DSyncCheckpointCount, apsFence3DSyncCheckpoints);
+fail_resolve_input_3d_fence:
+	if (bKickTA)
+	{
+		SyncAddrListDeRefCheckpoints(ui32FenceTASyncCheckpointCount, apsFenceTASyncCheckpoints);
+	}
+fail_resolve_input_ta_fence:
 	/* Free the memory that was allocated for the sync checkpoint list returned by ResolveFence() */
 	if (apsFenceTASyncCheckpoints)
 	{

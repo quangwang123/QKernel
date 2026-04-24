@@ -50,7 +50,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "pvr_counting_timeline.h"
 #include "pvr_sw_fence.h"
 
-#define PVR_DUMPDEBUG_LOG(pfnDumpDebugPrintf, pvDumpDebugFile, fmt, ...) ((void)0)
+#define PVR_DUMPDEBUG_LOG(pfnDumpDebugPrintf, pvDumpDebugFile, fmt, ...) \
+	do {                                                             \
+		if (pfnDumpDebugPrintf)                                  \
+			pfnDumpDebugPrintf(pvDumpDebugFile, fmt,         \
+					   ## __VA_ARGS__);              \
+		else                                                     \
+			pr_err(fmt "\n", ## __VA_ARGS__);                \
+	} while (0)
 
 struct pvr_counting_fence_timeline {
 	struct pvr_sw_fence_context *context;
@@ -146,7 +153,7 @@ struct pvr_counting_fence_timeline *pvr_counting_fence_timeline_create(
 				DEBUG_REQUEST_LINUXFENCE,
 				timeline);
 	if (srv_err != PVRSRV_OK) {
-		pr_no_err("%s: failed to register debug request callback (%s)\n",
+		pr_err("%s: failed to register debug request callback (%s)\n",
 		       __func__, PVRSRVGetErrorString(srv_err));
 		goto err_free_timeline_ctx;
 	}

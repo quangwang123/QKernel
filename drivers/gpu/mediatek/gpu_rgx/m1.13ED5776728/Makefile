@@ -1,4 +1,4 @@
-OPTIM = -O2
+OPTIM = -Os
 
 ccflags-y += -DCONFIG_MACH_MT6765
 
@@ -6,18 +6,10 @@ ECO := ""
 
 RGX_TOP := $(dir $(lastword $(MAKEFILE_LIST)))
 
-#MTK_DDK_DEBUG := y
-
-ifeq ($(MTK_DDK_DEBUG),y)
-	ccflags-y += -include $(RGX_TOP)/include/config_kernel_debug_$(MTK_PLATFORM)$(ECO).h
-else ifeq ($(CONFIG_MTK_ENG_BUILD),y)
-	ccflags-y += -include $(RGX_TOP)/include/config_kernel_eng_$(MTK_PLATFORM)$(ECO).h
-else
-	ccflags-y += -include $(RGX_TOP)/include/config_kernel_user_$(MTK_PLATFORM)$(ECO).h
-endif
+ccflags-y += -include $(RGX_TOP)/include/config_kernel_user_$(MTK_PLATFORM)$(ECO).h
 
 ccflags-y += \
-	-D__linux__ $(OPTIM) \
+	-D__linux__ $(OPTIM) -g \
 	-fno-strict-aliasing \
 	-W -Wall \
 	-Wno-missing-field-initializers \
@@ -173,11 +165,6 @@ endif
 pvrsrvkm-$(CONFIG_ARM) += services/server/env/linux/osfunc_arm.o
 pvrsrvkm-$(CONFIG_ARM64) += services/server/env/linux/osfunc_arm64.o
 pvrsrvkm-$(CONFIG_EVENT_TRACING) += services/server/env/linux/trace_events.o
-
-ifeq ($(MTK_PLATFORM),mt6799)
-	pvrsrvkm-y += \
-		services/system/rogue/rgx_mtk/$(MTK_PLATFORM)/mtk_mfg_counter.o
-endif
 
 ccflags-y += \
 	-I$(RGX_TOP)/hwdefs/rogue \

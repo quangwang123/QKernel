@@ -406,6 +406,7 @@ IMG_BOOL MTK_PVRSRVDebugRequestGetSilence(void)
 void
 MTK_PVRSRVDebugRequestSetSilence(IMG_BOOL bEnable)
 {
+	bQuiet = bEnable;
 }
 
 void
@@ -449,6 +450,7 @@ PVRSRVDebugRequest(PVRSRV_DEVICE_NODE *psDevNode,
 
 	PVR_DUMPDEBUG_LOG("Time now: %" IMG_UINT64_FMTSPEC "us",
 	                  OSClockus64());
+
 	switch (psPVRSRVData->eServicesState)
 	{
 		case PVRSRV_SERVICES_STATE_OK:
