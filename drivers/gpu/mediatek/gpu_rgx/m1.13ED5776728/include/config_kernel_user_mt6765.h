@@ -156,7 +156,7 @@
 #define PVR_ANDROID_ION_PRIV_HEADER "../drivers/staging/android/ion/ion_priv.h"
 #define PVR_ANDROID_ION_USE_SG_LENGTH
 #define PVR_ANDROID_SYNC_HEADER "linux/sync.h"
-#define PVRSRV_ENABLE_PVR_ION_STATS
+// #define PVRSRV_ENABLE_PVR_ION_STATS
 #define MTK_USE_HW_APM
 //#define MTK_DEBUG_PROC_PRINT
 #define MTK_CONFIG_OF
