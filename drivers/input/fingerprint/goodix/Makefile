@@ -1,7 +1,5 @@
-ifdef CONFIG_INLINE_OPTIMIZATION
 ccflags-y += -mllvm -inline-threshold=15000
 ccflags-y += -mllvm -inlinehint-threshold=10000
-endif
 
 #
 # Makefile for the fingerprint device.
