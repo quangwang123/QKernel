@@ -40,6 +40,8 @@
  */
 #define PAGE_ALLOC_COSTLY_ORDER 3
 
+#define MAX_KCOMPRESSD_THREADS 2
+
 enum migratetype {
 	MIGRATE_UNMOVABLE,
 	MIGRATE_MOVABLE,
@@ -905,10 +907,10 @@ typedef struct pglist_data {
 
 	int kswapd_failures;		/* Number of 'reclaimed == 0' runs */
 
-#define KCOMPRESS_FIFO_SIZE 256
-	wait_queue_head_t kcompressd_wait;
-	struct task_struct *kcompressd;
-	struct kfifo kcompress_fifo;
+#define KCOMPRESS_FIFO_SIZE 128
+	wait_queue_head_t kcompressd_wait[MAX_KCOMPRESSD_THREADS];
+	struct task_struct *kcompressd[MAX_KCOMPRESSD_THREADS];
+	struct kfifo kcompress_fifo[MAX_KCOMPRESSD_THREADS];
 
 	wait_queue_head_t kshrinkd_wait;
 	struct task_struct *kshrinkd;
@@ -969,6 +971,11 @@ typedef struct pglist_data {
 	struct per_cpu_nodestat __percpu *per_cpu_nodestats;
 	atomic_long_t		vm_stat[NR_VM_NODE_STAT_ITEMS];
 } pg_data_t;
+
+struct kcompressd_data {
+	pg_data_t *pgdat;
+	int hid;
+};
 
 #define node_present_pages(nid)	(NODE_DATA(nid)->node_present_pages)
 #define node_spanned_pages(nid)	(NODE_DATA(nid)->node_spanned_pages)

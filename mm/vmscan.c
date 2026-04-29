@@ -6860,25 +6860,48 @@ int kswapd_run(int nid)
 		pgdat->kshrinkd = NULL;
 	}
 
-	ret = kfifo_alloc(&pgdat->kcompress_fifo,
-			KCOMPRESS_FIFO_SIZE * sizeof(struct folio *),
-			GFP_KERNEL);
-	if (ret) {
-		pr_err("%s: fail to kfifo_alloc\n", __func__);
-		return ret;
+	for (int hid = 0; hid < MAX_KCOMPRESSD_THREADS; hid++){
+		struct kcompressd_data *kcd = kmalloc(sizeof(struct kcompressd_data), GFP_KERNEL);
+		if (!kcd){
+			pr_err("Fail to kmalloc kcompressd data\n");
+			ret = -ENOMEM;
+			goto kcompressd_cleanup;
+		}
+
+		ret = kfifo_alloc(&pgdat->kcompress_fifo[hid],
+				KCOMPRESS_FIFO_SIZE * sizeof(struct folio *),
+				GFP_KERNEL);
+		if (ret) {
+			pr_err("%s: fail to kfifo_alloc\n", __func__);
+			kfree(kcd);
+			goto kcompressd_cleanup;
+		}
+
+		kcd->hid = hid;
+		kcd->pgdat = pgdat;
+
+		pgdat->kcompressd[hid] = kthread_create_on_node(kcompressd, kcd, nid,
+				"kcompressd%d-%d", nid, hid);
+		if (IS_ERR(pgdat->kcompressd[hid])) {
+			pr_err("Failed to start kcompressd on node %d，ret=%ld\n",
+					nid, PTR_ERR(pgdat->kcompressd[hid]));
+			goto kcompressd_cleanup;
+		} else {
+			wake_up_process(pgdat->kcompressd[hid]);
+		}
 	}
 
-	pgdat->kcompressd = kthread_create_on_node(kcompressd, pgdat, nid,
-			"kcompressd%d", nid);
-	if (IS_ERR(pgdat->kcompressd)) {
-		pr_err("Failed to start kcompressd on node %d，ret=%ld\n",
-				nid, PTR_ERR(pgdat->kcompressd));
-		pgdat->kcompressd = NULL;
-		kfifo_free(&pgdat->kcompress_fifo);
-	} else {
-		wake_up_process(pgdat->kcompressd);
-	}
+	return ret;
 
+	kcompressd_cleanup:
+	for (int hid = 0; hid < MAX_KCOMPRESSD_THREADS; hid++){
+		if (!IS_ERR_OR_NULL(pgdat->kcompressd[hid])){
+			kthread_stop(pgdat->kcompressd[hid]);
+			pgdat->kcompressd[hid] = NULL;
+		}
+		if (kfifo_initialized(&pgdat->kcompress_fifo[hid])) kfifo_free(&pgdat->kcompress_fifo[hid]);
+	}
+	
 	return ret;
 }
 
@@ -6897,10 +6920,12 @@ void kswapd_stop(int nid)
 		pgdat->kswapd = NULL;
 	}
 
-	if (pgdat->kcompressd) {
-		kthread_stop(pgdat->kcompressd);
-		pgdat->kcompressd = NULL;
-		kfifo_free(&pgdat->kcompress_fifo);
+	for (int hid = 0; hid < MAX_KCOMPRESSD_THREADS; hid++){
+		if (pgdat->kcompressd[hid]) {
+			kthread_stop(pgdat->kcompressd[hid]);
+			pgdat->kcompressd[hid] = NULL;
+			kfifo_free(&pgdat->kcompress_fifo[hid]);
+		}
 	}
 
 	if (kshrinkd) {

@@ -6567,7 +6567,9 @@ static void __meminit pgdat_init_internals(struct pglist_data *pgdat)
 	pgdat_init_kcompactd(pgdat);
 
 	init_waitqueue_head(&pgdat->kswapd_wait);
-	init_waitqueue_head(&pgdat->kcompressd_wait);
+	for (int hid = 0; hid < MAX_KCOMPRESSD_THREADS; hid ++){
+		init_waitqueue_head(&pgdat->kcompressd_wait[hid]);
+	}
 	init_waitqueue_head(&pgdat->kshrinkd_wait);
 	init_waitqueue_head(&pgdat->pfmemalloc_wait);
 

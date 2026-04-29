@@ -243,9 +243,8 @@ static bool swap_sched_async_compress(struct page *page)
 {
 	struct swap_info_struct *sis;
 	pg_data_t *pgdat = NODE_DATA(nid);
-
-	if (unlikely(!pgdat->kcompressd))
-		return false;
+	static atomic_t rr_cursor = ATOMIC_INIT(0);
+	int start_hid;
 
 	if (!current_is_kswapd())
 		return false;
@@ -253,11 +252,20 @@ static bool swap_sched_async_compress(struct page *page)
 	if (!PageAnon(page))
 		return false;
 
+	start_hid = (unsigned int)atomic_inc_return(&rr_cursor) % MAX_KCOMPRESSD_THREADS;
+
 	sis = page_swap_info(page);
-	if (kfifo_avail(&pgdat->kcompress_fifo) >= sizeof(page) &&
-		kfifo_in(&pgdat->kcompress_fifo, &page, sizeof(page))) {
-		wake_up_interruptible(&pgdat->kcompressd_wait);
-		return true;
+	for (int i = 0; i < MAX_KCOMPRESSD_THREADS; i++){
+		int hid = (start_hid + i) % MAX_KCOMPRESSD_THREADS;
+
+		if (unlikely(!pgdat->kcompressd[hid]))
+			continue;
+	
+		if (kfifo_avail(&pgdat->kcompress_fifo[hid]) >= sizeof(page) &&
+			kfifo_in(&pgdat->kcompress_fifo[hid], &page, sizeof(page))) {
+			wake_up_interruptible(&pgdat->kcompressd_wait[hid]);
+			return true;
+		}
 	}
 
 	return false;
@@ -297,7 +305,8 @@ out:
 
 int kcompressd(void *p)
 {
-	pg_data_t *pgdat = (pg_data_t *)p;
+	struct kcompressd_data *kcd = (struct kcompressd_data *)p;
+	pg_data_t *pgdat = kcd->pgdat;
 	struct page *page;
 	struct writeback_control wbc = {
 		.sync_mode = WB_SYNC_NONE,
@@ -308,15 +317,17 @@ int kcompressd(void *p)
 	};
 
 	while (!kthread_should_stop()) {
-		wait_event_interruptible(pgdat->kcompressd_wait,
-				!kfifo_is_empty(&pgdat->kcompress_fifo));
+		wait_event_interruptible(pgdat->kcompressd_wait[kcd->hid],
+				!kfifo_is_empty(&pgdat->kcompress_fifo[kcd->hid]) || kthread_should_stop());
 
-		while (!kfifo_is_empty(&pgdat->kcompress_fifo)) {
-			if (kfifo_out(&pgdat->kcompress_fifo, &page, sizeof(page))) {
+		while (!kfifo_is_empty(&pgdat->kcompress_fifo[kcd->hid])) {
+			if (kfifo_out(&pgdat->kcompress_fifo[kcd->hid], &page, sizeof(page))) {
 				__swap_writepage(page, &wbc, end_swap_bio_write);
 			}
 		}
 	}
+
+	kfree(kcd);
 	return 0;
 }
 
