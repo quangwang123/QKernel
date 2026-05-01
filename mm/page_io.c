@@ -315,6 +315,8 @@ int kcompressd(void *p)
 		.range_end = LLONG_MAX,
 		.for_reclaim = 1,
 	};
+	
+	current->flags |= PF_KSWAPD;
 
 	while (!kthread_should_stop()) {
 		wait_event_interruptible(pgdat->kcompressd_wait[kcd->hid],
