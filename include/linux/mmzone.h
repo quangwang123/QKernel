@@ -40,7 +40,7 @@
  */
 #define PAGE_ALLOC_COSTLY_ORDER 3
 
-#define MAX_KCOMPRESSD_THREADS 2
+#define MAX_KCOMPRESSD_THREADS 3
 
 enum migratetype {
 	MIGRATE_UNMOVABLE,
@@ -907,7 +907,7 @@ typedef struct pglist_data {
 
 	int kswapd_failures;		/* Number of 'reclaimed == 0' runs */
 
-#define KCOMPRESS_FIFO_SIZE 128
+#define KCOMPRESS_FIFO_SIZE 256
 	wait_queue_head_t kcompressd_wait[MAX_KCOMPRESSD_THREADS];
 	struct task_struct *kcompressd[MAX_KCOMPRESSD_THREADS];
 	struct kfifo kcompress_fifo[MAX_KCOMPRESSD_THREADS];
