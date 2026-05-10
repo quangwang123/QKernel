@@ -181,7 +181,7 @@ irqreturn_t __handle_irq_event_percpu(struct irq_desc *desc, unsigned int *flags
 	return retval;
 }
 
-irqreturn_t handle_irq_event_percpu(struct irq_desc *desc)
+irqreturn_t __hot handle_irq_event_percpu(struct irq_desc *desc)
 {
 	irqreturn_t retval;
 	unsigned int flags = 0;
@@ -195,7 +195,7 @@ irqreturn_t handle_irq_event_percpu(struct irq_desc *desc)
 	return retval;
 }
 
-irqreturn_t handle_irq_event(struct irq_desc *desc)
+irqreturn_t __hot handle_irq_event(struct irq_desc *desc)
 {
 	irqreturn_t ret;
 
