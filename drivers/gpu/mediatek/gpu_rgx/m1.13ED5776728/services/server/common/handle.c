@@ -1277,7 +1277,7 @@ PVRSRV_ERROR PVRSRVFindHandleUnlocked(PVRSRV_HANDLE_BASE *psBase,
  @Output        ppvData - points to the return data pointer
  @Return        Error code or PVRSRV_OK
 ******************************************************************************/
-PVRSRV_ERROR PVRSRVLookupHandle(PVRSRV_HANDLE_BASE *psBase,
+PVRSRV_ERROR __hot PVRSRVLookupHandle(PVRSRV_HANDLE_BASE *psBase,
 				void **ppvData,
 				IMG_HANDLE hHandle,
 				PVRSRV_HANDLE_TYPE eType,
@@ -1305,7 +1305,7 @@ PVRSRV_ERROR PVRSRVLookupHandle(PVRSRV_HANDLE_BASE *psBase,
  @Output        ppvData - points to the returned data pointer
  @Return        Error code or PVRSRV_OK
 ******************************************************************************/
-PVRSRV_ERROR PVRSRVLookupHandleUnlocked(PVRSRV_HANDLE_BASE *psBase,
+PVRSRV_ERROR __hot PVRSRVLookupHandleUnlocked(PVRSRV_HANDLE_BASE *psBase,
 				void **ppvData,
 				IMG_HANDLE hHandle,
 				PVRSRV_HANDLE_TYPE eType,
