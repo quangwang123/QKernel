@@ -449,10 +449,6 @@ PVRSRVDebugRequest(PVRSRV_DEVICE_NODE *psDevNode,
 
 	PVR_DUMPDEBUG_LOG("Time now: %" IMG_UINT64_FMTSPEC "us",
 	                  OSClockus64());
-<<<<<<< HEAD
-=======
-
->>>>>>> b0b374a8b0a9 (gpu_rgx: mtk_pp leftovers)
 	switch (psPVRSRVData->eServicesState)
 	{
 		case PVRSRV_SERVICES_STATE_OK:
