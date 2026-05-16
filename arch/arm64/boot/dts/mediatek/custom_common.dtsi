@@ -602,9 +602,9 @@
         compatible = "ti,bq2560x_charger","eta,eta6963_charger","cx,cx7601_charger";
         reg = <0x6B>;
         ti,bq2560x,usb-vlim = <4600>;
-        ti,bq2560x,usb-ilim = <500>;
+        ti,bq2560x,usb-ilim = <2048>;
         ti,bq2560x,usb-vreg = <4400>;
-        ti,bq2560x,usb-ichg = <500>;
+        ti,bq2560x,usb-ichg = <2048>;
         ti,bq2560x,precharge-current = <180>;
         ti,bq2560x,termination-current = <240>;
         ti,bq2560x,boost-voltage = <5150>;
