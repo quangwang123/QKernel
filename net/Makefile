@@ -7,11 +7,6 @@
 #
 subdir-ccflags-y := -Oz
 
-ifdef CONFIG_MINIMAL_LTO
-ccflags-y += -flto
-subdir-ccflags-y += -flto
-endif
-
 obj-$(CONFIG_NET)		:= socket.o core/
 
 tmp-$(CONFIG_COMPAT) 		:= compat.o
