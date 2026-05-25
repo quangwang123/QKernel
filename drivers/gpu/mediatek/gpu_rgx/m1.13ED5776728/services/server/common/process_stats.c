@@ -1909,10 +1909,7 @@ PVRSRVStatsIncrMemAllocStat(PVRSRV_MEM_ALLOC_TYPE eAllocType,
 	enum { PVRSRV_PROC_NOTFOUND,
 	       PVRSRV_PROC_FOUND,
 	       PVRSRV_PROC_RESURRECTED
-	     }
-#if defined(PVRSRV_DEBUG_LINUX_MEMORY_STATS)
-	eProcSearch = PVRSRV_PROC_FOUND;
-#endif /* defined(PVRSRV_DEBUG_LINUX_MEMORY_STATS) */
+	     } eProcSearch = PVRSRV_PROC_FOUND;
 
 	/* Don't do anything if we are not initialised or we are shutting down! */
 	if (!bProcessStatsInitialised)
