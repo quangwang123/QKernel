@@ -118,8 +118,6 @@ enum tick_dep_bits {
 
 extern void register_tick_sched_wakeup_callback(void (*cb)(void));
 
-extern void register_tick_sched_wakeup_callback(void (*cb)(void));
-
 #ifdef CONFIG_NO_HZ_COMMON
 extern bool tick_nohz_enabled;
 extern bool tick_nohz_tick_stopped(void);
