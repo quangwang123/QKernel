@@ -142,75 +142,8 @@ do {			\
 }
 #endif
 
-/*#define CMDQ_PROFILE*/
-
 /* typedef unsigned long long CMDQ_TIME; */
 #define CMDQ_TIME unsigned long long
-
-#ifdef CMDQ_PROFILE
-#define CMDQ_PROF_INIT()	\
-{		\
-do {if (cmdq_core_met_enabled()) met_tag_init(); } while (0);	\
-}
-
-#define CMDQ_PROF_START(args...)	\
-{		\
-do {if (cmdq_core_met_enabled()) met_tag_start(args);	\
-	} while (0);	\
-}
-
-#define CMDQ_PROF_END(args...)	\
-{		\
-do {if (cmdq_core_met_enabled()) met_tag_end(args);	\
-	} while (0);	\
-}
-#define CMDQ_PROF_ONESHOT(args...)	\
-{		\
-do {if (cmdq_core_met_enabled()) met_tag_oneshot(args);	\
-	} while (0);	\
-}
-#else
-#define CMDQ_PROF_INIT()
-#define CMDQ_PROF_START(args...)
-#define CMDQ_PROF_END(args...)
-#define CMDQ_PROF_ONESHOT(args...)
-#endif
-
-#if IS_ENABLED(CMDQ_MMPROFILE_SUPPORT)
-#define CMDQ_PROF_MMP(args...)\
-{\
-do {if (1) mmprofile_log_ex(args); } while (0);	\
-}
-#else
-#define CMDQ_PROF_MMP(args...)
-#endif
-
-/* CMDQ FTRACE */
-#define CMDQ_TRACE_FORCE_BEGIN(fmt, args...) do { \
-	preempt_disable(); \
-	event_trace_printk(cmdq_get_tracing_mark(), \
-		"B|%d|"fmt, current->tgid, ##args); \
-	preempt_enable();\
-} while (0)
-
-#define CMDQ_TRACE_FORCE_END() do { \
-	preempt_disable(); \
-	event_trace_printk(cmdq_get_tracing_mark(), "E\n"); \
-	preempt_enable(); \
-} while (0)
-
-
-#define CMDQ_SYSTRACE_BEGIN(fmt, args...) do { \
-	if (cmdq_core_ftrace_enabled()) { \
-		CMDQ_TRACE_FORCE_BEGIN(fmt, ##args); \
-	} \
-} while (0)
-
-#define CMDQ_SYSTRACE_END() do { \
-	if (cmdq_core_ftrace_enabled()) { \
-		CMDQ_TRACE_FORCE_END(); \
-	} \
-} while (0)
 
 #define CMDQ_GET_TIME_IN_MS(start, end, duration)	\
 {	\
