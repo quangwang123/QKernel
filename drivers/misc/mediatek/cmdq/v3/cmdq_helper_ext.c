@@ -31,9 +31,6 @@
 #ifdef CMDQ_SECURE_PATH_SUPPORT
 #include "cmdq_sec.h"
 #endif
-#if IS_ENABLED(CONFIG_MMPROFILE)
-#include "cmdq_mmp.h"
-#endif
 
 #define CMDQ_GET_COOKIE_CNT(thread) \
 	(CMDQ_REG_GET32(CMDQ_THR_EXEC_CNT(thread)) & CMDQ_MAX_COOKIE_VALUE)
@@ -1799,30 +1796,13 @@ void *cmdq_core_alloc_hw_buffer(struct device *dev, size_t size,
 		PA = 0;
 		pVA = NULL;
 
-		CMDQ_PROF_START(current->pid, __func__);
-		CMDQ_PROF_MMP(cmdq_mmp_get_event()->alloc_buffer,
-			MMPROFILE_FLAG_START, current->pid, size);
 		alloc_cost = sched_clock();
 
 		pVA = dma_alloc_coherent(dev, size, &PA, flag);
 
 		alloc_cost = sched_clock() - alloc_cost;
-		CMDQ_PROF_MMP(cmdq_mmp_get_event()->alloc_buffer,
-			MMPROFILE_FLAG_END, current->pid, alloc_cost);
-		CMDQ_PROF_END(current->pid, __func__);
 
 		if (alloc_cost > CMDQ_PROFILE_LIMIT_1) {
-#if defined(__LP64__) || defined(_LP64)
-			CMDQ_LOG(
-				"[warn] alloc buffer (size:%zu) cost %llu us > %ums\n",
-				size, alloc_cost / 1000,
-				CMDQ_PROFILE_LIMIT_1 / 1000000);
-#else
-			CMDQ_LOG(
-				"[warn] alloc buffer (size:%zu) cost %llu us > %llums\n",
-				size, div_s64(alloc_cost, 1000),
-				div_s64(CMDQ_PROFILE_LIMIT_1, 1000000));
-#endif
 		}
 
 	} while (0);
@@ -2113,10 +2093,6 @@ void cmdqCoreReadWriteAddressBatch(u32 *addrs, u32 count, u32 *val_out)
 	/* search for the entry */
 	spin_lock_irqsave(&cmdq_write_addr_lock, flags);
 
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->read_reg,
-		MMPROFILE_FLAG_START, ((unsigned long)addrs),
-		(u32)atomic_read(&cmdq_ctx.write_addr_cnt));
-
 	for (i = 0; i < count; i++) {
 		pa = addrs[i];
 
@@ -2140,9 +2116,6 @@ void cmdqCoreReadWriteAddressBatch(u32 *addrs, u32 count, u32 *val_out)
 		else
 			val_out[i] = 0;
 	}
-
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->read_reg,
-		MMPROFILE_FLAG_END, ((unsigned long)addrs), count);
 
 	spin_unlock_irqrestore(&cmdq_write_addr_lock, flags);
 
@@ -3288,9 +3261,6 @@ static void cmdq_core_attach_cmdq_error(
 	u64 eng_flag = 0;
 	s32 index = 0;
 	struct EngineStruct *engines = cmdq_mdp_get_engines();
-
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->warning, MMPROFILE_FLAG_PULSE,
-		((unsigned long)handle), thread);
 
 	/* Update engine fail count */
 	eng_flag = handle->engineFlag;
@@ -4734,9 +4704,6 @@ static void cmdq_pkt_err_dump_handler(struct cmdq_cb_data data)
 		return;
 	}
 
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->timeout, MMPROFILE_FLAG_START,
-		(unsigned long)handle, handle->thread);
-
 	if (data.err == -ETIMEDOUT) {
 		atomic_inc(&handle->exec);
 		cmdq_core_attach_error_handle_by_state(handle,
@@ -4746,9 +4713,6 @@ static void cmdq_pkt_err_dump_handler(struct cmdq_cb_data data)
 		/* store PC for later dump buffer */
 		handle->error_irq_pc = cmdq_core_get_pc(handle->thread);
 	}
-
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->timeout, MMPROFILE_FLAG_END,
-		(unsigned long)handle, handle->thread);
 }
 
 static void cmdq_pkt_flush_handler(struct cmdq_cb_data data)
@@ -4797,9 +4761,6 @@ static void cmdq_pkt_flush_handler(struct cmdq_cb_data data)
 			CMDQ_LOG("loop callback done\n");
 		}
 
-		CMDQ_PROF_MMP(cmdq_mmp_get_event()->loopBeat,
-			MMPROFILE_FLAG_PULSE, handle->thread, loop_ret);
-
 		if (data.err == -ECONNABORTED) {
 			/* loop stopped */
 			handle->state = TASK_STATE_KILLED;
@@ -4834,9 +4795,6 @@ static void cmdq_pkt_flush_handler(struct cmdq_cb_data data)
 	if (handle->state == TASK_STATE_TIMEOUT ||
 		handle->state == TASK_STATE_ERR_IRQ)
 		cmdq_core_group_reset_hw(handle->engineFlag);
-
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->CMDQ_IRQ, MMPROFILE_FLAG_PULSE,
-		(unsigned long)handle, handle->thread);
 
 	wake_up(&cmdq_wait_queue[(u32)handle->thread]);
 }
@@ -4898,17 +4856,12 @@ s32 cmdq_pkt_wait_flush_ex_result(struct cmdqRecStruct *handle)
 	const struct cmdq_controller *ctrl = handle->ctrl;
 	struct cmdq_client *client;
 
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->wait_task,
-		MMPROFILE_FLAG_PULSE, ((unsigned long)handle), handle->thread);
-
 	if (!cmdq_clients[(u32)handle->thread]) {
 		CMDQ_ERR("thread:%d cannot use since client is not used\n",
 			handle->thread);
 		return -EINVAL;
 	}
 
-
-	CMDQ_SYSTRACE_BEGIN("%s_wait_done\n", __func__);
 	handle->beginWait = sched_clock();
 
 	client = cmdq_clients[(u32)handle->thread];
@@ -4966,7 +4919,6 @@ s32 cmdq_pkt_wait_flush_ex_result(struct cmdqRecStruct *handle)
 	} while (1);
 
 	handle->wakedUp = sched_clock();
-	CMDQ_SYSTRACE_END();
 
 	if (handle->profile_exec) {
 		u32 *va = cmdq_pkt_get_perf_ret(handle->pkt);
@@ -4990,24 +4942,12 @@ s32 cmdq_pkt_wait_flush_ex_result(struct cmdqRecStruct *handle)
 				}
 			}
 		}
-
-		CMDQ_PROF_MMP(cmdq_mmp_get_event()->task_exec,
-			MMPROFILE_FLAG_PULSE, ((unsigned long)handle), exec);
 	}
 
 	status = ctrl->handle_wait_result(handle, handle->thread);
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->wait_task_done,
-		MMPROFILE_FLAG_PULSE, ((unsigned long)handle),
-		handle->wakedUp - handle->beginWait);
 
-	CMDQ_SYSTRACE_BEGIN("%s_wait_release\n", __func__);
 	cmdq_core_track_handle_record(handle, handle->thread);
 	cmdq_pkt_release_handle(handle);
-
-	CMDQ_SYSTRACE_END();
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->wait_task_clean,
-		MMPROFILE_FLAG_PULSE, ((unsigned long)handle->pkt),
-		(unsigned long)handle->pkt);
 
 	return status;
 }
@@ -5029,8 +4969,6 @@ static void cmdq_pkt_auto_release_work(struct work_struct *work)
 	cb = handle->async_callback;
 	user_data = handle->async_user_data;
 
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->autoRelease_done,
-		MMPROFILE_FLAG_PULSE, ((unsigned long)handle), current->pid);
 	cmdq_pkt_wait_flush_ex_result(handle);
 
 	if (cb)
@@ -5045,9 +4983,6 @@ s32 cmdq_pkt_auto_release_task(struct cmdqRecStruct *handle)
 			handle, handle->pkt, handle->thread, handle->scenario);
 		return -EINVAL;
 	}
-
-	CMDQ_PROF_MMP(cmdq_mmp_get_event()->autoRelease_add,
-		MMPROFILE_FLAG_PULSE, ((unsigned long)handle), handle->thread);
 
 	/* the work item is embedded in pTask already
 	 * but we need to initialized it
@@ -5145,7 +5080,6 @@ static s32 cmdq_pkt_flush_async_ex_impl(struct cmdqRecStruct *handle,
 	/* TODO: remove pmqos in seure path */
 	if (!handle->secData.is_secure) {
 		/* PMQoS */
-		CMDQ_SYSTRACE_BEGIN("%s_pmqos\n", __func__);
 		mutex_lock(&cmdq_thread_mutex);
 		ctx = cmdq_core_get_context();
 		handle_count = ctx->thread[(u32)handle->thread].handle_count;
@@ -5167,10 +5101,8 @@ static s32 cmdq_pkt_flush_async_ex_impl(struct cmdqRecStruct *handle,
 		kfree(pmqos_handle_list);
 		ctx->thread[(u32)handle->thread].handle_count++;
 		mutex_unlock(&cmdq_thread_mutex);
-		CMDQ_SYSTRACE_END();
 	}
 
-	CMDQ_SYSTRACE_BEGIN("%s\n", __func__);
 	cmdq_core_replace_v3_instr(handle, handle->thread);
 	if (handle->pkt->cl != client) {
 		CMDQ_LOG("cl:%p not same client:%p\n", handle->pkt->cl, client);
@@ -5178,7 +5110,6 @@ static s32 cmdq_pkt_flush_async_ex_impl(struct cmdqRecStruct *handle,
 	}
 	err = cmdq_pkt_flush_async(handle->pkt, cmdq_pkt_flush_handler,
 		(void *)handle);
-	CMDQ_SYSTRACE_END();
 
 	if (err < 0) {
 		CMDQ_ERR("pkt flush failed err:%d pkt:0x%p\n",
@@ -5220,9 +5151,7 @@ s32 cmdq_pkt_flush_async_ex(struct cmdqRecStruct *handle,
 	if (handle->pkt->loop)
 		handle->running_task = (void *)handle;
 
-	CMDQ_SYSTRACE_BEGIN("%s\n", __func__);
 	err = cmdq_pkt_flush_async_ex_impl(handle, cb, user_data);
-	CMDQ_SYSTRACE_END();
 
 	if (err < 0) {
 		if (handle->thread == CMDQ_INVALID_THREAD || err == -EBUSY)
@@ -5500,12 +5429,6 @@ void cmdq_core_initialize(void)
 		PAGE_SIZE);
 #endif
 
-	/* Initialize MET for statistics */
-	/* note that we don't need to uninit it. */
-	CMDQ_PROF_INIT();
-#if IS_ENABLED(CONFIG_MMPROFILE)
-	cmdq_mmp_init();
-#endif
 #ifdef CMDQ_SECURE_PATH_SUPPORT
 	/* Initialize secure path context */
 	cmdqSecInitialize();
