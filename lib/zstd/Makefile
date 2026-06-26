@@ -8,18 +8,6 @@
 # in the COPYING file in the root directory of this source tree).
 # You may select, at your option, one of the above-listed licenses.
 # ################################################################
-
-ccflags-y += -Ofast
-subdir-ccflags-y += -Ofast
-
-subdir-ccflags-y += -mllvm -inline-threshold=3750
-subdir-ccflags-y += -mllvm -unroll-threshold=2000
-subdir-ccflags-y += -mllvm -inlinehint-threshold=1800
-
-ccflags-y += -mllvm -inline-threshold=3750
-ccflags-y += -mllvm -unroll-threshold=2000
-ccflags-y += -mllvm -inlinehint-threshold=1800
-
 obj-$(CONFIG_ZSTD_COMPRESS) += zstd_compress.o
 obj-$(CONFIG_ZSTD_DECOMPRESS) += zstd_decompress.o
 obj-$(CONFIG_ZSTD_COMMON) += zstd_common.o

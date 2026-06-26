@@ -3,9 +3,6 @@
 # Cryptographic API
 #
 
-ccflags-y += -Ofast
-subdir-ccflags-y += -Ofast
-
 ifdef CONFIG_MINIMAL_LTO
 ccflags-y += -flto
 subdir-ccflags-y += -flto
