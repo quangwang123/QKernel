@@ -40,9 +40,9 @@
 #define M4U_LOG_LEVEL_MID     2
 #define M4U_LOG_LEVEL_LOW     1
 
-#define M4U_LOW(string, args...)   pr_debug(string, ##args)
-#define M4U_MID(string, args...)   pr_debug(string, ##args)
-#define M4U_HIGH(string, args...)  pr_debug(string, ##args)
+#define M4U_LOW(string, args...)   ((void)0)
+#define M4U_MID(string, args...)   ((void)0)
+#define M4U_HIGH(string, args...)  ((void)0)
 
 /* for pass check service */
 #define m4u_low_info    M4U_LOW
