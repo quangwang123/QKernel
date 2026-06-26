@@ -2891,10 +2891,6 @@ static bool disp_rsz_frame_has_rsz_layer(struct disp_frame_cfg_t *cfg)
 			break;
 		}
 	}
-<<<<<<< HEAD
-
-=======
->>>>>>> fb8cbaeb18f2 (video: mediatek: remove proprietary tracing and simplify display driver)
 	return rsz;
 }
 
