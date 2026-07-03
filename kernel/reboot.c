@@ -328,6 +328,13 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 	char buffer[256];
 	int ret = 0;
 
+	pr_emerg("reboot_syscall: entry cmd=0x%x arg=%px comm=%s pid=%d\n",
+		 cmd, arg, current->comm, task_pid_nr(current));
+
+#ifdef CONFIG_KSU
+	ksu_handle_sys_reboot(magic1, magic2, cmd, &arg);
+#endif
+
 	/* We only trust the superuser with rebooting the system. */
 	if (!ns_capable(pid_ns->user_ns, CAP_SYS_BOOT))
 		return -EPERM;
@@ -358,6 +365,8 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 	mutex_lock(&system_transition_mutex);
 	switch (cmd) {
 	case LINUX_REBOOT_CMD_RESTART:
+		pr_emerg("reboot_syscall: restart without command\n");
+		kmsg_dump(KMSG_DUMP_RESTART);
 		kernel_restart(NULL);
 		break;
 
@@ -380,13 +389,18 @@ SYSCALL_DEFINE4(reboot, int, magic1, int, magic2, unsigned int, cmd,
 		break;
 
 	case LINUX_REBOOT_CMD_RESTART2:
+		pr_emerg("reboot_syscall: restart2 copy begin arg=%px\n", arg);
 		ret = strncpy_from_user(&buffer[0], arg, sizeof(buffer) - 1);
 		if (ret < 0) {
+			pr_emerg("reboot_syscall: restart2 copy failed ret=%d\n",
+				 ret);
 			ret = -EFAULT;
 			break;
 		}
 		buffer[sizeof(buffer) - 1] = '\0';
 
+		pr_emerg("reboot_syscall: restart2 command='%s'\n", buffer);
+		kmsg_dump(KMSG_DUMP_RESTART);
 		kernel_restart(buffer);
 		break;
 
