@@ -336,14 +336,23 @@
 #define T8EV5_SENSOR_ID                         0x1011
 
 /*M505 ImageSensor*/
+#define HYNIX_HI556_I_SENSOR_ID                0x556
 #define GC_GC5035_I_SENSOR_ID			0x5035
 #define GC_GC5035_II_SENSOR_ID			0x5036
 #define GC_GC5035_III_SENSOR_ID			0x5037
-#define GC_GC5035_IIII_SENSOR_ID		0x5038
+#define GC_GC5035_IIII_SENSOR_ID			0x5038
 #define HYNIX_HI1337_I_SENSOR_ID                0x1337
 #define HYNIX_HI1337_II_SENSOR_ID               0x1338
 #define HYNIX_HI1337_III_SENSOR_ID              0x1339
-#define HYNIX_HI1337_IIII_SENSOR_ID             0x133a
+#define HYNIX_HI1337_IIII_SENSOR_ID              0x133a
+#define GC02M1_SENSOR_ID                        0x02e0
+#define GC02M1MACRO_SENSOR_ID                   0x02e2
+#define HYNIX_HI259_I_SENSOR_ID 	0xe1
+#define HYNIX_HI259_II_SENSOR_ID 	0xe2
+#define HYNIX_HI259_III_SENSOR_ID 	0xe3
+#define HYNIX_HI259_IV_SENSOR_ID 	0xe4
+#define OV02B_SENSOR_ID 	0x2b
+#define OV02B_III_SENSOR_ID 	0x2c
 
 /* CAMERA DRIVER NAME */
 #define CAMERA_HW_DEVNAME                       "kd_camera_hw"
@@ -541,18 +550,31 @@
 #define SENSOR_DRVNAME_OV13870_MIPI_RAW_5MP     "ov13870_mipi_raw_5mp"
 #define SENSOR_DRVNAME_OV8856_MIPI_RAW_5MP      "ov8856_mipi_raw_5mp"
 /*M505 SENSOR_DRVNAME*/
+#define SENSOR_DRVNAME_HYNIX_HI556_I             "hynix_hi556_i"
 #define SENSOR_DRVNAME_GC_GC5035_I      "gc_gc5035_i"
 #define SENSOR_DRVNAME_GC_GC5035_II      "gc_gc5035_ii"
 #define SENSOR_DRVNAME_GC_GC5035_III      "gc_gc5035_iii"
-#define SENSOR_DRVNAME_GC_GC5035_IIII       "gc_gc5035_iiii"
+#define SENSOR_DRVNAME_GC_GC5035_IIII      "gc_gc5035_iiii"
 #define SENSOR_DRVNAME_HYNIX_HI1337_I             "hynix_hi1337_i"
 #define SENSOR_DRVNAME_HYNIX_HI1337_II             "hynix_hi1337_ii"
 #define SENSOR_DRVNAME_HYNIX_HI1337_III             "hynix_hi1337_iii"
 #define SENSOR_DRVNAME_HYNIX_HI1337_IIII             "hynix_hi1337_iiii"
+#define SENSOR_DRVNAME_HYNIX_HI259_I		"hynix_hi259_i"
+#define SENSOR_DRVNAME_HYNIX_HI259_II		"hynix_hi259_ii"
+#define SENSOR_DRVNAME_HYNIX_HI259_III		"hynix_hi259_iii"
+#define SENSOR_DRVNAME_HYNIX_HI259_IV		"hynix_hi259_iv"
+#define SENSOR_DRVNAME_GC_GC02M1_II           "gc_gc02m1_ii"
+#define SENSOR_DRVNAME_OV_OV02B_I	"ov_ov02b_i"
+#define SENSOR_DRVNAME_OV_OV02B_III	"ov_ov02b_iii"
+#define SENSOR_DRVNAME_GC02M1MACRO_MIPI_RAW           "gc02m1macro_mipi_raw"
 #define SENSOR_DRVNAME_GC_GC5035_INDIA_I      "gc_gc5035_india_i"
 #define SENSOR_DRVNAME_GC_GC5035_INDIA_II      "gc_gc5035_india_ii"
 #define SENSOR_DRVNAME_HYNIX_HI1337_INDIA_I             "hynix_hi1337_india_i"
 #define SENSOR_DRVNAME_HYNIX_HI1337_INDIA_II             "hynix_hi1337_india_ii"
+#define SENSOR_DRVNAME_HYNIX_HI259_INDIA_I		"hynix_hi259_india_i"
+#define SENSOR_DRVNAME_HYNIX_HI259_INDIA_II		"hynix_hi259_india_ii"
+#define SENSOR_DRVNAME_GC_GC02M1_INDIA_II       "gc_gc02m1_india_ii"
+#define SENSOR_DRVNAME_OV_OV02B_INDIA_I         "ov_ov02b_india_i"
 
 
 /******************************************************************************
