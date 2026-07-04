@@ -146,7 +146,7 @@ struct pvr_counting_fence_timeline *pvr_counting_fence_timeline_create(
 				DEBUG_REQUEST_LINUXFENCE,
 				timeline);
 	if (srv_err != PVRSRV_OK) {
-		pr_no_err("%s: failed to register debug request callback (%s)\n",
+		pr_err("%s: failed to register debug request callback (%s)\n",
 		       __func__, PVRSRVGetErrorString(srv_err));
 		goto err_free_timeline_ctx;
 	}

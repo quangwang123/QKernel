@@ -412,7 +412,7 @@ static void set_shutter_frame_length(
 	spin_lock_irqsave(&imgsensor_drv_lock, flags);
 	imgsensor.shutter = shutter;
 	spin_unlock_irqrestore(&imgsensor_drv_lock, flags);
-//	pr_no_err("hi1337 %s %d\n", __func__, __LINE__);
+//	pr_err("hi1337 %s %d\n", __func__, __LINE__);
 
 	spin_lock(&imgsensor_drv_lock);
 	if (frame_length > 1)

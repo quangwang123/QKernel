@@ -56,7 +56,7 @@ extern int gWmtDetectDbgLvl;
 do {} while (0)
 #define WMT_DETECT_PR_DBG(fmt, arg...) \
 do {} while (0)
-#define WMT_DETECT_pr_no_info(fmt, arg...) \
+#define WMT_DETECT_pr_info(fmt, arg...) \
 do {} while (0)
 
 #define WMT_DETECT_IOC_MAGIC            'w'

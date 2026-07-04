@@ -93,7 +93,7 @@ do { \
 		++((prb)->write); \
 	} \
 	else { \
-		pr_no_info("RB is full!"); \
+		pr_info("RB is full!"); \
 	} \
 } while (0)
 
@@ -108,7 +108,7 @@ do { \
 	} \
 	else { \
 		value = NULL; \
-		pr_no_info("RB is empty!"); \
+		pr_info("RB is empty!"); \
 	} \
 } while (0)
 

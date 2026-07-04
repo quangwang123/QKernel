@@ -51,7 +51,7 @@ extern INT32 wmtPlatLogLvl;
 
 #define WMT_PLAT_PR_LOUD(fmt, arg...) \
 do {} while (0)
-#define WMT_PLAT_pr_no_info(fmt, arg...) \
+#define WMT_PLAT_pr_info(fmt, arg...) \
 do {} while (0)
 #define WMT_PLAT_PR_DBG(fmt, arg...) \
 do {} while (0)
