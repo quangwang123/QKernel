@@ -216,6 +216,14 @@ static u64 __calc_delta(u64 delta_exec, unsigned long weight, struct load_weight
 	return mul_u64_u32_shr(delta_exec, fact, shift);
 }
 
+static u64 calc_delta_fair(u64 delta, struct sched_entity *se)
+{
+	if (unlikely(se->load.weight != NICE_0_LOAD))
+		delta = __calc_delta(delta, NICE_0_LOAD, &se->load);
+
+	return delta;
+}
+
 const struct sched_class fair_sched_class;
 
 /**************************************************************
@@ -3433,8 +3441,8 @@ static long calc_group_runnable(struct cfs_rq *cfs_rq, long shares)
 	load_avg = max(cfs_rq->avg.load_avg,
 				   scale_load_down(cfs_rq->load.weight));
 
-	runnable = max(cfs_rq->avg.runnable_load_avg,
-				   scale_load_down(cfs_rq->runnable_weight));
+	runnable = max_t(long, cfs_rq->avg.runnable_load_avg,
+			 scale_load_down(cfs_rq->runnable_weight));
 
 	runnable *= shares;
 	if (load_avg)
@@ -6455,12 +6463,12 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
 
 	time = local_clock();
 
-	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
-		if (!--nr)
-			return si_cpu;
-		if (available_idle_cpu(cpu) || sched_idle_cpu(cpu))
-			break;
-	}
+		for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
+			if (!--nr)
+				return cpu;
+			if (available_idle_cpu(cpu) || sched_idle_cpu(cpu))
+				break;
+		}
 
 	time = local_clock() - time;
 	cost = this_sd->avg_scan_cost;

@@ -57,6 +57,7 @@ const_debug unsigned int sysctl_sched_nr_migrate = NR_CPUS;
 unsigned int sysctl_sched_rt_period = 1000000;
 
 __read_mostly int scheduler_running;
+int sched_thermal_decay_shift;
 
 /*
  * part of the period that we allow rt tasks to run in us.
@@ -3965,6 +3966,14 @@ void scheduler_tick(void)
 #endif
 }
 
+void get_iowait_load(unsigned long *nr_waiters, unsigned long *load)
+{
+	struct rq *rq = this_rq();
+
+	*nr_waiters = atomic_read(&rq->nr_iowait);
+	*load = rq->cfs.load.weight;
+}
+
 #ifdef CONFIG_NO_HZ_FULL
 
 struct tick_work {
@@ -5883,17 +5892,6 @@ long msm_sched_setaffinity(pid_t pid, struct cpumask *new_mask)
 		cpumask_copy(new_mask, &forced_mask);
 	}
 	return sched_setaffinity(pid, new_mask);
-}
-
-static int get_user_cpu_mask(unsigned long __user *user_mask_ptr, unsigned len,
-			     struct cpumask *new_mask)
-{
-	if (len < cpumask_size())
-		cpumask_clear(new_mask);
-	else if (len > cpumask_size())
-		len = cpumask_size();
-
-	return copy_from_user(new_mask, user_mask_ptr, len) ? -EFAULT : 0;
 }
 
 /**
