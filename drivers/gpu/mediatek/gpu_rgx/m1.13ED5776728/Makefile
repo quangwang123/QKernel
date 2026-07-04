@@ -1,4 +1,4 @@
-OPTIM = -Os
+OPTIM = -Os -fdata-sections -ffunction-sections -finline-functions -ftree-vectorize -funroll-loops
 
 $(info [GPU_DEBUG] MTK_PLATFORM = $(MTK_PLATFORM))
 
@@ -11,8 +11,6 @@ else ifeq ($(MTK_PLATFORM),mt6761)
 else ifeq ($(MTK_PLATFORM),mt6739)
 	ccflags-y += -DCONFIG_MACH_MT6739
 endif
-
-ccflags-$(CONFIG_MTK_TINYSYS_SSPM_SUPPORT) += -DSSPM_DEBUG
 
 ifeq ($(word 2,$(MTK_GPU_VERSION)),marlowe)
 	ECO := v2
@@ -35,7 +33,7 @@ else
 endif
 
 ccflags-y += \
-	-D__linux__ $(OPTIM) -g \
+	-D__linux__ $(OPTIM) \
 	-fno-strict-aliasing \
 	-W -Wall \
 	-Wno-missing-field-initializers \
@@ -79,7 +77,6 @@ pvrsrvkm-y += \
 	services/system/rogue/rgx_mtk/ion_support.o \
 	services/system/rogue/rgx_mtk/sysconfig.o \
 	services/system/rogue/rgx_mtk/$(MTK_PLATFORM)/mtk_mfgsys.o \
-	services/system/rogue/rgx_mtk/mtk_pp.o \
 	services/system/rogue/common/vmm_type_stub.o \
 	services/system/rogue/common/env/linux/interrupt_support.o \
 	services/system/rogue/common/env/linux/dma_support.o \

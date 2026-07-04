@@ -204,7 +204,10 @@ static void MTKWriteBackFreqToRGX(PVRSRV_DEVICE_NODE *psDevNode,
 			clk_set_parent(clkC, clkP) \
 	} while (0)
 #else
-#define MTKCLK_prepare_enable(clk)
+#define MTKCLK_prepare_enable(clk) do { \
+	if (clk) { \
+		clk_prepare_enable(clk) \
+	} while (0)
 
 #define MTKCLK_disable_unprepare(clk)
 
@@ -223,7 +226,6 @@ static void MTKEnableMfgMtcmos0(void)
 		isPowerOn = true;
 	}
 #else
-	MTKCLK_prepare_enable(mtcmos_mfg0);
 #endif
 }
 
