@@ -96,7 +96,7 @@ static int cpuhp_cpu_dead(unsigned int cpu)
 
 	cluster = get_cpu_topology(cpu, &isalone);
 
-	pr_debug_ratelimited("cpu_off cluster=%d, cpu=%d, isalone=%d\n",
+	pr_debug("cpu_off cluster=%d, cpu=%d, isalone=%d\n",
 		cluster, (int)cpu, isalone);
 
 	if (cpu_report_state(cpu) == CPU_DEAD_FROZEN)
@@ -106,7 +106,7 @@ static int cpuhp_cpu_dead(unsigned int cpu)
 		rc = cpuhp_platform_cpuoff(cluster, cpu, isalone, CPU_DEAD);
 
 	if (rc)
-		pr_debug_ratelimited("cpu off error! rc: %d\n", rc);
+		pr_debug("cpu off error! rc: %d\n", rc);
 
 	return rc;
 }
@@ -119,13 +119,13 @@ static int cpuhp_cpu_up(unsigned int cpu)
 
 	cluster = get_cpu_topology(cpu, &isalone);
 
-	pr_debug_ratelimited("cpu_on cluster=%d, cpu=%d, isalone=%d\n",
+	pr_debug("cpu_on cluster=%d, cpu=%d, isalone=%d\n",
 		cluster, (int)cpu, isalone);
 
 	rc = cpuhp_platform_cpuon(cluster, cpu, isalone, CPUHP_BRINGUP_CPU);
 
 	if (rc)
-		pr_debug_ratelimited("cpu on error! rc: %d\n", rc);
+		pr_debug("cpu on error! rc: %d\n", rc);
 
 	return rc;
 }

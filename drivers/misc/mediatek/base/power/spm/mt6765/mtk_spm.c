@@ -30,14 +30,12 @@ DEFINE_SPINLOCK(__spm_lock);
 
 void __attribute__ ((weak)) mtk_idle_cond_check_init(void)
 {
-	aee_sram_printk("NO %s !!!\n", __func__);
 	pr_info("[SPM] NO %s !!!\n", __func__);
 }
 
 /* Note: implemented in mtk_spm_dram.c */
 int __attribute__ ((weak)) spm_get_spmfw_idx(void)
 {
-	aee_sram_printk("NO %s !!!\n", __func__);
 	pr_info("[SPM] NO %s !!!\n", __func__);
 	return 1;
 }
@@ -45,7 +43,6 @@ int __attribute__ ((weak)) spm_get_spmfw_idx(void)
 /* Note: implemented in mtk_spm_irq.c */
 int __attribute__ ((weak)) mtk_spm_irq_register(unsigned int spmirq0)
 {
-	aee_sram_printk("NO %s !!!\n", __func__);
 	pr_info("[SPM] NO %s !!!\n", __func__);
 	return 0;
 }
@@ -56,14 +53,12 @@ int __attribute__ ((weak)) mtk_cpuidle_init(void) { return -EOPNOTSUPP; }
 /* Note: implemented in mtk_spm_dram.c */
 void __attribute__((weak)) spm_do_dram_config_check(void)
 {
-	aee_sram_printk("NO %s !!!\n", __func__);
 	pr_info("[SPM] NO %s !!!\n", __func__);
 }
 
 /* Note: implemented in mtk_spm_fs.c */
 int __attribute__((weak)) spm_fs_init(void)
 {
-	aee_sram_printk("NO %s !!!\n", __func__);
 	pr_info("[SPM] NO %s !!!\n", __func__);
 	return 0;
 }
@@ -198,14 +193,14 @@ static int spm_pm_event(struct notifier_block *notifier, unsigned long pm_event,
 	case PM_POST_HIBERNATION:
 		return NOTIFY_DONE;
 	case PM_SUSPEND_PREPARE:
-		printk_deferred(
+		pr_debug(
 		"[name:spm&][SPM] PM: suspend entry %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
 			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 			tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
 
 		return NOTIFY_DONE;
 	case PM_POST_SUSPEND:
-		printk_deferred(
+		pr_debug(
 		"[name:spm&][SPM] PM: suspend exit %d-%02d-%02d %02d:%02d:%02d.%09lu UTC\n",
 			tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
 			tm.tm_hour, tm.tm_min, tm.tm_sec, ts.tv_nsec);
