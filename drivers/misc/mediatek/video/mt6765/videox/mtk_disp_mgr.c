@@ -69,6 +69,11 @@
 
 #define DDP_OUTPUT_LAYID 4
 
+void dump_input_cfg_info(struct disp_input_config *input_cfg,
+	unsigned int session_id, int is_err)
+{
+}
+
 #if defined MTK_FB_SHARE_WDMA0_SUPPORT
 static int idle_flag = 1;
 static int smartovl_flag;

@@ -4,6 +4,7 @@
  */
 
 #include <linux/uaccess.h>
+#include <linux/gfp.h>
 #include "mtk_perfmgr_internal.h"
 #ifdef CONFIG_TRACING
 #include <linux/kallsyms.h>
@@ -146,5 +147,25 @@ void perfmgr_trace_log(char *module, const char *fmt, ...)
 	perfmgr_trace_printk(module, log);
 }
 
-#endif
+#else
+void perfmgr_trace_count(int val, const char *fmt, ...)
+{
+}
 
+void perfmgr_trace_printk(char *module, char *string)
+{
+}
+
+void perfmgr_trace_begin(char *name, int id, int a, int b)
+{
+}
+
+void perfmgr_trace_end(void)
+{
+}
+
+void perfmgr_trace_log(char *module, const char *fmt, ...)
+{
+}
+
+#endif

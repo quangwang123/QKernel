@@ -176,6 +176,7 @@ do { \
 	pr_notice("[cmdq][err] "fmt"\n", ##args)
 
 /* CMDQ FTRACE */
+#if defined(CONFIG_TRACING) && defined(CONFIG_TRACE_PRINTK)
 #define cmdq_trace_begin(fmt, args...) do { \
 	preempt_disable(); \
 	event_trace_printk(cmdq_get_tracing_mark(), \
@@ -213,6 +214,13 @@ extern int cmdq_trace;
 		"C|"fmt, ##args); \
 	preempt_enable(); \
 } while (0)
+#else
+#define cmdq_trace_begin(fmt, args...) do { } while (0)
+#define cmdq_trace_end() do { } while (0)
+#define cmdq_trace_ex_begin(fmt, args...) do { } while (0)
+#define cmdq_trace_ex_end() do { } while (0)
+#define cmdq_trace_c(fmt, args...) do { } while (0)
+#endif
 
 dma_addr_t cmdq_thread_get_pc(struct cmdq_thread *thread);
 dma_addr_t cmdq_thread_get_end(struct cmdq_thread *thread);

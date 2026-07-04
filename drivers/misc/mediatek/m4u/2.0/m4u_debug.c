@@ -27,6 +27,20 @@
 int gM4U_log_to_uart = 2;
 int gM4U_log_level = 2;
 
+void m4u_print_port_status(struct seq_file *seq, int only_print_active)
+{
+}
+
+int m4u_dump_main_tlb(int m4u_id, int m4u_slave_id)
+{
+	return 0;
+}
+
+int m4u_dump_pfh_tlb(int m4u_id)
+{
+	return 0;
+}
+
 #if IS_ENABLED(CONFIG_DEBUG_FS) || IS_ENABLED(CONFIG_PROC_FS)
 unsigned int gM4U_seed_mva;
 
@@ -1596,7 +1610,6 @@ const struct file_operations m4u_proc_buf_fops = {
 
 int m4u_debug_monitor_show(struct seq_file *s, void *unused)
 {
-	m4u_print_perf_counter(0, 0, "monitor");
 	return 0;
 }
 
@@ -1630,7 +1643,6 @@ const struct file_operations m4u_proc_monitor_fops = {
 
 int m4u_debug_register_show(struct seq_file *s, void *unused)
 {
-	m4u_dump_reg(0, 0, 400);
 	return 0;
 }
 
