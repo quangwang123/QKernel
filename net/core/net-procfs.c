@@ -293,12 +293,12 @@ static int __net_init dev_proc_net_init(struct net *net)
 out:
 	return rc;
 out_ptype:
-	if (!IS_ENABLED(CONFIG_PROC_STRIPPED))
-		remove_proc_entry("ptype", net->proc_net);
+#ifndef CONFIG_PROC_STRIPPED
+	remove_proc_entry("ptype", net->proc_net);
 out_softnet:
-	if (!IS_ENABLED(CONFIG_PROC_STRIPPED))
-		remove_proc_entry("softnet_stat", net->proc_net);
+	remove_proc_entry("softnet_stat", net->proc_net);
 out_dev:
+#endif
 	remove_proc_entry("dev", net->proc_net);
 	goto out;
 }
