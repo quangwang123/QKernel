@@ -5,6 +5,7 @@
  */
 
 #include <linux/kernel.h>
+#include <linux/time.h>
 #include <linux/delay.h>
 #include <linux/sched.h>
 #include <linux/of.h>
@@ -20,7 +21,7 @@
 	defined(CONFIG_MACH_MT6759) || defined(CONFIG_MACH_MT6763) || \
 	defined(CONFIG_MACH_MT6739) || defined(CONFIG_MACH_MT6758) || \
 	defined(CONFIG_MACH_MT6765) || defined(CONFIG_MACH_MT6761) || \
-	defined(CONFIG_MACH_MT3967)
+	defined(CONFIG_MACH_MT3967) || defined(CONFIG_MACH_MT6779)
 #include <ddp_clkmgr.h>
 #endif
 #endif
@@ -45,7 +46,11 @@
 
 /* #define GPIO_DVT_TEST */
 
+#if defined(CONFIG_MACH_MT6799)
+#define PWM0_CLK_NAMING (DISP_CLK_PWM0)
+#else
 #define PWM0_CLK_NAMING (DISP_PWM)
+#endif
 
 static int pwm_dbg_en;
 #define PWM_ERR(fmt, arg...) pr_notice("[PWM] %s: " fmt "\n", __func__, ##arg)
@@ -55,9 +60,39 @@ static int pwm_dbg_en;
 	do { if (pwm_dbg_en) pr_no_debug("[PWM] %s: " fmt "\n", __func__, ##arg); \
 		} while (0)
 
+#define PWM_LOG_BUFFER_SIZE 8
+
 static enum disp_pwm_id_t g_pwm_main_id = DISP_PWM0;
 static ddp_module_notify g_ddp_notify;
 
+#if defined(CONFIG_MACH_MT6799)
+#define PWM_TOTAL_MODULE_NUM (2)
+
+#define pwm_get_reg_base(id) ((id == DISP_PWM0) ? \
+	DISPSYS_PWM0_BASE : DISPSYS_PWM1_BASE)
+#define pwm_get_id_from_module(module) ((module == DISP_MODULE_PWM0) ? \
+	DISP_PWM0 : DISP_PWM1)
+#define index_of_pwm(id) ((id == DISP_PWM0) ? 0 : 1)
+
+#ifndef CONFIG_FPGA_EARLY_PORTING
+static atomic_t g_pwm_backlight[PWM_TOTAL_MODULE_NUM] = {
+	ATOMIC_INIT(-1), ATOMIC_INIT(-1) };
+static atomic_t g_pwm_en[PWM_TOTAL_MODULE_NUM] = {
+	ATOMIC_INIT(-1), ATOMIC_INIT(-1) };
+static atomic_t g_pwm_max_backlight[PWM_TOTAL_MODULE_NUM] = {
+#ifdef CONFIG_BACKLIGHT_SUPPORT_2047_FEATURE
+	ATOMIC_INIT(2047), ATOMIC_INIT(2047) };
+#else
+	ATOMIC_INIT(1023), ATOMIC_INIT(1023) };
+#endif
+static atomic_t g_pwm_is_power_on[PWM_TOTAL_MODULE_NUM] = {
+	ATOMIC_INIT(0), ATOMIC_INIT(0) };
+static atomic_t g_pwm_value_before_power_off[PWM_TOTAL_MODULE_NUM] = {
+	ATOMIC_INIT(0), ATOMIC_INIT(0) };
+static atomic_t g_pwm_is_change_state[PWM_TOTAL_MODULE_NUM] = {
+	ATOMIC_INIT(0), ATOMIC_INIT(0) };
+#endif				/* not define CONFIG_FPGA_EARLY_PORTING */
+#else
 #define PWM_TOTAL_MODULE_NUM (1)
 
 #define pwm_get_reg_base(id) (DISPSYS_PWM0_BASE)
@@ -79,15 +114,34 @@ static atomic_t g_pwm_value_before_power_off[PWM_TOTAL_MODULE_NUM] = {
 static atomic_t g_pwm_is_change_state[PWM_TOTAL_MODULE_NUM] = {
 	ATOMIC_INIT(0) };
 #endif				/* not define CONFIG_FPGA_EARLY_PORTING */
+#endif
 
 static int g_pwm_led_mode = MT65XX_LED_MODE_NONE;
 
+struct PWM_LOG {
+	int value;
+	unsigned long tsec;
+	unsigned long tusec;
+};
+
+enum PWM_LOG_TYPE {
+	NOTICE_LOG = 0,
+	MSG_LOG,
+};
+
+#if defined(CONFIG_MACH_MT6757) || defined(CONFIG_MACH_KIBOPLUS)
+#define PWM_USE_HIGH_ULPOSC_FQ
+#endif
 
 #ifndef CONFIG_FPGA_EARLY_PORTING
+static DEFINE_SPINLOCK(g_pwm_log_lock);
+static struct PWM_LOG g_pwm_log_buffer[PWM_LOG_BUFFER_SIZE + 1];
+static int g_pwm_log_index;
 #if defined(PWM_USE_HIGH_ULPOSC_FQ)
 static bool g_pwm_first_config[PWM_TOTAL_MODULE_NUM];
 #endif		/* PWM_USE_HIGH_ULPOSC_FQ */
 #endif		/* CONFIG_FPGA_EARLY_PORTING */
+static int g_pwm_log_num = PWM_LOG_BUFFER_SIZE;
 
 int disp_pwm_get_cust_led(unsigned int *clocksource, unsigned int *clockdiv)
 {
@@ -346,6 +400,9 @@ static void disp_pwm_set_enabled(struct cmdqRecStruct *cmdq,
 		return;
 
 	if (enabled) {
+#if defined(CONFIG_MACH_MT6799)
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_DISP_PWM_TRANSPARENT);
+#endif
 		/* Always use CPU to config DISP_PWM EN */
 		/* to avoid race condition */
 		DISP_REG_MASK(NULL, reg_base + DISP_PWM_EN_OFF, 0x1, 0x1);
@@ -353,9 +410,18 @@ static void disp_pwm_set_enabled(struct cmdqRecStruct *cmdq,
 
 		disp_pwm_set_drverIC_en(id, enabled);
 	} else {
+#if defined(CONFIG_MACH_MT6799)
+		disp_dts_gpio_select_state(DTS_GPIO_STATE_DISP_PWM_GPIO_LOW);
 		/* Always use CPU to config DISP_PWM EN */
 		/* to avoid race condition */
 		DISP_REG_MASK(NULL, reg_base + DISP_PWM_EN_OFF, 0x0, 0x1);
+		DISP_REG_SET(NULL, reg_base + DISP_PWM_RST_RX, 0x1);
+		DISP_REG_SET(NULL, reg_base + DISP_PWM_RST_RX, 0x0);
+#else
+		/* Always use CPU to config DISP_PWM EN */
+		/* to avoid race condition */
+		DISP_REG_MASK(NULL, reg_base + DISP_PWM_EN_OFF, 0x0, 0x1);
+#endif
 		PWM_MSG("PWN_EN (by CPU) = 0x0");
 
 		disp_pwm_set_drverIC_en(id, enabled);
@@ -378,6 +444,60 @@ static int disp_pwm_level_remap(enum disp_pwm_id_t id, int level_1024)
 	return level_1024;
 }
 
+#define LOGBUFFERSIZE 384
+static void disp_pwm_log(int level_1024, int log_type)
+{
+	int i;
+	struct timeval pwm_time;
+	char buffer[LOGBUFFERSIZE] = "";
+	int print_log;
+
+	do_gettimeofday(&pwm_time);
+
+	spin_lock(&g_pwm_log_lock);
+
+	g_pwm_log_buffer[g_pwm_log_index].value = level_1024;
+	g_pwm_log_buffer[g_pwm_log_index].tsec =
+		(unsigned long)pwm_time.tv_sec % 1000;
+	g_pwm_log_buffer[g_pwm_log_index].tusec =
+		(unsigned long)pwm_time.tv_usec / 1000;
+	g_pwm_log_index += 1;
+	print_log = 0;
+
+	if (g_pwm_log_index >= g_pwm_log_num || level_1024 == 0) {
+		scnprintf(buffer + strlen(buffer),
+			sizeof(buffer) - strlen(buffer),
+			"(latest=%2u): ",
+			g_pwm_log_index);
+		for (i = 0; i < g_pwm_log_index; i += 1) {
+			scnprintf(buffer + strlen(buffer),
+				sizeof(buffer) - strlen(buffer),
+				"%5d(%4lu,%4lu)",
+				g_pwm_log_buffer[i].value,
+				g_pwm_log_buffer[i].tsec,
+				g_pwm_log_buffer[i].tusec);
+		}
+
+		g_pwm_log_index = 0;
+		print_log = 1;
+
+		for (i = 0; i < PWM_LOG_BUFFER_SIZE; i += 1) {
+			g_pwm_log_buffer[i].tsec = 0;
+			g_pwm_log_buffer[i].tusec = 0;
+			g_pwm_log_buffer[i].value = -1;
+		}
+	}
+
+	spin_unlock(&g_pwm_log_lock);
+
+	if (print_log == 1) {
+		if (log_type == MSG_LOG)
+			PWM_MSG("%s", buffer);
+		else
+			PWM_NOTICE("%s", buffer);
+	}
+
+}
 #endif				/* not define CONFIG_FPGA_EARLY_PORTING */
 
 int disp_bls_set_max_backlight(unsigned int level_1024)
@@ -470,6 +590,9 @@ int disp_pwm_set_backlight_cmdq(enum disp_pwm_id_t id,
 		if (abs_diff < 0)
 			abs_diff = -abs_diff;
 
+		/* To be printed in UART log */
+		disp_pwm_log(level_1024, MSG_LOG);
+
 		if ((old_pwm == 0 || level_1024 == 0 || abs_diff > 64) &&
 			old_pwm != level_1024) {
 			/* Print information if backlight is changed */
@@ -525,15 +648,37 @@ static int ddp_pwm_power_on(enum DISP_MODULE_ENUM module, void *handle)
 	defined(CONFIG_MACH_MT6761)
 	/* pwm ccf api */
 	ddp_clk_prepare_enable(ddp_get_module_clk_id(module));
+#elif defined(CONFIG_MACH_MT6763)
+	ddp_clk_prepare_enable(ddp_get_module_clk_id(module));
+	ddp_clk_prepare_enable(TOP_MUX_DISP_PWM);
+#elif defined(CONFIG_MACH_MT3967) || defined(CONFIG_MACH_MT6779)
+	ddp_clk_prepare_enable(ddp_get_module_clk_id(module));
+	ddp_clk_prepare_enable(CLK_MUX_DISP_PWM);
 #else
 #ifdef ENABLE_CLK_MGR
 	if (module == DISP_MODULE_PWM0) {
 #ifdef CONFIG_MTK_CLKMGR /* MTK Clock Manager */
+#if defined(CONFIG_MACH_MT6752)
+		enable_clock(MT_CG_DISP1_DISP_PWM_26M, "PWM");
+		enable_clock(MT_CG_DISP1_DISP_PWM_MM, "PWM");
+#elif defined(CONFIG_MACH_MT6580)
+		enable_clock(MT_CG_PWM_MM_SW_CG, "PWM");
+#else
 		enable_clock(MT_CG_PERI_DISP_PWM, "DISP_PWM");
+#endif
 #else /* Common Clock Framework */
 		ddp_clk_enable(PWM0_CLK_NAMING);
 #endif
 	}
+#if defined(CONFIG_MACH_MT6799)
+	else if (module == DISP_MODULE_PWM1) {
+#ifndef CONFIG_MTK_CLKMGR /* Common Clock Framework */
+		ddp_clk_enable(DISP_CLK_PWM1);
+#else
+		/* MTK Clock Manager implementation */
+#endif
+	}
+#endif
 #endif	/* ENABLE_CLK_MGR */
 #endif
 
@@ -561,16 +706,38 @@ static int ddp_pwm_power_off(enum DISP_MODULE_ENUM module, void *handle)
 	defined(CONFIG_MACH_MT6761)
 	/* pwm ccf api */
 	ddp_clk_disable_unprepare(ddp_get_module_clk_id(module));
+#elif defined(CONFIG_MACH_MT6763)
+	ddp_clk_disable_unprepare(ddp_get_module_clk_id(module));
+	ddp_clk_disable_unprepare(TOP_MUX_DISP_PWM);
+#elif defined(CONFIG_MACH_MT3967) || defined(CONFIG_MACH_MT6779)
+	ddp_clk_disable_unprepare(ddp_get_module_clk_id(module));
+	ddp_clk_disable_unprepare(CLK_MUX_DISP_PWM);
 #else
 #ifdef ENABLE_CLK_MGR
 	if (module == DISP_MODULE_PWM0) {
 		atomic_set(&g_pwm_backlight[0], 0);
 #ifdef CONFIG_MTK_CLKMGR /* MTK Clock Manager */
+#if defined(CONFIG_MACH_MT6752)
+		disable_clock(MT_CG_DISP1_DISP_PWM_26M, "PWM");
+		disable_clock(MT_CG_DISP1_DISP_PWM_MM, "PWM");
+#elif defined(CONFIG_MACH_MT6580)
+		disable_clock(MT_CG_PWM_MM_SW_CG, "PWM");
+#else
 		disable_clock(MT_CG_PERI_DISP_PWM, "DISP_PWM");
+#endif
 #else /* Common Clock Framework */
 		ddp_clk_disable(PWM0_CLK_NAMING);
 #endif
 	}
+#if defined(CONFIG_MACH_MT6799)
+	else if (module == DISP_MODULE_PWM1) {
+#ifndef CONFIG_MTK_CLKMGR /* Common Clock Framework */
+		ddp_clk_disable(DISP_CLK_PWM1);
+#else
+		/* MTK Clock Manager implementation */
+#endif
+	}
+#endif
 #endif	/* ENABLE_CLK_MGR */
 #endif
 
@@ -583,7 +750,9 @@ static int ddp_pwm_power_off(enum DISP_MODULE_ENUM module, void *handle)
 
 static int ddp_pwm_init(enum DISP_MODULE_ENUM module, void *cmq_handle)
 {
+#if !defined(CONFIG_MACH_MT6759) && !defined(CONFIG_MACH_MT6739)
 	ddp_pwm_power_on(module, cmq_handle);
+#endif
 	return 0;
 }
 
@@ -614,7 +783,8 @@ bool disp_pwm_is_osc(void)
 	defined(CONFIG_MACH_MT6799) || defined(CONFIG_MACH_MT6759) || \
 	defined(CONFIG_MACH_MT6763) || defined(CONFIG_MACH_MT6739) || \
 	defined(CONFIG_MACH_MT6758) || defined(CONFIG_MACH_MT6765) || \
-	defined(CONFIG_MACH_MT6761) || defined(CONFIG_MACH_MT3967)
+	defined(CONFIG_MACH_MT6761) || defined(CONFIG_MACH_MT3967) || \
+	defined(CONFIG_MACH_MT6779)
 
 	is_osc = disp_pwm_mux_is_osc();
 #endif
@@ -639,7 +809,11 @@ static void disp_pwm_test_source(const char *cmd)
 
 static void disp_pwm_test_grad(const char *cmd)
 {
+#if defined(CONFIG_MACH_MT6799)
+	const unsigned long reg_grad = pwm_get_reg_base(DISP_PWM0) + 0x20;
+#else
 	const unsigned long reg_grad = pwm_get_reg_base(DISP_PWM0) + 0x18;
+#endif
 
 	switch (cmd[0]) {
 	case 'H':
@@ -793,6 +967,11 @@ static void disp_pwm_dump(void)
 
 		PWM_NOTICE("[DUMP] [+0x%02x] = 0x%08x", offset, val);
 	}
+#if defined(CONFIG_MACH_MT6799)
+	val = DISP_REG_GET(reg_base + DISP_PWM_DEBUG);
+
+	PWM_NOTICE("[DUMP] [+0x%02x] = 0x%08x", DISP_PWM_DEBUG, val);
+#endif
 }
 
 void disp_pwm_test(const char *cmd, char *debug_output)
@@ -833,6 +1012,17 @@ void disp_pwm_test(const char *cmd, char *debug_output)
 
 		clksrc = (unsigned int)(cmd[7] - '0');
 		disp_pwm_set_pwmmux(clksrc);
+	} else if (strncmp(cmd, "log_num:", 8) == 0) {
+		unsigned long log_num = 0;
+
+		pwm_simple_strtoul((char *)(cmd+8),
+			(unsigned long *)(&log_num));
+		log_num = (log_num < 1) ?
+			1 : ((log_num > PWM_LOG_BUFFER_SIZE) ?
+			PWM_LOG_BUFFER_SIZE : log_num);
+		g_pwm_log_num = (int)log_num;
+		PWM_MSG("combine %lu backlight change log in one line",
+			log_num);
 	} else if (strncmp(cmd, "queryBL", 7) == 0) {
 		disp_pwm_query_backlight(debug_output);
 	} else if (strncmp(cmd, "pwm_dbg:", 8) == 0) {
@@ -852,3 +1042,4 @@ void disp_pwm_test(const char *cmd, char *debug_output)
 	}
 #endif
 }
+

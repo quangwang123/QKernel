@@ -116,7 +116,7 @@ static int decouple_trigger_worker_thread(void *data);
 enum DISP_PRIMARY_PATH_MODE primary_display_mode = DIRECT_LINK_MODE;
 int primary_display_def_dst_mode;
 int primary_display_cur_dst_mode;
-unsigned long last_primary_trigger_jiffies;
+unsigned long long last_primary_trigger_time;
 bool is_switched_dst_mode;
 int primary_trigger_cnt;
 unsigned int dynamic_fps_changed;
@@ -291,8 +291,7 @@ int primary_display_config_full_roi(struct disp_ddp_path_config *pconfig, disp_p
 
 static void _disp_primary_path_switch_dst_mode_work(struct work_struct *work)
 {
-	if (time_after(jiffies,
-		last_primary_trigger_jiffies + msecs_to_jiffies(500))) {
+	if (((sched_clock() - last_primary_trigger_time) / 1000) > 500000) {
 		primary_display_switch_dst_mode(0);
 		is_switched_dst_mode = true;
 	} else {
@@ -2495,7 +2494,7 @@ static int trigger_decouple_mirror(void)
 static int primary_display_trigger_nolock(int blocking, void *callback, int need_merge)
 {
 	int ret = 0;
-	last_primary_trigger_jiffies = jiffies;
+	last_primary_trigger_time = sched_clock();
 
 	if (is_switched_dst_mode) {
 		primary_display_switch_dst_mode(1);

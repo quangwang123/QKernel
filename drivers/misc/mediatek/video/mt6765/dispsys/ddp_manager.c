@@ -1870,17 +1870,22 @@ int dpmgr_wait_event_timeout(disp_path_handle dp_handle,
 	int ret = -1;
 	struct ddp_path_handle *handle;
 	struct DPMGR_WQ_HANDLE *wq_handle;
-	unsigned long long last_event;
+	unsigned long long cur_time;
 
 	ASSERT(dp_handle != NULL);
 	handle = (struct ddp_path_handle *)dp_handle;
 	wq_handle = &handle->wq_list[event];
 
 	if (wq_handle->init) {
-		last_event = wq_handle->data;
+		cur_time = ktime_to_ns(ktime_get());
+		mmprofile_log_ex(ddp_mmp_get_events()->event_wait,
+			MMPROFILE_FLAG_PULSE, event, cur_time);
 
 		ret = wait_event_interruptible_timeout(wq_handle->wq,
-			last_event != wq_handle->data, timeout);
+			cur_time < wq_handle->data, timeout);
+
+		mmprofile_log_ex(ddp_mmp_get_events()->event_wait,
+			MMPROFILE_FLAG_PULSE, event, ret);
 
 		if (ret == 0) {
 			DISP_LOG_E("wait %s timeout on scenario %s\n",
@@ -1910,7 +1915,7 @@ int _dpmgr_wait_event(disp_path_handle dp_handle, enum DISP_PATH_EVENT event,
 	int ret = -1;
 	struct ddp_path_handle *handle;
 	struct DPMGR_WQ_HANDLE *wq_handle;
-	unsigned long long last_event;
+	unsigned long long cur_time;
 
 	ASSERT(dp_handle != NULL);
 	handle = (struct ddp_path_handle *)dp_handle;
@@ -1923,10 +1928,16 @@ int _dpmgr_wait_event(disp_path_handle dp_handle, enum DISP_PATH_EVENT event,
 		return -2;
 	}
 
-	last_event = wq_handle->data;
+	cur_time = ktime_to_ns(ktime_get());
+
+	mmprofile_log_ex(ddp_mmp_get_events()->event_wait,
+		MMPROFILE_FLAG_PULSE, event, cur_time);
 
 	ret = wait_event_interruptible(wq_handle->wq,
-		last_event != wq_handle->data);
+		cur_time < wq_handle->data);
+
+	mmprofile_log_ex(ddp_mmp_get_events()->event_wait,
+		MMPROFILE_FLAG_PULSE, event, ret);
 
 	if (ret < 0) {
 		DISP_LOG_E("wait %s interrupt by other ret %d on scenario %s\n",
@@ -1960,11 +1971,11 @@ int dpmgr_signal_event(disp_path_handle dp_handle, enum DISP_PATH_EVENT event)
 	wq_handle = &handle->wq_list[event];
 
 	if (handle->wq_list[event].init) {
-		if (event == DISP_PATH_EVENT_IF_VSYNC)
-			wq_handle->data = ktime_to_ns(ktime_get());
-		else
-			wq_handle->data++;
+		wq_handle->data = ktime_to_ns(ktime_get());
 		wake_up_interruptible(&(handle->wq_list[event].wq));
+		mmprofile_log_ex(ddp_mmp_get_events()->event_signal,
+			MMPROFILE_FLAG_PULSE,
+			event, wq_handle->data);
 	}
 	return 0;
 }

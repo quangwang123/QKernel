@@ -511,32 +511,32 @@ static int do_frame_config(struct frame_queue_t *frame_node)
 
 static long _frame_queue_config(unsigned long arg)
 {
-	long ret;
+	void *ret_val = NULL;
 	struct frame_queue_head_t *head;
 	struct disp_frame_cfg_t *frame_cfg;
 	struct sync_fence *present_fence = NULL;
 	struct frame_queue_t *frame_node;
 
 	frame_node = frame_queue_node_create();
-	if (IS_ERR(frame_node)) return PTR_ERR(frame_node);
+	if (IS_ERR_OR_NULL(frame_node)) {
+		ret_val = ERR_PTR(-ENOMEM);
+		goto Error;
+	}
 
 	frame_cfg = &frame_node->frame_cfg;
 
 	if (copy_from_user(frame_cfg, (void __user *)arg, sizeof(*frame_cfg))) {
-		ret = -EFAULT;
-		goto FreeNode;
+		ret_val = ERR_PTR(-EFAULT);
+		goto Error;
 	}
 
 	if (disp_validate_ioctl_params(frame_cfg)) {
-		ret = -EINVAL;
-		goto FreeNode;
+		ret_val = ERR_PTR(-EINVAL);
+		goto Error;
 	}
 
 	head = get_frame_queue_head(frame_cfg->session_id);
-	if (!head) {
-		ret = -EINVAL;
-		goto FreeNode;
-	}
+	if (!head) return -EINVAL;
 
 	frame_cfg->setter = SESSION_USER_HWC;
 
@@ -555,18 +555,20 @@ static long _frame_queue_config(unsigned long arg)
 
 	return 0;
 
-FreeNode:
-	kfree(frame_node);
-	return ret;
+Error:
+	if (frame_node) frame_queue_node_destroy(frame_node);
+	return PTR_ERR(ret_val);
 }
 
 long _frame_config(unsigned long arg)
 {
-	struct disp_frame_cfg_t *frame_cfg;
+	struct disp_frame_cfg_t *frame_cfg = kzalloc(sizeof(struct disp_frame_cfg_t), GFP_KERNEL);
 
-	frame_cfg = memdup_user((void __user *)arg, sizeof(*frame_cfg));
-	if (IS_ERR(frame_cfg)) return PTR_ERR(frame_cfg);
-
+	if (frame_cfg == NULL) return -EFAULT;
+	if (copy_from_user(frame_cfg, (void __user *)arg, sizeof(*frame_cfg))) {
+		kfree(frame_cfg);
+		return -EFAULT;
+	}
 	if (disp_validate_ioctl_params(frame_cfg)) {
 		kfree(frame_cfg);
 		return -EINVAL;
@@ -648,8 +650,11 @@ int _ioctl_get_info(unsigned long arg)
 int _ioctl_get_display_caps(unsigned long arg)
 {
 	int ret = 0;
-	struct disp_caps_info caps_info = {0};
+	struct disp_caps_info caps_info;
 	void __user *argp = (void __user *)arg;
+
+	if (copy_from_user(&caps_info, argp, sizeof(caps_info))) return -EFAULT;
+	memset(&caps_info, 0, sizeof(caps_info));
 
 #ifdef DISP_HW_MODE_CAP
 	caps_info.output_mode = DISP_HW_MODE_CAP;
@@ -914,7 +919,7 @@ static long mtk_disp_mgr_compat_ioctl(struct file *file, unsigned int cmd, unsig
 #ifndef NO_PQ_IOCTL
 	case DISP_IOCTL_AAL_GET_HIST: case DISP_IOCTL_AAL_EVENTCTL: case DISP_IOCTL_AAL_INIT_REG:
 	case DISP_IOCTL_AAL_SET_PARAM: case DISP_IOCTL_AAL_GET_SIZE: case DISP_IOCTL_SET_SMARTBACKLIGHT:
-		return mtk_disp_mgr_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+		return file->f_op->unlocked_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
 
 	case DISP_IOCTL_SET_GAMMALUT: case DISP_IOCTL_SET_CCORR: case DISP_IOCTL_CCORR_EVENTCTL:
 	case DISP_IOCTL_CCORR_GET_IRQ: case DISP_IOCTL_SUPPORT_COLOR_TRANSFORM: case DISP_IOCTL_SET_PQPARAM:
@@ -930,7 +935,7 @@ static long mtk_disp_mgr_compat_ioctl(struct file *file, unsigned int cmd, unsig
 		return primary_display_user_cmd(cmd, arg);
 #endif
 	default:
-		return mtk_disp_mgr_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
+		return file->f_op->unlocked_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
 	}
 	return ret;
 }
