@@ -3149,9 +3149,9 @@ static void binder_transaction(struct binder_proc *proc,
 		}
 #ifdef CONFIG_ANDROID_BINDER_LOGS
 		e->to_node = target_node->debug_id;
+#endif
 		if (security_binder_transaction(proc->tsk,
 						target_proc->tsk) < 0) {
-#endif
 			return_error = BR_FAILED_REPLY;
 			return_error_param = -EPERM;
 			return_error_line = __LINE__;
