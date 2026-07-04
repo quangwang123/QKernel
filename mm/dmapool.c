@@ -76,15 +76,16 @@ static ssize_t pools_show(struct device *dev, struct device_attribute *attr, cha
 	struct dma_pool *pool;
 	unsigned size;
 
-	size = sysfs_emit(buf, "poolinfo - 0.1\n");
+	size = scnprintf(buf, PAGE_SIZE, "poolinfo - 0.1\n");
 
 	mutex_lock(&pools_lock);
 	list_for_each_entry(pool, &dev->dma_pools, pools) {
 		/* per-pool info, no real statistics yet */
-		size += sysfs_emit_at(buf, size, "%-16s %4zu %4zu %4u %2zu\n",
-				      pool->name, pool->nr_active,
-				      pool->nr_blocks, pool->size,
-				      pool->nr_pages);
+		size += scnprintf(buf + size, PAGE_SIZE - size,
+				  "%-16s %4zu %4zu %4u %2zu\n",
+				  pool->name, pool->nr_active,
+				  pool->nr_blocks, pool->size,
+				  pool->nr_pages);
 	}
 	mutex_unlock(&pools_lock);
 

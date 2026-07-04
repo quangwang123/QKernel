@@ -3487,8 +3487,13 @@ static void walk_pmd_range_locked(pud_t *pud, unsigned long next, struct vm_area
 
 		VM_BUG_ON(addr < vma->vm_start || addr >= vma->vm_end);
 
-		if (!pmd_present(pmd[i]) || is_huge_zero_pmd(pmd[i]))
+		if (!pmd_present(pmd[i]))
 			goto next;
+
+#ifdef CONFIG_TRANSPARENT_HUGEPAGE
+		if (is_huge_zero_pmd(pmd[i]))
+			goto next;
+#endif
 
 		if (WARN_ON_ONCE(pmd_devmap(pmd[i])))
 			goto next;
@@ -5525,7 +5530,6 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
 			.pgdat = pgdat,
 			.priority = sc->priority,
 		};
-		unsigned long node_lru_pages = 0;
 		struct mem_cgroup *memcg;
 
 		memset(&sc->nr, 0, sizeof(sc->nr));
@@ -5566,7 +5570,6 @@ static bool shrink_node(pg_data_t *pgdat, struct scan_control *sc)
 			reclaimed = sc->nr_reclaimed;
 			scanned = sc->nr_scanned;
 			shrink_node_memcg(pgdat, memcg, sc, &lru_pages);
-			node_lru_pages += lru_pages;
 
 			shrink_slab(sc->gfp_mask, pgdat->node_id,
 				    memcg, sc->priority);
