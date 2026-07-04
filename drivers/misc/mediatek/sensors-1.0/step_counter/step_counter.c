@@ -983,7 +983,7 @@ int step_c_flush_report(void)
 	event.handle = ID_STEP_COUNTER;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(step_c_context_obj->mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 
@@ -997,7 +997,7 @@ int step_d_flush_report(void)
 	event.handle = ID_STEP_DETECTOR;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(step_c_context_obj->mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 
@@ -1016,7 +1016,7 @@ int floor_c_flush_report(void)
 	event.handle = ID_FLOOR_COUNTER;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(step_c_context_obj->mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 

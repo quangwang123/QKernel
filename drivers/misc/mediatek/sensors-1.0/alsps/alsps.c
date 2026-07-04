@@ -73,7 +73,7 @@ int als_flush_report(void)
 	event.handle = ID_LIGHT;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(alsps_context_obj->als_mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 
@@ -109,7 +109,7 @@ int rgbw_flush_report(void)
 	event.handle = ID_RGBW;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(alsps_context_obj->als_mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 
@@ -155,7 +155,7 @@ int ps_flush_report(void)
 
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(alsps_context_obj->ps_mdev.minor, &event);
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	return err;
 }
 static void als_work_func(struct work_struct *work)

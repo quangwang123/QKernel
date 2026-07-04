@@ -110,24 +110,6 @@ static void low_power_timer_wakeup_func(struct timer_list *timer)
 	if (low_power_timer_trigger_cnt >= 2) {
 		static DEFINE_RATELIMIT_STATE(ratelimit, HZ, 1);
 
-		if (__ratelimit(&ratelimit))
-			pr_debug("<ratelimit> avg sleep(%lu/%d, %lu)us,
-			avg wake(%lu/%d, %lu)us, mode<%d,%d>,
-			local balanced<%d,%d>\n"
-				, low_power_timer_total_sleep,
-				low_power_timer_trigger_cnt,
-				low_power_timer_total_sleep/
-				low_power_timer_trigger_cnt,
-				low_power_timer_total_wake,
-				(low_power_timer_trigger_cnt - 1),
-				low_power_timer_total_wake/
-				(low_power_timer_trigger_cnt - 1),
-				low_power_timer_mode,
-				low_power_timer_mode2_option,
-				low_power_timer_trigger_cnt,
-				low_power_timer_wake_cnt);
-		}
-
 	low_power_timer_activate = 0;
 	DBG(1, "sleep forbidden <%d,%d>\n",
 			low_power_timer_total_trigger_cnt,

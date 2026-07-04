@@ -20,7 +20,6 @@
 #include <linux/printk.h>
 #include <linux/workqueue.h>
 
-#include "disp_drv_log.h"
 #include "disp_drv_platform.h"
 #ifdef MTK_FB_ION_SUPPORT
 #include "mtk_ion.h"
@@ -78,6 +77,7 @@
 #ifdef MTK_FB_MMDVFS_SUPPORT
 #include <linux/soc/mediatek/mtk-pm-qos.h>
 #endif
+#include <linux/cpumask.h>
 
 #define MMSYS_CLK_LOW (0)
 #define MMSYS_CLK_HIGH (1)
@@ -2252,7 +2252,6 @@ int primary_display_resume(void)
 	enum DISP_STATUS ret = DISP_STATUS_OK;
 	struct ddp_io_golden_setting_arg gset_arg;
 	int i, skip_update = 0;
-	unsigned int cpu;
 
 	_primary_path_lock(__func__);
 	if (pgc->state == DISP_ALIVE) goto done;

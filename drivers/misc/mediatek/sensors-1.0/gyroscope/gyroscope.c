@@ -835,7 +835,7 @@ int gyro_flush_report(void)
 
 	memset(&event, 0, sizeof(struct sensor_event));
 
-	pr_debug_ratelimited("flush\n");
+	pr_debug("flush\n");
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(gyro_context_obj->mdev.minor, &event);
 	return err;

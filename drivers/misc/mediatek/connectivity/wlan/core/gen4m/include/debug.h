@@ -380,30 +380,30 @@ enum WAKE_DATA_TYPE {
 #define DBGLOG_MEM8(_Module, _Class, _StartAddr, _Length)
 #define DBGLOG_MEM32(_Module, _Class, _StartAddr, _Length)
 #else
-#define DBGLOG(_Mod, _Clz, _Fmt, ...) do {} while (0)
-#define DBGLOG_LIMITED(_Mod, _Clz, _Fmt, ...) do {} while (0)
-#define DBGFWLOG(_Mod, _Clz, _Fmt, ...) do {} while (0)
-#define TOOL_PRINTLOG(_Mod, _Clz, _Fmt, ...) do {} while (0)
-#define DBGLOG_MEM8(_Mod, _Clz, _Adr, _Len) do {} while (0)
-#define DBGLOG_MEM32(_Mod, _Clz, _Adr, _Len) do {} while (0)
+#define DBGLOG(_Mod, _Clz, _Fmt, ...) ((void)0)
+#define DBGLOG_LIMITED(_Mod, _Clz, _Fmt, ...) ((void)0)
+#define DBGFWLOG(_Mod, _Clz, _Fmt, ...) ((void)0)
+#define TOOL_PRINTLOG(_Mod, _Clz, _Fmt, ...) ((void)0)
+#define DBGLOG_MEM8(_Mod, _Clz, _Adr, _Len) ((void)0)
+#define DBGLOG_MEM32(_Mod, _Clz, _Adr, _Len) ((void)0)
 #endif
 #define DISP_STRING(_str)       _str
 #undef ASSERT
 #undef ASSERT_REPORT
 #if (BUILD_QA_DBG || DBG)
-#define ASSERT_NOMEM() do {} while (0)
+#define ASSERT_NOMEM() ((void)0)
 #ifdef _lint
-#define ASSERT(_exp) do {} while (0)
-#define ASSERT_REPORT(_exp, _fmt) do {} while (0)
+#define ASSERT(_exp) ((void)0)
+#define ASSERT_REPORT(_exp, _fmt) ((void)0)
 #elif defined(WINDOWS_CE)
 #define UNICODE_TEXT(_msg)  TEXT(_msg)
-#define ASSERT(_exp) do {} while (0)
-#define ASSERT_REPORT(_exp, _fmt) do {} while (0)
+#define ASSERT(_exp) ((void)0)
+#define ASSERT_REPORT(_exp, _fmt) ((void)0)
 #else
-#define ASSERT_NOMEM() do {} while (0)
+#define ASSERT_NOMEM() ((void)0)
 
-#define ASSERT(_exp) do {} while (0)
-#define ASSERT_REPORT(_exp, _fmt) do {} while (0)
+#define ASSERT(_exp) ((void)0)
+#define ASSERT_REPORT(_exp, _fmt) ((void)0)
 #endif /* WINDOWS_CE */
 #else
 #define ASSERT_NOMEM() {}
@@ -412,7 +412,7 @@ enum WAKE_DATA_TYPE {
 #endif /* BUILD_QA_DBG */
 /* LOG function for print to buffer */
 /* If buffer pointer is NULL, redirect to normal DBGLOG */
-#define LOGBUF(_pucBuf, _maxLen, _curLen, _Fmt, ...) do {} while (0)
+#define LOGBUF(_pucBuf, _maxLen, _curLen, _Fmt, ...) ((void)0)
 /* The following macro is used for debugging packed structures. */
 #ifndef DATA_STRUCT_INSPECTING_ASSERT
 #define DATA_STRUCT_INSPECTING_ASSERT(expr) \

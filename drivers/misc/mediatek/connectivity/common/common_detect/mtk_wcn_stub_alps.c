@@ -40,9 +40,9 @@
 int gCmbStubLogLevel = CMB_STUB_INFO_LOG;
 
 #define CMB_STUB_LOG_pr_info(fmt, arg...) \
-do {} while (0)
+((void)0)
 #define CMB_STUB_LOG_PR_DBG(fmt, arg...) \
-do {} while (0)
+((void)0)
 
 /*******************************************************************************
 *                    E X T E R N A L   R E F E R E N C E S

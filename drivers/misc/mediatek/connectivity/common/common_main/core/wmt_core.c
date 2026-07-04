@@ -3457,10 +3457,15 @@ static INT32 opfunc_wlan_probe(P_WMT_OP pWmtOp)
 			wmt_lib_wlan_lock_release();
 			goto done;
 		}
+	} else if (gMtkWmtCtx.wmtHifConf.hifType == WMT_HIF_BTIF) {
+		WMT_DBG_FUNC("BTIF control HIF ready for WIFI\n");
 	} else {
 		WMT_ERR_FUNC("not implemented yet hifType: 0x%x, unspecified wifi_hif\n",
 				gMtkWmtCtx.wmtHifConf.hifType);
 		/* TODO:  Wi-Fi/WMT uses other interfaces. NOT IMPLEMENTED YET! */
+		iRet = -WMT_ERRCODE_NO_HIF_INFO;
+		wmt_lib_wlan_lock_release();
+		goto done;
 	}
 
 	iRet = (*(gpWmtFuncOps[drvType]->func_on)) (gMtkWmtCtx.p_ic_ops, wmt_conf_get_cfg());

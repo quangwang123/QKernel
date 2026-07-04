@@ -68,11 +68,11 @@ struct rawbulk_function {
 
 	/* Controls */
 	spinlock_t lock;
-	unsigned int enable:1;
-	unsigned int activated:1;	/* set when usb enabled */
-	unsigned int tty_opened:1;
+	int enable:1;
+	int activated:1;	/* set when usb enabled */
+	int tty_opened:1;
 
-	unsigned int initialized:1;	/* init-flag for activator worker */
+	int initialized:1;	/* init-flag for activator worker */
 	struct work_struct activator;	/* asynic transaction starter */
 
 	struct wakeup_source *keep_awake;
@@ -204,11 +204,11 @@ while (0)
 	## args);  } \
 while (0)
 #else
-#define C2K_ERR(format, args...) do {} while (0)
-#define C2K_WARN(format, args...) do {} while (0)
-#define C2K_NOTE(format, args...) do {} while (0)
-#define C2K_INFO(format, args...) do {} while (0)
-#define C2K_DBG(format, args...) do {} while (0)
+#define C2K_ERR(format, args...) ((void)0)
+#define C2K_WARN(format, args...) ((void)0)
+#define C2K_NOTE(format, args...) ((void)0)
+#define C2K_INFO(format, args...) ((void)0)
+#define C2K_DBG(format, args...) ((void)0)
 #endif
 
 extern unsigned int upstream_data[_MAX_TID];

@@ -505,7 +505,6 @@ int m4u_config_port_array(struct m4u_port_array *port_array)
 	unsigned int config_larb[SMI_LARB_NR] = { 0 };
 	unsigned int regNew[SMI_LARB_NR][32] = { {0} };
 
-
 	for (port = 0; port < M4U_PORT_NR; port++) {
 		if (port_array->ports[port] && M4U_PORT_ATTR_EN != 0) {
 			larb = m4u_port_2_larb_id(port);
@@ -518,8 +517,9 @@ int m4u_config_port_array(struct m4u_port_array *port_array)
 	}
 
 	for (larb = 0; larb < SMI_LARB_NR; larb++) {
-		if (config_larb[larb] != 0)
+		if (config_larb[larb] != 0) {
 			larb_clock_on(larb, 1);
+		}
 	}
 
 	for (port = 0; port < gM4u_port_num; port++) {
@@ -540,12 +540,12 @@ int m4u_config_port_array(struct m4u_port_array *port_array)
 	}
 
 	for (larb = 0; larb < SMI_LARB_NR; larb++) {
-		if (config_larb[larb] != 0)
+		if (config_larb[larb] != 0) {
 			larb_clock_off(larb, 1);
+		}
 	}
 
 	return 0;
-
 }
 
 int m4u_monitor_start(int m4u_id)

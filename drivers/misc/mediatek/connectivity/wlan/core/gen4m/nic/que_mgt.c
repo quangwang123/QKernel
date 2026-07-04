@@ -8046,7 +8046,7 @@ void qmDetectArpNoResponse(struct ADAPTER *prAdapter,
 				DBGLOG(INIT, WARN, "IOT issue, arp no resp!\n");
 				if (prAisBssInfo)
 					prAisBssInfo->u2DeauthReason =
-				BEACON_TIMEOUT_DUE_2_APR_NO_RESPONSE;
+				BEACON_TIMEOUT_DUE_2_Apr_RESPONSE;
 				prAdapter->cArpNoResponseIdx =
 				prStaRec->ucBssIndex;
 			} else

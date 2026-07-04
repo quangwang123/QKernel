@@ -1495,16 +1495,6 @@ int disp_aal_set_param(struct DISP_AAL_PARAM __user *param,
 	if (atomic_read(&g_aal_backlight_notified) == 0)
 		backlight_value = 0;
 
-	if (ret == 0)
-		ret |= disp_pwm_set_backlight_cmdq(DISP_PWM0,
-			backlight_value, cmdq);
-
-	AAL_DBG("(ESS = %d, DRE[0,8] = %d,%d",
-		g_aal_param.cabc_fltgain_force, g_aal_param.DREGainFltStatus[0],
-		g_aal_param.DREGainFltStatus[8]);
-	AAL_DBG("(latency = %d): ret = %d",
-		g_aal_param.refreshLatency, ret);
-
 	backlight_brightness_set(backlight_value);
 
 	disp_aal_trigger_refresh(g_aal_param.refreshLatency);

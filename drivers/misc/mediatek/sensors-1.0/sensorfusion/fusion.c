@@ -532,7 +532,7 @@ static int uncali_sensor_flush_report(int handle)
 	int err = 0;
 
 	memset(&event, 0, sizeof(struct sensor_event));
-	pr_debug_ratelimited("flush handle:%d\n", handle);
+	pr_debug("flush handle:%d\n", handle);
 	event.handle = handle;
 	event.flush_action = FLUSH_ACTION;
 	err = sensor_input_event(fusion_context_obj->mdev.minor, &event);

@@ -103,36 +103,20 @@ void gps_dl_log_info_show(void);
 #endif /* GPS_DL_ON_XX */
 
 
-#define _GDL_LOGE(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_ERR) __GDL_LOGE(__VA_ARGS__); } while (0)
-#define _GDL_LOGW(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_WARN) __GDL_LOGW(__VA_ARGS__); } while (0)
-#define _GDL_LOGI(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_INFO) __GDL_LOGI(__VA_ARGS__); } while (0)
-#define _GDL_LOGD(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_DBG) __GDL_LOGD(__VA_ARGS__); } while (0)
-#define _GDL_LOGXE(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_ERR) __GDL_LOGXE(__VA_ARGS__); } while (0)
-#define _GDL_LOGXW(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_WARN) __GDL_LOGXW(__VA_ARGS__); } while (0)
-#define _GDL_LOGXI(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_INFO) __GDL_LOGXI(__VA_ARGS__); } while (0)
-#define _GDL_LOGXD(...) \
-	do { if (gps_dl_log_level_get() <= GPS_DL_LOG_LEVEL_DBG) __GDL_LOGXD(__VA_ARGS__); } while (0)
+#define _GDL_LOGE(...) ((void)0)
+#define _GDL_LOGW(...) ((void)0)
+#define _GDL_LOGI(...) ((void)0)
+#define _GDL_LOGD(...) ((void)0)
+#define _GDL_LOGXE(...) ((void)0)
+#define _GDL_LOGXW(...) ((void)0)
+#define _GDL_LOGXI(...) ((void)0)
+#define _GDL_LOGXD(...) ((void)0)
 
 
-#define GDL_LOGE2(mod, ...) \
-	do { if (1) \
-		_GDL_LOGE(mod, __VA_ARGS__); } while (0)
-#define GDL_LOGW2(mod, ...) \
-	do { if (1) \
-		_GDL_LOGW(mod, __VA_ARGS__); } while (0)
-#define GDL_LOGI2(mod, ...) \
-	do { if (gps_dl_log_mod_is_on(mod)) \
-		_GDL_LOGI(mod, __VA_ARGS__); } while (0)
-#define GDL_LOGD2(mod, ...) \
-	do { if (gps_dl_log_mod_is_on(mod)) \
-		_GDL_LOGD(mod, __VA_ARGS__); } while (0)
+#define GDL_LOGE2(mod, ...) ((void)0)
+#define GDL_LOGW2(mod, ...) ((void)0)
+#define GDL_LOGI2(mod, ...) ((void)0)
+#define GDL_LOGD2(mod, ...) ((void)0)
 
 /* Usage:
  * 1. Bellow macro can be used to output log:
