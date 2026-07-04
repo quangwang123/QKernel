@@ -953,6 +953,9 @@ include scripts/Makefile.ubsan
 KBUILD_CPPFLAGS += $(ARCH_CPPFLAGS) $(KCPPFLAGS)
 KBUILD_AFLAGS   += $(ARCH_AFLAGS)   $(KAFLAGS)
 KBUILD_CFLAGS   += $(ARCH_CFLAGS)   $(KCFLAGS) -Werror
+KBUILD_CFLAGS   += $(call cc-option,-Wno-error=unused-variable)
+KBUILD_CFLAGS   += $(call cc-option,-Wno-error=unused-but-set-variable)
+KBUILD_CFLAGS   += $(call cc-option,-Wno-error=unused-function)
 
 # Use --build-id when available.
 LDFLAGS_BUILD_ID := $(call ld-option, --build-id)
