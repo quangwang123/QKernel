@@ -508,7 +508,6 @@ static void tasklet_action_common(struct softirq_action *a,
 				  unsigned int softirq_nr)
 {
 	struct tasklet_struct *list;
-	unsigned long long ts;
 
 	local_irq_disable();
 	list = tl_head->head;

@@ -665,7 +665,6 @@ int jent_entropy_init(void)
 	__u64 delta_sum = 0;
 	__u64 old_delta = 0;
 	int time_backwards = 0;
-	int count_var = 0;
 	int count_mod = 0;
 
 	/* We could perform statistical tests here, but the problem is
@@ -744,8 +743,6 @@ int jent_entropy_init(void)
 		 * the old_data value
 		 */
 		if (i) {
-			if (delta != old_delta)
-				count_var++;
 			if (delta > old_delta)
 				delta_sum += (delta - old_delta);
 			else
