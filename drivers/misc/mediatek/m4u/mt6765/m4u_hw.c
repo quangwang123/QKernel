@@ -517,29 +517,34 @@ int m4u_config_port_array(struct m4u_port_array *port_array)
 		}
 	}
 
-	for (larb = 0; larb < SMI_LARB_NR; larb++)
-		if (config_larb[larb] != 0) larb_clock_on(larb, 1);
+	for (larb = 0; larb < SMI_LARB_NR; larb++) {
+		if (config_larb[larb] != 0)
+			larb_clock_on(larb, 1);
+	}
 
-		for (port = 0; port < gM4u_port_num; port++) {
-			if ((port_array->ports[port] && M4U_PORT_ATTR_EN) == 0) continue;
-			if (m4u_port_2_m4u_id(port) == 0) {
-				larb = m4u_port_2_larb_id(port);
-				larb_port = m4u_port_2_larb_port(port);
-				if (likely(larb < SMI_LARB_NR)) {
-					unsigned int orig_value = m4uHw_get_field_by_mask(gLarbBaseAddr[larb], SMI_LARB_NON_SEC_CONx(larb_port), F_SMI_NON_SEC_MMU_EN(1));
-					if (orig_value != regNew[larb][larb_port]) {
-						spin_lock(&gM4u_reg_lock);
-						m4uHw_set_field_by_mask(gLarbBaseAddr[larb], SMI_LARB_NON_SEC_CONx(larb_port), F_SMI_MMU_EN, F_SMI_NON_SEC_MMU_EN(!!(regNew[larb][larb_port])));
-						spin_unlock(&gM4u_reg_lock);
-					}
+	for (port = 0; port < gM4u_port_num; port++) {
+		if ((port_array->ports[port] && M4U_PORT_ATTR_EN) == 0)
+			continue;
+		if (m4u_port_2_m4u_id(port) == 0) {
+			larb = m4u_port_2_larb_id(port);
+			larb_port = m4u_port_2_larb_port(port);
+			if (likely(larb < SMI_LARB_NR)) {
+				unsigned int orig_value = m4uHw_get_field_by_mask(gLarbBaseAddr[larb], SMI_LARB_NON_SEC_CONx(larb_port), F_SMI_NON_SEC_MMU_EN(1));
+				if (orig_value != regNew[larb][larb_port]) {
+					spin_lock(&gM4u_reg_lock);
+					m4uHw_set_field_by_mask(gLarbBaseAddr[larb], SMI_LARB_NON_SEC_CONx(larb_port), F_SMI_MMU_EN, F_SMI_NON_SEC_MMU_EN(!!(regNew[larb][larb_port])));
+					spin_unlock(&gM4u_reg_lock);
 				}
 			}
 		}
+	}
 
-		for (larb = 0; larb < SMI_LARB_NR; larb++)
-			if (config_larb[larb] != 0) larb_clock_off(larb, 1);
+	for (larb = 0; larb < SMI_LARB_NR; larb++) {
+		if (config_larb[larb] != 0)
+			larb_clock_off(larb, 1);
+	}
 
-			return 0;
+	return 0;
 
 }
 
