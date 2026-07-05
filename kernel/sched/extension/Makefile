@@ -1,4 +1,0 @@
-subdir-ccflags-y += -I$(srctree)/kernel/sched
-subdir-ccflags-y += -I$(srctree)/drivers/misc/mediatek/include/
-
-obj-$(CONFIG_MTK_SCHED_EXTENSION) += eas_plus.o tuning.o
