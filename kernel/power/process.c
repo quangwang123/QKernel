@@ -87,8 +87,11 @@ static int try_to_freeze_tasks(bool user_only)
 
 	if (wakeup) {
 		pr_cont("\n");
-		pr_err("Freezing of tasks aborted after %d.%03d seconds",
-		       elapsed_msecs / 1000, elapsed_msecs % 1000);
+		pr_err("Freezing of tasks aborted after %d.%03d seconds"
+		       " (%d tasks pending, wq_busy=%d):\n",
+		       elapsed_msecs / 1000, elapsed_msecs % 1000,
+		       todo - wq_busy, wq_busy);
+		pm_print_active_wakeup_sources();
 	} else if (todo) {
 		pr_cont("\n");
 		pr_err("Freezing of tasks failed after %d.%03d seconds"
