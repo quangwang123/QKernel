@@ -1413,7 +1413,7 @@ init_numa_balancing(unsigned long clone_flags, struct task_struct *p)
 }
 #endif /* CONFIG_NUMA_BALANCING */
 
-#if defined(CONFIG_NUMA_BALANCING) || defined(CONFIG_MTK_SCHED_BIG_TASK_MIGRATE)
+#ifdef CONFIG_NUMA_BALANCING
 extern int migrate_swap(struct task_struct *p, struct task_struct *t,
 			int cpu, int scpu);
 #endif

@@ -1668,13 +1668,8 @@ struct migration_arg {
  * So we race with normal scheduler movements, but that's OK, as long
  * as the task is no longer on this CPU.
  */
-#ifndef CONFIG_MTK_SCHED_EXTENSION
 static struct rq *__migrate_task(struct rq *rq, struct rq_flags *rf,
 				 struct task_struct *p, int dest_cpu)
-#else
-struct rq *__migrate_task(struct rq *rq, struct rq_flags *rf,
-				 struct task_struct *p, int dest_cpu)
-#endif
 {
 	/* Affinity changed (again). */
 	if (!is_cpu_allowed(p, dest_cpu))
@@ -1786,9 +1781,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
 	struct rq_flags rf;
 	struct rq *rq;
 	int ret = 0;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	cpumask_t allowed_mask;
-#endif
 	rq = task_rq_lock(p, &rf);
 	update_rq_clock(rq);
 
@@ -1816,34 +1808,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
 		ret = -EINVAL;
 		goto out;
 	}
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	/*
-	 *if there no active cpu excluding isolation ,
-	 *then should out except kernel thread
-	 */
-	cpumask_andnot(&allowed_mask, new_mask, cpu_isolated_mask);
-	cpumask_and(&allowed_mask, &allowed_mask, cpu_valid_mask);
-	/*
-	 *for kernel thread ,use no isolated cpu first,if all cpu isolated,
-	 *ignore isolated
-	 *for other thread,use no isolated cpu & new_mask & valid_mask,
-	 *else use valid & no isolated cpu
-	 */
-	dest_cpu = cpumask_any(&allowed_mask);
-	if (dest_cpu >= nr_cpu_ids) {
-		/* If p is a kthread, ignore isolated mask. */
-		if (p->flags & PF_KTHREAD)
-			cpumask_and(&allowed_mask, cpu_valid_mask, new_mask);
-		else
-			cpumask_andnot(&allowed_mask,
-					cpu_valid_mask, cpu_isolated_mask);
-		dest_cpu = cpumask_any(&allowed_mask);
-		if (dest_cpu >= nr_cpu_ids) {
-			ret = -EINVAL;
-			goto out;
-		}
-	}
-#endif
 	do_set_cpus_allowed(p, new_mask);
 
 	if (p->flags & PF_KTHREAD) {
@@ -1857,16 +1821,9 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
 	}
 
 	/* Can the task run on the task's current CPU? If so, we're done */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	if (cpumask_test_cpu(task_cpu(p), new_mask)
-		&& !cpu_isolated(task_cpu(p)))
-#else
 	if (cpumask_test_cpu(task_cpu(p), new_mask))
-#endif
 		goto out;
-#ifndef CONFIG_MTK_SCHED_EXTENSION
 	dest_cpu = cpumask_any_and(cpu_valid_mask, new_mask);
-#endif
 
 	if (task_running(rq, p) || p->state == TASK_WAKING) {
 		struct migration_arg arg = { p, dest_cpu };
@@ -1880,9 +1837,6 @@ static int __set_cpus_allowed_ptr(struct task_struct *p,
 		 * OK, since we're going to drop the lock immediately
 		 * afterwards anyway.
 		 */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		if (cpu_online(dest_cpu))
-#endif
 			rq = move_queued_task(rq, &rf, p, dest_cpu);
 	}
 out:
@@ -1949,7 +1903,7 @@ void set_task_cpu(struct task_struct *p, unsigned int new_cpu)
 	__set_task_cpu(p, new_cpu);
 }
 
-#if defined(CONFIG_NUMA_BALANCING) || defined(CONFIG_MTK_SCHED_BIG_TASK_MIGRATE)
+#ifdef CONFIG_NUMA_BALANCING
 static void __migrate_swap_task(struct task_struct *p, int cpu)
 {
 	if (task_on_rq_queued(p)) {
@@ -2066,7 +2020,7 @@ int migrate_swap(struct task_struct *cur, struct task_struct *p,
 out:
 	return ret;
 }
-#endif /* CONFIG_NUMA_BALANCING || CONFIG_MTK_SCHED_BIG_TASK_MIGRATE */
+#endif /* CONFIG_NUMA_BALANCING */
 
 /*
  * wait_task_inactive - wait for a thread to unschedule.
@@ -2223,20 +2177,11 @@ EXPORT_SYMBOL_GPL(kick_process);
  * select_task_rq() below may allow selection of !active CPUs in order
  * to satisfy the above rules.
  */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-static int select_fallback_rq(int cpu, struct task_struct *p, bool allow_iso)
-#else
 static int select_fallback_rq(int cpu, struct task_struct *p)
-#endif
 {
 	int nid = cpu_to_node(cpu);
 	const struct cpumask *nodemask = NULL;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	int isolated_candidate = -1;
-	enum { cpuset, possible, fail, bug} state = cpuset;
-#else
 	enum { cpuset, possible, fail } state = cpuset;
-#endif
 	int dest_cpu;
 	/*
 	 * If the node that the CPU is on has been offlined, cpu_to_node()
@@ -2262,17 +2207,6 @@ static int select_fallback_rq(int cpu, struct task_struct *p)
 		for_each_cpu(dest_cpu, &p->cpus_allowed) {
 			if (!is_cpu_allowed(p, dest_cpu))
 				continue;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-			if (cpu_isolated(dest_cpu)) {
-				if (allow_iso)
-					isolated_candidate = dest_cpu;
-				continue;
-			}
-			goto out;
-		}
-		if (isolated_candidate != -1) {
-			dest_cpu = isolated_candidate;
-#endif
 			goto out;
 		}
 
@@ -2291,12 +2225,6 @@ static int select_fallback_rq(int cpu, struct task_struct *p)
 			break;
 
 		case fail:
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-			allow_iso = true;
-			state = bug;
-			break;
-		case bug:
-#endif
 			BUG();
 			break;
 		}
@@ -2325,11 +2253,6 @@ static inline
 int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags,
 		   int sibling_count_hint)
 {
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	bool allow_isolated = (p->flags & PF_KTHREAD);
-	bool select_fallback = false;
-	cpumask_t cpu_unisolated_mask;
-#endif
 
 	lockdep_assert_held(&p->pi_lock);
 
@@ -2349,26 +2272,8 @@ int select_task_rq(struct task_struct *p, int cpu, int sd_flags, int wake_flags,
 	 * [ this allows ->select_task() to simply return task_cpu(p) and
 	 *   not worry about this generic constraint ]
 	 */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	cpumask_andnot(&cpu_unisolated_mask, cpu_possible_mask,
-		cpu_isolated_mask);
-
-	/*
-	 * If kernel thread select a isolated CPU but it has other allowed CPU,
-	 * go to select_fallback_rq to choose allowed and un-isolated CPU.
-	 */
-	if (allow_isolated && cpu_isolated(cpu) &&
-		cpumask_intersects(tsk_cpus_allowed(p), &cpu_unisolated_mask)) {
-		select_fallback = true;
-	}
-	if (unlikely(!is_cpu_allowed(p, cpu)) ||
-		(cpu_isolated(cpu) && !allow_isolated) ||
-		select_fallback)
-		cpu = select_fallback_rq(task_cpu(p), p, allow_isolated);
-#else
 	if (unlikely(!is_cpu_allowed(p, cpu)))
 		cpu = select_fallback_rq(task_cpu(p), p);
-#endif
 	return cpu;
 }
 
@@ -2598,9 +2503,6 @@ void scheduler_ipi(void)
 	 * Check if someone kicked us for doing the nohz idle load balance.
 	 */
 	if (unlikely(got_nohz_idle_kick())
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		&& !cpu_isolated(smp_processor_id())
-#endif
 		) {
 		this_rq()->idle_balance = 1;
 		raise_softirq_irqoff(SCHED_SOFTIRQ);
@@ -3843,9 +3745,6 @@ void sched_exec(void)
 		goto unlock;
 
 	if (likely(cpu_active(dest_cpu))
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		&& likely(!cpu_isolated(dest_cpu))
-#endif
 		) {
 		struct migration_arg arg = { p, dest_cpu };
 
@@ -3960,10 +3859,6 @@ void scheduler_tick(void)
 	trigger_load_balance(rq);
 #endif
 
-#ifdef CONFIG_MTK_SCHED_BIG_TASK_MIGRATE
-	if (curr->sched_class == &fair_sched_class)
-		check_for_migration(curr);
-#endif
 }
 
 void get_iowait_load(unsigned long *nr_waiters, unsigned long *load)
@@ -5726,10 +5621,6 @@ long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
 	cpumask_var_t cpus_allowed, new_mask;
 	struct task_struct *p;
 	int retval;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	int dest_cpu;
-	cpumask_t allowed_mask;
-#endif
 
 	rcu_read_lock();
 
@@ -5791,14 +5682,6 @@ long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
 	}
 #endif
 again:
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	cpumask_andnot(&allowed_mask, new_mask, cpu_isolated_mask);
-	dest_cpu = cpumask_any_and(cpu_active_mask, &allowed_mask);
-	if (dest_cpu >= nr_cpu_ids) {
-		retval = -EINVAL;
-		goto out;
-	}
-#endif
 	retval = __set_cpus_allowed_ptr(p, new_mask, true);
 
 	if (!retval) {
@@ -5813,9 +5696,6 @@ again:
 			goto again;
 		}
 	}
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-out:
-#endif
 out_free_new_mask:
 	free_cpumask_var(new_mask);
 out_free_cpus_allowed:
@@ -6639,24 +6519,12 @@ static struct task_struct fake_task = {
  * there's no concurrency possible, we hold the required locks anyway
  * because of lock validation efforts.
  */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf,
-		bool migrate_pinned_tasks)
-#else
 static void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf)
-#endif
 {
 	struct rq *rq = dead_rq;
 	struct task_struct *next, *stop = rq->stop;
 	struct rq_flags orf = *rf;
 	int dest_cpu;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	LIST_HEAD(tasks);
-	unsigned int num_pinned_kthreads = 1; /* this thread */
-	cpumask_t avail_cpus;
-
-	cpumask_andnot(&avail_cpus, cpu_online_mask, cpu_isolated_mask);
-#endif
 	/*
 	 * Fudge the rq selection such that the below task selection loop
 	 * doesn't get stuck on the currently eligible stop task.
@@ -6689,14 +6557,6 @@ static void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf)
 		next = pick_next_task(rq, &fake_task, rf);
 		BUG_ON(!next);
 		put_prev_task(rq, next);
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		if (!migrate_pinned_tasks && next->flags & PF_KTHREAD &&
-			!cpumask_intersects(&avail_cpus, &next->cpus_allowed)) {
-			iso_detach_one_task(next, rq, &tasks);
-			num_pinned_kthreads += 1;
-			continue;
-		}
-#endif
 		/*
 		 * Rules for changing task_struct::cpus_allowed are holding
 		 * both pi_lock and rq->lock, such that holding either
@@ -6719,19 +6579,12 @@ static void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf)
 		 * this case.
 		 */
 		if (WARN_ON(task_rq(next) != rq || !task_on_rq_queued(next))) {
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-			WARN_ON(migrate_pinned_tasks);
-#endif
 			raw_spin_unlock(&next->pi_lock);
 			continue;
 		}
 
 		/* Find suitable destination for @next, with force if needed. */
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-		dest_cpu = select_fallback_rq(dead_rq->cpu, next, false);
-#else
 		dest_cpu = select_fallback_rq(dead_rq->cpu, next);
-#endif
 		rq = __migrate_task(rq, rf, next, dest_cpu);
 		if (rq != dead_rq) {
 			rq_unlock(rq, rf);
@@ -6743,10 +6596,6 @@ static void migrate_tasks(struct rq *dead_rq, struct rq_flags *rf)
 	}
 
 	rq->stop = stop;
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	if (num_pinned_kthreads > 1)
-		iso_attach_tasks(&tasks, rq);
-#endif
 }
 #endif /* CONFIG_HOTPLUG_CPU */
 
@@ -6931,11 +6780,7 @@ int sched_cpu_dying(unsigned int cpu)
 		BUG_ON(!cpumask_test_cpu(cpu, rq->rd->span));
 		set_rq_offline(rq);
 	}
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	migrate_tasks(rq, &rf, true);
-#else
 	migrate_tasks(rq, &rf);
-#endif
 	BUG_ON(rq->nr_running != 1);
 	rq_unlock_irqrestore(rq, &rf);
 
@@ -7010,14 +6855,6 @@ static struct kmem_cache *task_group_cache __read_mostly;
 DECLARE_PER_CPU(cpumask_var_t, load_balance_mask);
 DECLARE_PER_CPU(cpumask_var_t, select_idle_mask);
 
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-void iso_cpumask_init(void);
-void iso_calc_load_migrate(struct rq *rq)
-{
-	calc_load_migrate(rq);
-}
-
-#endif
 
 void __init sched_init(void)
 {
@@ -7034,9 +6871,6 @@ void __init sched_init(void)
 #endif
 	if (alloc_size) {
 		ptr = (unsigned long)kzalloc(alloc_size, GFP_NOWAIT);
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	iso_cpumask_init();
-#endif
 #ifdef CONFIG_FAIR_GROUP_SCHED
 		root_task_group.se = (struct sched_entity **)ptr;
 		ptr += nr_cpu_ids * sizeof(void **);
@@ -7185,9 +7019,6 @@ void __init sched_init(void)
 
 	scheduler_running = 1;
 
-#ifdef CONFIG_MTK_SCHED_BIG_TASK_MIGRATE
-	task_rotate_work_init();
-#endif
 }
 
 #ifdef CONFIG_DEBUG_ATOMIC_SLEEP
