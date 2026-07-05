@@ -18,9 +18,6 @@
 #include "../workqueue_internal.h"
 #include "../smpboot.h"
 
-#ifdef CONFIG_MTK_PERF_COMMON
-#include <mt-plat/perf_common.h>
-#endif
 #include "pelt.h"
 
 #define CREATE_TRACE_POINTS
@@ -3999,9 +3996,6 @@ void scheduler_tick(void)
 	rq_unlock(rq, &rf);
 
 	perf_event_task_tick();
-#ifdef CONFIG_MTK_PERF_COMMON
-	perf_common(ktime_get_ns());
-#endif
 #ifdef CONFIG_SMP
 	rq->idle_balance = idle_cpu(cpu);
 	trigger_load_balance(rq);
