@@ -73,48 +73,46 @@ void cass_cpu_util(struct cass_cpu_cand *c, int this_cpu, bool sync)
 /* Returns true if @a is a better CPU than @b */
 static __always_inline
 bool cass_cpu_better(const struct cass_cpu_cand *a,
-		     const struct cass_cpu_cand *b, unsigned long p_util,
-		     int this_cpu, int prev_cpu, bool sync)
+		     const struct cass_cpu_cand *b, int this_cpu,
+		     int prev_cpu, bool sync)
 {
-#define cass_cmp(a, b) ({ res = (a) - (b); })
-#define cass_eq(a, b) ({ res = (a) == (b); })
-	long res;
+	unsigned long a_util = a->util * b->cap;
+	unsigned long b_util = b->util * a->cap;
 
 	/* Prefer the CPU with lower relative utilization */
-	if (cass_cmp(b->util, a->util))
-		goto done;
+	if (a_util != b_util)
+		return a_util < b_util;
 
 	/* Prefer the current CPU for sync wakes */
-	if (sync && (cass_eq(a->cpu, this_cpu) || !cass_cmp(b->cpu, this_cpu)))
-		goto done;
+	if (sync) {
+		if (a->cpu == this_cpu)
+			return true;
+		if (b->cpu == this_cpu)
+			return false;
+	}
 
 	/* Prefer the CPU with higher capacity */
-	if (cass_cmp(a->cap, b->cap))
-		goto done;
+	if (a->cap != b->cap)
+		return a->cap > b->cap;
 
 	/* Prefer the CPU with lower idle exit latency */
-	if (cass_cmp(b->exit_lat, a->exit_lat))
-		goto done;
+	if (a->exit_lat != b->exit_lat)
+		return a->exit_lat < b->exit_lat;
 
 	/* Prefer the previous CPU */
-	if (cass_eq(a->cpu, prev_cpu) || !cass_cmp(b->cpu, prev_cpu))
-		goto done;
+	if (a->cpu == prev_cpu)
+		return true;
+	if (b->cpu == prev_cpu)
+		return false;
 
 	/* Prefer the CPU that shares a cache with the previous CPU */
-	if (cass_cmp(cpus_share_cache(a->cpu, prev_cpu),
-		     cpus_share_cache(b->cpu, prev_cpu)))
-		goto done;
-
-	/* @a isn't a better CPU than @b. @res must be <=0 to indicate such. */
-done:
-	/* @a is a better CPU than @b if @res is positive */
-	return res > 0;
+	return cpus_share_cache(a->cpu, prev_cpu) >
+	       cpus_share_cache(b->cpu, prev_cpu);
 }
 
 static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt)
 {
-	/* Initialize @best such that @best always has a valid CPU at the end */
-	struct cass_cpu_cand cands[2], *best = cands;
+	struct cass_cpu_cand cands[2], *best = NULL;
 	int this_cpu = raw_smp_processor_id();
 	bool has_idle = false;
 	unsigned long p_util;
@@ -132,10 +130,6 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 	 * preemptible and RCU-sched is unified with normal RCU. Therefore,
 	 * non-preemptible contexts are implicitly RCU-safe.
 	 *
-	 * Note: @curr->cpu must be initialized before this loop ends. This is
-	 * necessary to ensure @best->cpu contains a valid CPU upon returning;
-	 * otherwise, if only one CPU is allowed and it is skipped before
-	 * @curr->cpu is set, then @best->cpu will be garbage.
 	 */
 	for_each_cpu_and(cpu, &p->cpus_allowed, cpu_active_mask) {
 		/* Use the free candidate slot for @curr */
@@ -151,7 +145,7 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 		    available_idle_cpu(cpu) || sched_idle_cpu(cpu)) {
 			/* Discard any previous non-idle candidate */
 			if (!has_idle)
-				best = curr;
+				best = NULL;
 			has_idle = true;
 
 			/* Nonzero exit latency indicates this CPU is idle */
@@ -182,23 +176,17 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 		if (cpu != task_cpu(p))
 			curr->util += p_util;
 
-		/* Calculate the relative utilization for this CPU candidate */
-		curr->util = curr->util * SCHED_CAPACITY_SCALE / curr->cap;
-
 		/*
 		 * Check if this CPU is better than the best CPU found so far.
-		 * If @best == @curr then there's no need to compare them, but
-		 * cidx still needs to be changed to the other candidate slot.
 		 */
-		if (best == curr ||
-		    cass_cpu_better(curr, best, p_util, this_cpu, prev_cpu,
-				    sync)) {
+		if (!best ||
+		    cass_cpu_better(curr, best, this_cpu, prev_cpu, sync)) {
 			best = curr;
 			cidx ^= 1;
 		}
 	}
 
-	return best->cpu;
+	return best ? best->cpu : cpumask_first(&p->cpus_allowed);
 }
 
 static int cass_select_task_rq(struct task_struct *p, int prev_cpu,
@@ -209,14 +197,6 @@ static int cass_select_task_rq(struct task_struct *p, int prev_cpu,
 	/* Don't balance on exec since we don't know what @p will look like */
 	if (wake_flags & SD_BALANCE_EXEC)
 		return prev_cpu;
-
-	/*
-	 * If there aren't any valid CPUs which are active, then just return the
-	 * first valid CPU since it's possible for certain types of tasks to run
-	 * on inactive CPUs.
-	 */
-	if (unlikely(!cpumask_intersects(&p->cpus_allowed, cpu_active_mask)))
-		return cpumask_first(&p->cpus_allowed);
 
 	/* cass_best_cpu() needs the CFS task's utilization, so sync it up */
 	if (!rt && !(wake_flags & SD_BALANCE_FORK))
