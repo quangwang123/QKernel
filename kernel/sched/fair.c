@@ -7329,9 +7329,6 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag,
 		record_wakee(p);
 
 		if (sched_energy_enabled()) {
-			if (uclamp_latency_sensitive(p) && !1 && !sync)
-				goto sd_loop;
-
 			new_cpu = find_energy_efficient_cpu(p, prev_cpu, sync);
 			if (new_cpu >= 0)
 				return new_cpu;
@@ -7344,7 +7341,6 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag,
 			      cpumask_test_cpu(cpu, &p->cpus_allowed);
 	}
 
-sd_loop:
 	rcu_read_lock();
 	for_each_domain(cpu, tmp) {
 		if (!(tmp->flags & SD_LOAD_BALANCE))
@@ -7477,7 +7473,7 @@ static void check_preempt_wakeup(struct rq *rq, struct task_struct *p, int wake_
 	 * Batch and idle tasks do not preempt non-idle tasks (their preemption
 	 * is driven by the tick):
 	 */
-	if (unlikely(p->policy != SCHED_NORMAL) || !1)
+	if (unlikely(p->policy != SCHED_NORMAL))
 		return;
 
 	find_matching_se(&se, &pse);
