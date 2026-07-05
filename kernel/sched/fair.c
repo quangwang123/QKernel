@@ -572,26 +572,6 @@ static inline s64 entity_key(struct cfs_rq *cfs_rq, struct sched_entity *se)
  *
  * As measured, the max (key * weight) value was ~44 bits for a kernel build.
  */
-static void
-avg_vruntime_add(struct cfs_rq *cfs_rq, struct sched_entity *se)
-{
-	unsigned long weight = scale_load_down(se->load.weight);
-	s64 key = entity_key(cfs_rq, se);
-
-	cfs_rq->avg_vruntime += key * weight;
-	cfs_rq->avg_load += weight;
-}
-
-static void
-avg_vruntime_sub(struct cfs_rq *cfs_rq, struct sched_entity *se)
-{
-	unsigned long weight = scale_load_down(se->load.weight);
-	s64 key = entity_key(cfs_rq, se);
-
-	cfs_rq->avg_vruntime -= key * weight;
-	cfs_rq->avg_load -= weight;
-}
-
 static inline
 void avg_vruntime_update(struct cfs_rq *cfs_rq, s64 delta)
 {
@@ -4521,11 +4501,6 @@ static __always_inline void return_cfs_rq_runtime(struct cfs_rq *cfs_rq);
 static void
 dequeue_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int flags)
 {
-	int action = UPDATE_TG;
-
-	if (entity_is_task(se) && task_on_rq_migrating(task_of(se)))
-		action |= DO_DETACH;
-
 	/*
 	 * Update run-time statistics of the 'current'.
 	 */
@@ -5835,11 +5810,6 @@ static unsigned long capacity_of(int cpu)
 	return cpu_rq(cpu)->cpu_capacity;
 }
 
-static unsigned long cpu_runnable(struct rq *rq)
-{
-	return cfs_rq_runnable_avg(&rq->cfs);
-}
-
 static void record_wakee(struct task_struct *p)
 {
 	/*
@@ -6734,7 +6704,6 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 	unsigned long target_capacity = ULONG_MAX;
 	unsigned long min_wake_util = ULONG_MAX;
 	unsigned long target_max_spare_cap = 0;
-	unsigned long target_util = ULONG_MAX;
 	/* Initialise with deepest possible cstate (INT_MAX) */
 	int shallowest_idle_cstate = INT_MAX;
 	struct sched_group *sg;
@@ -6990,7 +6959,6 @@ static void find_best_target(struct sched_domain *sd, cpumask_t *cpus,
 
 			target_max_spare_cap = spare_cap;
 			target_capacity = capacity_orig;
-			target_util = new_util;
 			target_cpu = i;
 		}
 

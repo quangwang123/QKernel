@@ -158,7 +158,7 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 			curr->exit_lat = 1;
 
 			/* Add on the actual idle exit latency, if any */
-			idle_state = idle_get_state(cpu_rq(cpu));
+			idle_state = idle_get_state(rq);
 			if (idle_state)
 				curr->exit_lat += idle_state->exit_latency;
 		} else {
