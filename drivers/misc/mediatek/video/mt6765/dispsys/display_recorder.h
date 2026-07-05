@@ -7,12 +7,7 @@
 #ifndef _DISPLAY_RECOREDR_H_
 #define _DISPLAY_RECOREDR_H_
 
-#include <linux/types.h>
-#include "mmprofile.h"
-#include "mmprofile_function.h"
-
 #define LOGGER_BUFFER_SIZE (16 * 1024)
-#define DEBUG_BUFFER_SIZE 1240
 
 #undef mmprofile_log_ex
 #define mmprofile_log_ex(...)			do { } while (0)
@@ -30,13 +25,6 @@ enum DPREC_LOGGER_PR_TYPE {
 	DPREC_LOGGER_DUMP,
 	DPREC_LOGGER_STATUS,
 };
-
-extern unsigned int gCapturePriLayerEnable;
-extern unsigned int gCaptureWdmaLayerEnable;
-extern unsigned int gCaptureRdmaLayerEnable;
-extern unsigned int gCapturePriLayerDownX;
-extern unsigned int gCapturePriLayerDownY;
-extern unsigned int gCapturePriLayerNum;
 
 #define dprec_event_op(...)			do { } while (0)
 #define dprec_reg_op(...)			do { } while (0)
@@ -58,7 +46,7 @@ extern unsigned int gCapturePriLayerNum;
 #define dprec_logger_dump(...)			do { } while (0)
 #define dprec_logger_vdump(...)			do { } while (0)
 #define dprec_logger_dump_reset(...)		do { } while (0)
-#define dprec_logger_get_dump_addr(...)		(NULL)
+#define dprec_logger_get_dump_addr(...)		((void *)0)
 #define dprec_logger_get_dump_len(...)		(0U)
 #define dprec_logger_get_current_hold_period(...) (0ULL)
 #define dprec_logger_get_buf(...)		(0)
@@ -74,7 +62,7 @@ extern unsigned int gCapturePriLayerNum;
 #define dprec_logger_frame_seq_end(...)		do { } while (0)
 #define dprec_mmp_dump_ovl_layer(...)		(0)
 #define init_log_buffer(...)			do { } while (0)
-#define get_dprec_status_ptr(...)		(NULL)
+#define get_dprec_status_ptr(...)		((void *)0)
 
 #define DISP_SYSTRACE_BEGIN(...)		do { } while (0)
 #define DISP_SYSTRACE_END()			do { } while (0)

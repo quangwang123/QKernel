@@ -74,12 +74,13 @@ static struct proc_dir_entry *mtkfb_procfs;
 static struct proc_dir_entry *disp_lowpower_proc;
 #endif
 
-unsigned int gCapturePriLayerEnable;
-unsigned int gCaptureWdmaLayerEnable;
-unsigned int gCaptureRdmaLayerEnable;
-unsigned int gCapturePriLayerDownX = 20;
-unsigned int gCapturePriLayerDownY = 20;
-unsigned int gCapturePriLayerNum = 4;
+#define DEBUG_BUFFER_SIZE 1240
+
+static unsigned int gCapturePriLayerEnable;
+static unsigned int gCaptureWdmaLayerEnable;
+static unsigned int gCapturePriLayerDownX = 20;
+static unsigned int gCapturePriLayerDownY = 20;
+static unsigned int gCapturePriLayerNum = 4;
 static char debug_buffer[DEBUG_BUFFER_SIZE];
 static bool is_buffer_init = true;
 int bypass_blank;
