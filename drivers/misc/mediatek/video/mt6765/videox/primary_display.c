@@ -36,6 +36,7 @@
 #include "mtkfb.h"
 #include "ddp_hal.h"
 #include "ddp_path.h"
+#include "ddp_dump.h"
 #include "ddp_drv.h"
 #include "ddp_reg.h"
 #include "disp_session.h"

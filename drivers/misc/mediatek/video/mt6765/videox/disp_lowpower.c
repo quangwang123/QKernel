@@ -31,6 +31,7 @@
 #endif
 
 #include "debug.h"
+#include "ddp_debug.h"
 #include "disp_drv_log.h"
 #include "disp_lcm.h"
 #include "disp_utils.h"
