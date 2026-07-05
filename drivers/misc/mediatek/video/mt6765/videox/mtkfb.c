@@ -2646,7 +2646,7 @@ static void mtkfb_late_resume(void)
 /*---------------------------------------------------------------------------*/
 int mtkfb_pm_suspend(struct device *device)
 {
-	/* pr_debug("calling %s()\n", __func__); */
+	/* no_printk("calling %s()\n", __func__); */
 
 	struct platform_device *pdev = to_platform_device(device);
 
@@ -2660,7 +2660,7 @@ int mtkfb_pm_suspend(struct device *device)
 
 int mtkfb_pm_resume(struct device *device)
 {
-	/* pr_debug("calling %s()\n", __func__); */
+	/* no_printk("calling %s()\n", __func__); */
 
 	struct platform_device *pdev = to_platform_device(device);
 

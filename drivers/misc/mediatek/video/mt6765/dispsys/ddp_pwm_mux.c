@@ -107,7 +107,7 @@ static int disp_pwm_get_muxbase(void)
 	struct device_node *node;
 
 	if (disp_pmw_mux_base != NULL) {
-		pr_debug("[PWM]TOPCKGEN node exist");
+		no_printk("[PWM]TOPCKGEN node exist");
 		return 0;
 	}
 
@@ -121,7 +121,7 @@ static int disp_pwm_get_muxbase(void)
 		pr_info("[PWM]DISP TOPCKGEN base failed\n");
 		return -1;
 	}
-	pr_debug("[PWM]find TOPCKGEN node");
+	no_printk("[PWM]find TOPCKGEN node");
 	return ret;
 }
 
@@ -152,7 +152,7 @@ int disp_pwm_set_pwmmux(unsigned int clk_req)
 	disp_pwm_get_muxbase();
 	reg_before = disp_pwm_get_pwmmux();
 
-	pr_debug("[PWM]clk_req=%d clkid=%d", clk_req, clkid);
+	no_printk("[PWM]clk_req=%d clkid=%d", clk_req, clkid);
 
 	if (clkid != -1) {
 		ddp_clk_prepare_enable(MUX_PWM);
@@ -162,7 +162,7 @@ int disp_pwm_set_pwmmux(unsigned int clk_req)
 
 	reg_after = disp_pwm_get_pwmmux();
 	g_pwm_mux_clock_source = (reg_after>>24) & 0x3;
-	pr_debug("[PWM]PWM_MUX %x->%x", reg_before, reg_after);
+	no_printk("[PWM]PWM_MUX %x->%x", reg_before, reg_after);
 
 	return 0;
 }
@@ -180,7 +180,7 @@ static int get_ulposc_base(void)
 	struct device_node *node;
 
 	if (disp_pmw_osc_base != NULL) {
-		pr_debug("[PWM]SLEEP node exist");
+		no_printk("[PWM]SLEEP node exist");
 		return 0;
 	}
 
@@ -210,10 +210,10 @@ static int get_ulposc_status(void)
 
 	regosc = clk_readl(OSC_ULPOSC_ADDR);
 	if ((regosc & 0x5) != 0x5) {
-		pr_debug("[PWM]ULPOSC is off (%x)", regosc);
+		no_printk("[PWM]ULPOSC is off (%x)", regosc);
 		ret = 0;
 	} else {
-		pr_debug("[PWM]ULPOSC is on (%x)", regosc);
+		no_printk("[PWM]ULPOSC is on (%x)", regosc);
 		ret = 1;
 	}
 
@@ -233,11 +233,11 @@ static int ulposc_on(void)
 		return -1;
 
 	regosc = clk_readl(OSC_ULPOSC_ADDR);
-	/* pr_debug("[PWM]ULPOSC config : 0x%08x", regosc); */
+	/* no_printk("[PWM]ULPOSC config : 0x%08x", regosc); */
 
 	regosc = regosc | 0x1;
 	clk_writel(OSC_ULPOSC_ADDR, regosc);
-	/* pr_debug("[PWM]ULPOSC config : 0x%08x after en", regosc); */
+	/* no_printk("[PWM]ULPOSC config : 0x%08x after en", regosc); */
 	udelay(150);
 
 	regosc = clk_readl(OSC_ULPOSC_ADDR);
@@ -245,7 +245,7 @@ static int ulposc_on(void)
 	clk_writel(OSC_ULPOSC_ADDR, regosc);
 	/* udelay(150); */
 	/* regosc = clk_readl(OSC_ULPOSC_ADDR); */
-	/* pr_debug("[PWM]ULPOSC config : 0x%08x after rst 1", regosc); */
+	/* no_printk("[PWM]ULPOSC config : 0x%08x after rst 1", regosc); */
 
 	return 0;
 }
@@ -264,13 +264,13 @@ static int ulposc_off(void)
 
 	udelay(150);
 	regosc = clk_readl(OSC_ULPOSC_ADDR);
-	/* pr_debug("[PWM]ULPOSC config : 0x%08x after cg_en", regosc); */
+	/* no_printk("[PWM]ULPOSC config : 0x%08x after cg_en", regosc); */
 
 	regosc = regosc & (~0x1);
 	clk_writel(OSC_ULPOSC_ADDR, regosc);
 	/* udelay(150); */
 	/* regosc = clk_readl(OSC_ULPOSC_ADDR); */
-	/* pr_debug("[PWM]ULPOSC config : 0x%08x after en", regosc); */
+	/* no_printk("[PWM]ULPOSC config : 0x%08x after en", regosc); */
 
 	return 0;
 }

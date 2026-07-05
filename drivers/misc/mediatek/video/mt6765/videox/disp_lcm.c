@@ -56,7 +56,7 @@ void _dump_lcm_info(struct disp_lcm_handle *plcm)
 
 	if (!l || !p) return;
 
-	pr_debug("[LCM] name: %s, res: %dx%d, phys: %dx%d\n",
+	no_printk("[LCM] name: %s, res: %dx%d, phys: %dx%d\n",
 		l->name, p->width, p->height, p->physical_width, p->physical_height);
 }
 
