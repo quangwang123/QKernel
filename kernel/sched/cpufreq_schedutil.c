@@ -208,11 +208,7 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
 
-#ifdef CONFIG_MTK_SCHED_EXTENSION
-	freq = map_util_freq_with_margin(util, freq, max);
-#else
 	freq = map_util_freq(util, freq, max);
-#endif
 
 #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
 	freq = clamp_val(freq, policy->min, policy->max);
