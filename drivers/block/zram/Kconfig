@@ -19,7 +19,7 @@ config ZRAM
 config ZRAM_ENTROPY
 	bool "Use entropy optimization for zram"
 	depends on ZRAM
-	default y
+	default n
 	help
 	  With this feature, entropy will be calculated for each page.
 	  Pages above ZRAM_ENTROPY_THRESHOLD entropy will be
