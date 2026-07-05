@@ -12,16 +12,16 @@
 #include "ddp_debug.h"
 
 #define DISP_LOG_PRINT(level, sub_module, fmt, args...)			\
-	pr_debug("mtk-disp/%s: " fmt, sub_module, ##args)
+	no_printk(fmt, ##args)
 
 #define DISPINFO(string, args...)					\
-	pr_debug("mtk-disp: " string, ##args)
+	no_printk(string, ##args)
 
 #define DISPMSG(string, args...)					\
-	pr_debug("mtk-disp: " string, ##args)
+	no_printk(string, ##args)
 
 #define DISPCHECK(string, args...)					\
-	pr_debug("mtk-disp: " string, ##args)
+	no_printk(string, ##args)
 
 #define DISPWARN(string, args...)					\
 	pr_warn_ratelimited("mtk-disp: " string, ##args)
@@ -30,11 +30,11 @@
 	pr_err_ratelimited("mtk-disp: " string, ##args)
 
 #define DISPPR_FENCE(string, args...)					\
-	pr_debug("mtk-disp/fence: " string, ##args)
+	no_printk(string, ##args)
 
 #define DISPDBG(string, args...) DISPMSG(string, ##args)
 
-#define DISPFUNC() pr_debug("mtk-disp: %s\n", __func__)
+#define DISPFUNC() no_printk("%s\n", __func__)
 
 #define DISPDBGFUNC() DISPFUNC()
 
