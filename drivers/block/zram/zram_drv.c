@@ -33,6 +33,9 @@
 #include <linux/sysfs.h>
 #include <linux/debugfs.h>
 #include <linux/cpuhotplug.h>
+#include <linux/mm.h>
+#include <linux/ratelimit.h>
+#include <linux/swap.h>
 
 #include "zram_drv.h"
 
@@ -91,6 +94,40 @@ static void zram_report_io_error(struct zram *zram, const char *reason,
 		(u64)atomic64_read(&zram->stats.failed_reads),
 		(u64)atomic64_read(&zram->stats.failed_writes),
 		used_pages, zram->limit_pages);
+}
+
+static void zram_dump_alloc_failure(struct zram *zram, const char *reason,
+				    int err, u32 index, unsigned int len,
+				    unsigned int comp_len)
+{
+	static DEFINE_RATELIMIT_STATE(zram_alloc_fail_rs, 60 * HZ, 1);
+	unsigned long used_pages = zram->mem_pool ?
+				  zs_get_total_pages(zram->mem_pool) : 0;
+	struct sysinfo i = { };
+
+	if (!__ratelimit(&zram_alloc_fail_rs))
+		return;
+
+	si_meminfo(&i);
+	si_swapinfo(&i);
+
+	pr_emerg("zram: diagnostic snapshot after %s failure err=%d index=%u len=%u comp_len=%u pid=%d comm=%s\n",
+		 reason, err, index, len, comp_len, current->pid, current->comm);
+	pr_emerg("zram: stats stored=%llu same=%llu huge=%llu writestall=%llu failed_r=%llu failed_w=%llu used=%lu max_used=%ld limit=%lu disksize=%llu\n",
+		 (u64)atomic64_read(&zram->stats.pages_stored),
+		 (u64)atomic64_read(&zram->stats.same_pages),
+		 (u64)atomic64_read(&zram->stats.huge_pages),
+		 (u64)atomic64_read(&zram->stats.writestall),
+		 (u64)atomic64_read(&zram->stats.failed_reads),
+		 (u64)atomic64_read(&zram->stats.failed_writes),
+		 used_pages, atomic_long_read(&zram->stats.max_used_pages),
+		 zram->limit_pages, zram->disksize);
+	pr_emerg("zram: mem total=%lu free=%lu buffer=%lu swap_total=%lu swap_free=%lu mem_unit=%u\n",
+		 i.totalram, i.freeram, i.bufferram, i.totalswap,
+		 i.freeswap, i.mem_unit);
+
+	show_mem(SHOW_MEM_FILTER_NODES, NULL);
+	dump_stack();
 }
 
 static inline struct zram *dev_to_zram(struct device *dev)
@@ -1475,6 +1512,8 @@ compress_again:
 			goto compress_again;
 		zram_report_io_error(zram, "object alloc", -ENOMEM,
 				      index, 0, bvec->bv_len);
+		zram_dump_alloc_failure(zram, "object alloc", -ENOMEM,
+					index, bvec->bv_len, comp_len);
 		return -ENOMEM;
 	}
 
@@ -1486,6 +1525,8 @@ compress_again:
 		zs_free(zram->mem_pool, handle);
 		zram_report_io_error(zram, "limit exceeded", -ENOMEM,
 				      index, 0, bvec->bv_len);
+		zram_dump_alloc_failure(zram, "limit exceeded", -ENOMEM,
+					index, bvec->bv_len, comp_len);
 		return -ENOMEM;
 	}
 
