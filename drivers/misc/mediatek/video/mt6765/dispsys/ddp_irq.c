@@ -17,6 +17,7 @@
 #include "disp_drv_platform.h"	/* must be at the top-most */
 #include "ddp_log.h"
 #include "ddp_debug.h"
+#include "ddp_mmp.h"
 #include "ddp_reg.h"
 #include "ddp_irq.h"
 #include "ddp_aal.h"

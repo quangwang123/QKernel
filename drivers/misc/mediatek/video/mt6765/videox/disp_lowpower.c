@@ -45,6 +45,7 @@
 #include "cmdq_reg.h"
 #include "cmdq_core.h"
 #include "ddp_manager.h"
+#include "ddp_mmp.h"
 #include "disp_lcm.h"
 #include "ddp_clkmgr.h"
 #include "disp_drv_log.h"

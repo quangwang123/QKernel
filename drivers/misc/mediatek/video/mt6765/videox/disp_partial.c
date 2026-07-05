@@ -8,6 +8,7 @@
 #include <linux/of.h>
 #include "disp_session.h"
 #include "disp_drv_log.h"
+#include "ddp_debug.h"
 #include "cmdq_record.h"
 #include "disp_rect.h"
 #include "ddp_manager.h"

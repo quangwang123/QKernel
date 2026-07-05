@@ -25,6 +25,7 @@
 #endif
 #include "disp_drv_platform.h"
 #include "debug.h"
+#include "display_recorder.h"
 #include "ddp_debug.h"
 #include "disp_drv_log.h"
 #include "disp_lcm.h"
@@ -37,6 +38,7 @@
 #include "cmdq_reg.h"
 #include "cmdq_core.h"
 #include "ddp_manager.h"
+#include "ddp_mmp.h"
 #include "disp_lcm.h"
 #include "ddp_clkmgr.h"
 #ifdef CONFIG_MTK_SMI_EXT

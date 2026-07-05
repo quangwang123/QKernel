@@ -31,6 +31,7 @@
 #include "ddp_ovl.h"
 #include "ddp_path.h"
 #include "ddp_reg.h"
+#include "ddp_debug.h"
 #include "primary_display.h"
 #include "mtk_disp_mgr.h"
 #include "display_recorder.h"
