@@ -6266,6 +6266,8 @@ void dsi_analysis(enum DISP_MODULE_ENUM module)
 
 int ddp_dsi_dump(enum DISP_MODULE_ENUM module, int level)
 {
+	return 0;
+
 	if (!_is_power_on_status(module)) {
 		DISPWARN("sleep dump is invalid\n");
 		return 0;

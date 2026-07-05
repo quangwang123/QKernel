@@ -466,6 +466,8 @@ void rsz_dump_reg(enum DISP_MODULE_ENUM module)
 
 static int rsz_dump_info(enum DISP_MODULE_ENUM module, int level)
 {
+	return 0;
+
 	rsz_dump_analysis(module);
 	rsz_dump_reg(module);
 

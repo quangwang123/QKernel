@@ -1527,6 +1527,8 @@ static void dsi_dump_reg(enum DISP_MODULE_ENUM module)
 
 int ddp_dump_reg(enum DISP_MODULE_ENUM module)
 {
+	return 0;
+
 	switch (module) {
 	case DISP_MODULE_WDMA0:
 		wdma_dump_reg(module);
@@ -1581,6 +1583,8 @@ int ddp_dump_reg(enum DISP_MODULE_ENUM module)
 
 int ddp_dump_analysis(enum DISP_MODULE_ENUM module)
 {
+	return 0;
+
 	switch (module) {
 	case DISP_MODULE_WDMA0:
 		wdma_dump_analysis(module);
