@@ -15,9 +15,9 @@
 #endif
 
 #define DDPSVPMSG(fmt, args...) \
-	pr_debug("mtk-disp/" LOG_TAG ": " fmt, ##args)
+	no_printk(fmt, ##args)
 #define DISP_LOG_I(fmt, args...) \
-	pr_debug("mtk-disp/" LOG_TAG ": " fmt, ##args)
+	no_printk(fmt, ##args)
 #define DISP_LOG_V(fmt, args...) DISP_LOG_I(fmt, ##args)
 #define DISP_LOG_D(fmt, args...) DISP_LOG_I(fmt, ##args)
 #define DISP_LOG_W(fmt, args...) \
@@ -26,7 +26,7 @@
 	pr_err_ratelimited("mtk-disp/" LOG_TAG ": " fmt, ##args)
 
 #define DDPIRQ(fmt, args...) \
-	pr_debug_ratelimited("mtk-disp/irq: " fmt, ##args)
+	no_printk(fmt, ##args)
 #define DDPDBG(fmt, args...) DISP_LOG_D(fmt, ##args)
 #define DDPMSG(fmt, args...) DISP_LOG_I(fmt, ##args)
 #define DDPWRN(fmt, args...) DISP_LOG_W(fmt, ##args)
