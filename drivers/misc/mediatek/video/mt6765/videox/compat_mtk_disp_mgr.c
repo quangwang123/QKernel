@@ -396,10 +396,10 @@ static int compat_get_disp_session_input_config(
 		err |= compat_get_disp_input_config(&data32->config[j],
 											&data->config[j]);
 
-		err |= compat_get_disp_ccorr_config(
-			&data32->ccorr_config, &data->ccorr_config);
+	err |= compat_get_disp_ccorr_config(
+		&data32->ccorr_config, &data->ccorr_config);
 
-		return err;
+	return err;
 }
 
 static int compat_get_disp_session_vsync_config(
@@ -851,7 +851,7 @@ static int compat_get_disp_frame_cfg(
 		err |= compat_get_disp_input_config(&data32->input_cfg[j],
 											&data->input_cfg[j]);
 
-		err |= get_user(u, &(data32->overlap_layer_num));
+	err |= get_user(u, &(data32->overlap_layer_num));
 	err |= put_user(u, &(data->overlap_layer_num));
 
 	err |= get_user(u, &(data32->const_layer_num));
@@ -861,7 +861,7 @@ static int compat_get_disp_frame_cfg(
 		err |= compat_get_disp_input_config(&data32->const_layer[j],
 											&data->const_layer[j]);
 
-		err |= get_user(u, &(data32->output_en));
+	err |= get_user(u, &(data32->output_en));
 	err |= put_user(u, &(data->output_en));
 
 	err |= compat_get_disp_output_config(&data32->output_cfg,
