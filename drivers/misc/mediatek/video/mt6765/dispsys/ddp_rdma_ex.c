@@ -1179,6 +1179,8 @@ void rdma_dump_analysis(enum DISP_MODULE_ENUM module)
 
 static int rdma_dump(enum DISP_MODULE_ENUM module, int level)
 {
+	return 0;
+
 	rdma_dump_analysis(module);
 	rdma_dump_reg(module);
 

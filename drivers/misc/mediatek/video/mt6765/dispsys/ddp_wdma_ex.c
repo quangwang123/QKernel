@@ -608,6 +608,8 @@ void wdma_dump_reg(enum DISP_MODULE_ENUM module)
 
 static int wdma_dump(enum DISP_MODULE_ENUM module, int level)
 {
+	return 0;
+
 	wdma_dump_analysis(module);
 	wdma_dump_golden_setting(module);
 	wdma_dump_reg(module);

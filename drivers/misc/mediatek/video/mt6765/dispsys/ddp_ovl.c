@@ -2478,6 +2478,8 @@ void ovl_dump_analysis(enum DISP_MODULE_ENUM module)
 
 int ovl_dump(enum DISP_MODULE_ENUM module, int level)
 {
+	return 0;
+
 	ovl_dump_analysis(module);
 	ovl_dump_reg(module);
 
