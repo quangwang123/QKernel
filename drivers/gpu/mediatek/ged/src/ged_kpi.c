@@ -45,6 +45,7 @@ EXPORT_SYMBOL(ged_kpi_PushAppSelfFcFp_fbt);
 
 #ifdef MTK_GED_KPI
 
+#undef GED_TAG
 #define GED_TAG "[GED_KPI]"
 #define GED_PR_DEBUG(fmt, args...)\
 	pr_debug(GED_TAG"%s %d : "fmt, __func__, __LINE__, ##args)

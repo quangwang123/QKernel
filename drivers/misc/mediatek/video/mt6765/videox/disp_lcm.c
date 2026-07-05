@@ -195,7 +195,9 @@ static void diff_panel_set_cmd(struct disp_lcm_handle *plcm)
 
 static void display_feature_push_table(struct LCM_setting_table *table, unsigned int count, unsigned char force_update)
 {
-	for (unsigned int i = 0; i < count; i++)
+	unsigned int i;
+
+	for (i = 0; i < count; i++)
 		DSI_set_cmdq_V2_Wrapper_DSI0(table[i].cmd, table[i].count, table[i].para_list, force_update);
 }
 
@@ -285,6 +287,7 @@ static DEVICE_ATTR(brightness_light, 0664, brightness_light_show, NULL);
 
 static void display_feature_create_sysfs(void)
 {
+	int i;
 	struct kobject *objs[] = {
 		kobject_create_and_add("display_hbm", NULL),
 		kobject_create_and_add("display_cabc", NULL),
@@ -295,7 +298,7 @@ static void display_feature_create_sysfs(void)
 		&dev_attr_hbm_mode, &dev_attr_cabc_mode, &dev_attr_whitepoint, &dev_attr_brightness_light
 	};
 
-	for (int i = 0; i < 4; i++) {
+	for (i = 0; i < 4; i++) {
 		if (objs[i] && sysfs_create_file(objs[i], &attrs[i]->attr))
 			kobject_del(objs[i]);
 	}
@@ -306,6 +309,7 @@ struct disp_lcm_handle *disp_lcm_probe(char *plcm_name, enum LCM_INTERFACE_ID lc
 	bool isLCMFound = false, isLCMInited = false;
 	struct LCM_DRIVER *lcm_drv = NULL;
 	struct disp_lcm_handle *plcm = NULL;
+	int i;
 
 #if defined(MTK_LCM_DEVICE_TREE_SUPPORT)
 	if (check_lcm_node_from_DT() == 0) {
@@ -322,7 +326,7 @@ struct disp_lcm_handle *disp_lcm_probe(char *plcm_name, enum LCM_INTERFACE_ID lc
 		isLCMFound = true;
 		isLCMInited = is_lcm_inited && plcm_name;
 	} else if (plcm_name) {
-		for (int i = 0; i < _lcm_count(); i++) {
+		for (i = 0; i < _lcm_count(); i++) {
 			if (!strcmp(lcm_driver_list[i]->name, plcm_name)) {
 				lcm_drv = lcm_driver_list[i];
 				isLCMFound = true;
@@ -378,10 +382,11 @@ struct disp_lcm_handle *disp_ext_lcm_probe(char *plcm_name, enum LCM_INTERFACE_I
 	bool isLCMFound = false;
 	struct LCM_DRIVER *lcm_drv = NULL;
 	struct disp_lcm_handle *plcm = NULL;
+	int i;
 
 	if (_lcm_count() < 2) return NULL;
 	if (plcm_name) {
-		for (int i = 0; i < _lcm_count(); i++) {
+		for (i = 0; i < _lcm_count(); i++) {
 			if (!strcmp(lcm_driver_list[i]->name, plcm_name)) {
 				lcm_drv = lcm_driver_list[i];
 				isLCMFound = true;

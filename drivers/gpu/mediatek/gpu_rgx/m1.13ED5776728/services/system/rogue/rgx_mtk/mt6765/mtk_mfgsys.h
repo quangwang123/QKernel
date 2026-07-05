@@ -70,7 +70,10 @@ int gpu_pm_restore_noirq(struct device *device);
 #endif
 
 typedef void (*gpufreq_input_boost_notify)(unsigned int);
+#ifndef GPUFREQ_POWER_LIMIT_NOTIFY_DEFINED
+#define GPUFREQ_POWER_LIMIT_NOTIFY_DEFINED
 typedef void (*gpufreq_power_limit_notify)(unsigned int);
+#endif
 
 #define INPUT_BOOST_CB mt_gpufreq_input_boost_notify_registerCB
 #define POWER_LIMIT_CB mt_gpufreq_power_limit_notify_registerCB
@@ -103,4 +106,3 @@ int mtk_mfg_2d_init(void);
 #endif
 
 #endif
-
