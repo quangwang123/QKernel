@@ -19,6 +19,7 @@
 #include <linux/slab.h>
 
 #include "mmdvfs_pmqos.h"
+#include "ddp_mmp.h"
 #include "layering_rule.h"
 #include "ddp_rsz.h"
 #include "primary_display.h"

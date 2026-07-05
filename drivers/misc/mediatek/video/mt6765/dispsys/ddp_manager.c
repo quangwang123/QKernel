@@ -21,6 +21,7 @@
 #include "ddp_ovl.h"
 #include "ddp_color.h"
 #include "ddp_clkmgr.h"
+#include "ddp_mmp.h"
 
 #include "ddp_log.h"
 

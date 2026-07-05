@@ -8,8 +8,6 @@
 
 #include <linux/printk.h>
 #include <linux/ratelimit.h>
-#include "display_recorder.h"
-#include "ddp_debug.h"
 
 #define DISP_LOG_PRINT(level, sub_module, fmt, args...)			\
 	no_printk(fmt, ##args)
