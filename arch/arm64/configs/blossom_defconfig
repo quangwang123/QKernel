@@ -200,15 +200,6 @@ CONFIG_HAVE_PERF_EVENTS=y
 # CONFIG_PC104 is not set
 
 #
-# Extension scheduler feature
-#
-
-#
-# MTK scheduler extension
-#
-# CONFIG_MTK_SCHED_EXTENSION is not set
-
-#
 # Kernel Performance Events And Counters
 #
 CONFIG_PERF_EVENTS=y
