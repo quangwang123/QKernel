@@ -7443,11 +7443,7 @@ sd_loop:
  */
 static void migrate_task_rq_fair(struct task_struct *p, int new_cpu)
 {
-	struct sched_entity *se = &p->se;
-
 	if (!task_on_rq_migrating(p)) {
-		remove_entity_load_avg(se);
-
 		/*
 		 * We are supposed to update the task to "current" time, then
 		 * its up to date and ready to go to new CPU/cfs_rq. But we
