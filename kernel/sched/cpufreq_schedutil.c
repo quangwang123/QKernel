@@ -14,10 +14,6 @@
 #include "sched.h"
 
 #include <linux/sched/cpufreq.h>
-#include "cpufreq_schedutil.h"
-
-void (*cpufreq_notifier_fp)(int cluster_id, unsigned long freq);
-EXPORT_SYMBOL(cpufreq_notifier_fp);
 
 struct sugov_tunables {
 	struct gov_attr_set	attr_set;
@@ -149,8 +145,6 @@ static bool sugov_update_next_freq(struct sugov_policy *sg_policy, u64 time,
 	return true;
 }
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#else
 static void sugov_fast_switch(struct sugov_policy *sg_policy, u64 time,
 			      unsigned int next_freq)
 {
@@ -177,7 +171,6 @@ static void sugov_deferred_update(struct sugov_policy *sg_policy, u64 time,
 		irq_work_queue(&sg_policy->irq_work);
 	}
 }
-#endif
 
 /**
  * get_next_freq - Compute a new frequency for a given cpufreq policy.
@@ -210,10 +203,6 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 
 	freq = map_util_freq(util, freq, max);
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	freq = clamp_val(freq, policy->min, policy->max);
-#endif
-
 	if (freq == sg_policy->cached_raw_freq && !sg_policy->need_freq_update)
 		return sg_policy->next_freq;
 
@@ -221,11 +210,7 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 	sg_policy->prev_cached_raw_freq = sg_policy->cached_raw_freq;
 	sg_policy->cached_raw_freq = freq;
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	return freq;
-#else
 	return cpufreq_driver_resolve_freq(policy, freq);
-#endif
 }
 
 /*
@@ -504,21 +489,11 @@ static inline void ignore_dl_rate_limit(struct sugov_cpu *sg_cpu, struct sugov_p
 		sg_policy->limits_changed = true;
 }
 
-static inline void __cpufreq_notifier_fp(int cid, unsigned int next_f)
-{
-	if (cpufreq_notifier_fp)
-		cpufreq_notifier_fp(cid, next_f);
-}
-
 static void sugov_update_single(struct update_util_data *hook, u64 time,
 				unsigned int flags)
 {
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	struct cpufreq_policy *policy = sg_policy->policy;
-#endif
-	int cid = arch_cpu_cluster_id(policy->cpu);
 	unsigned long util, max;
 	unsigned int next_f;
 	bool busy;
@@ -550,12 +525,6 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
 		sg_policy->cached_raw_freq = cached_freq;
 	}
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	sugov_update_next_freq(sg_policy, time, next_f);
-	mt_cpufreq_set_by_wfi_load_cluster(cid, next_f);
-	policy->cur = next_f;
-#else
-
 	/*
 	 * This code runs under rq->lock for the target CPU, so it won't run
 	 * concurrently on two different CPUs for the same target and it is not
@@ -568,10 +537,6 @@ static void sugov_update_single(struct update_util_data *hook, u64 time,
 		sugov_deferred_update(sg_policy, time, next_f);
 		raw_spin_unlock(&sg_policy->update_lock);
 	}
-#endif
-
-	__cpufreq_notifier_fp(cid, next_f);
-
 }
 
 static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
@@ -581,9 +546,6 @@ static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
 	unsigned long util = 0, max = 1;
 	unsigned int j;
 	unsigned int next_f;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	int cid;
-#endif
 
 	for_each_cpu(j, policy->cpus) {
 		struct sugov_cpu *j_sg_cpu = &per_cpu(sugov_cpu, j);
@@ -601,11 +563,6 @@ static unsigned int sugov_next_freq_shared(struct sugov_cpu *sg_cpu, u64 time)
 
 	next_f = get_next_freq(sg_policy, util, max);
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-	cid = arch_cpu_cluster_id(policy->cpu);
-	next_f = mt_cpufreq_find_close_freq(cid, next_f);
-#endif
-
 	return next_f;
 }
 
@@ -615,7 +572,6 @@ sugov_update_shared(struct update_util_data *hook, u64 time, unsigned int flags)
 	struct sugov_cpu *sg_cpu = container_of(hook, struct sugov_cpu, update_util);
 	struct sugov_policy *sg_policy = sg_cpu->sg_policy;
 	unsigned int next_f;
-	int cid;
 
 	raw_spin_lock(&sg_policy->update_lock);
 
@@ -624,24 +580,14 @@ sugov_update_shared(struct update_util_data *hook, u64 time, unsigned int flags)
 
 	ignore_dl_rate_limit(sg_cpu, sg_policy);
 
-	cid = arch_cpu_cluster_id(sg_policy->policy->cpu);
-
 	if (sugov_should_update_freq(sg_policy, time)) {
 		next_f = sugov_next_freq_shared(sg_cpu, time);
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-		sugov_update_next_freq(sg_policy, time, next_f);
-		next_f = mt_cpufreq_find_close_freq(cid, next_f);
-		mt_cpufreq_set_by_wfi_load_cluster(cid, next_f);
-#else
 		if (sg_policy->policy->fast_switch_enabled)
 			sugov_fast_switch(sg_policy, time, next_f);
 		else
 			sugov_deferred_update(sg_policy, time, next_f);
-#endif
 	}
-
-	__cpufreq_notifier_fp(cid, next_f);
 
 	raw_spin_unlock(&sg_policy->update_lock);
 }
