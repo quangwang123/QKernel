@@ -682,7 +682,6 @@ static int _init_resv_mem(struct platform_device *pdev)
 static irqreturn_t mtk_axi_interrupt(int irq, void *dev_instance)
 {
 	struct GLUE_INFO *prGlueInfo = NULL;
-	static DEFINE_RATELIMIT_STATE(_rs, 2 * HZ, 1);
 
 	prGlueInfo = (struct GLUE_INFO *)dev_instance;
 	if (!prGlueInfo) {
@@ -699,8 +698,6 @@ static irqreturn_t mtk_axi_interrupt(int irq, void *dev_instance)
 	}
 
 	kalSetIntEvent(prGlueInfo);
-	if (__ratelimit(&_rs))
-		pr_info("[wlan] In HIF ISR.\n");
 
 	return IRQ_HANDLED;
 }
