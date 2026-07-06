@@ -79,21 +79,54 @@ static inline bool init_done(struct zram *zram)
 	return zram->disksize;
 }
 
+static u64 zram_units_to_kb(unsigned long value, unsigned int unit)
+{
+	return ((u64)value * unit) >> 10;
+}
+
+static u64 zram_pages_to_kb(u64 pages)
+{
+	return pages << (PAGE_SHIFT - 10);
+}
+
 static void zram_report_io_error(struct zram *zram, const char *reason,
 				 int err, u32 index, int offset,
 				 unsigned int len)
 {
-	unsigned long used_pages = zram->mem_pool ?
-				  zs_get_total_pages(zram->mem_pool) : 0;
-	const char *disk_name = zram->disk ? zram->disk->disk_name : "zram";
+	static DEFINE_RATELIMIT_STATE(zram_io_error_rs,
+				      DEFAULT_RATELIMIT_INTERVAL,
+				      DEFAULT_RATELIMIT_BURST);
+	u64 stored_pages, compr_data_size;
+	unsigned long used_pages, max_used_pages;
+	const char *disk_name = zram->disk ?
+				zram->disk->disk_name : "zram";
+	struct sysinfo i = { };
 
-	pr_err_ratelimited(
-		"%s: %s failed err=%d index=%u offset=%d len=%u stored=%llu failed_r=%llu failed_w=%llu used=%lu limit=%lu\n",
-		disk_name, reason, err, index, offset, len,
-		(u64)atomic64_read(&zram->stats.pages_stored),
-		(u64)atomic64_read(&zram->stats.failed_reads),
-		(u64)atomic64_read(&zram->stats.failed_writes),
-		used_pages, zram->limit_pages);
+	if (!__ratelimit(&zram_io_error_rs))
+		return;
+
+	used_pages = zram->mem_pool ? zs_get_total_pages(zram->mem_pool) : 0;
+	max_used_pages = atomic_long_read(&zram->stats.max_used_pages);
+	stored_pages = (u64)atomic64_read(&zram->stats.pages_stored);
+	compr_data_size = (u64)atomic64_read(&zram->stats.compr_data_size);
+	si_meminfo(&i);
+	si_swapinfo(&i);
+
+	pr_err("%s: %s failed err=%d index=%u offset=%d len=%u stored=%llu failed_r=%llu failed_w=%llu zram_used=%lup/%lluKB zram_orig=%lluKB zram_compr=%lluKB zram_max=%lup/%lluKB limit=%lup/%lluKB disk=%lluKB mem_free=%lluKB/%lluKB swap_free=%lluKB/%lluKB\n",
+	       disk_name, reason, err, index, offset, len,
+	       stored_pages,
+	       (u64)atomic64_read(&zram->stats.failed_reads),
+	       (u64)atomic64_read(&zram->stats.failed_writes),
+	       used_pages, zram_pages_to_kb(used_pages),
+	       stored_pages << (PAGE_SHIFT - 10),
+	       compr_data_size >> 10, max_used_pages,
+	       zram_pages_to_kb(max_used_pages),
+	       zram->limit_pages, zram_pages_to_kb(zram->limit_pages),
+	       zram->disksize >> 10,
+	       zram_units_to_kb(i.freeram, i.mem_unit),
+	       zram_units_to_kb(i.totalram, i.mem_unit),
+	       zram_units_to_kb(i.freeswap, i.mem_unit),
+	       zram_units_to_kb(i.totalswap, i.mem_unit));
 }
 
 static void zram_dump_alloc_failure(struct zram *zram, const char *reason,
@@ -103,6 +136,10 @@ static void zram_dump_alloc_failure(struct zram *zram, const char *reason,
 	static DEFINE_RATELIMIT_STATE(zram_alloc_fail_rs, 60 * HZ, 1);
 	unsigned long used_pages = zram->mem_pool ?
 				  zs_get_total_pages(zram->mem_pool) : 0;
+	unsigned long max_used_pages =
+			atomic_long_read(&zram->stats.max_used_pages);
+	u64 stored_pages = (u64)atomic64_read(&zram->stats.pages_stored);
+	u64 compr_data_size = (u64)atomic64_read(&zram->stats.compr_data_size);
 	struct sysinfo i = { };
 
 	if (!__ratelimit(&zram_alloc_fail_rs))
@@ -113,18 +150,27 @@ static void zram_dump_alloc_failure(struct zram *zram, const char *reason,
 
 	pr_emerg("zram: diagnostic snapshot after %s failure err=%d index=%u len=%u comp_len=%u pid=%d comm=%s\n",
 		 reason, err, index, len, comp_len, current->pid, current->comm);
-	pr_emerg("zram: stats stored=%llu same=%llu huge=%llu writestall=%llu failed_r=%llu failed_w=%llu used=%lu max_used=%ld limit=%lu disksize=%llu\n",
-		 (u64)atomic64_read(&zram->stats.pages_stored),
+	pr_emerg("zram: stats stored=%llu same=%llu huge=%llu writestall=%llu failed_r=%llu failed_w=%llu used=%lu used_kb=%llu orig_kb=%llu compr_kb=%llu max_used=%lu max_used_kb=%llu limit=%lu limit_kb=%llu disksize_kb=%llu\n",
+		 stored_pages,
 		 (u64)atomic64_read(&zram->stats.same_pages),
 		 (u64)atomic64_read(&zram->stats.huge_pages),
 		 (u64)atomic64_read(&zram->stats.writestall),
 		 (u64)atomic64_read(&zram->stats.failed_reads),
 		 (u64)atomic64_read(&zram->stats.failed_writes),
-		 used_pages, atomic_long_read(&zram->stats.max_used_pages),
-		 zram->limit_pages, zram->disksize);
-	pr_emerg("zram: mem total=%lu free=%lu buffer=%lu swap_total=%lu swap_free=%lu mem_unit=%u\n",
+		 used_pages, zram_pages_to_kb(used_pages),
+		 stored_pages << (PAGE_SHIFT - 10),
+		 compr_data_size >> 10, max_used_pages,
+		 zram_pages_to_kb(max_used_pages),
+		 zram->limit_pages, zram_pages_to_kb(zram->limit_pages),
+		 zram->disksize >> 10);
+	pr_emerg("zram: mem total=%lu free=%lu buffer=%lu swap_total=%lu swap_free=%lu mem_unit=%u total_kb=%llu free_kb=%llu buffer_kb=%llu swap_total_kb=%llu swap_free_kb=%llu\n",
 		 i.totalram, i.freeram, i.bufferram, i.totalswap,
-		 i.freeswap, i.mem_unit);
+		 i.freeswap, i.mem_unit,
+		 zram_units_to_kb(i.totalram, i.mem_unit),
+		 zram_units_to_kb(i.freeram, i.mem_unit),
+		 zram_units_to_kb(i.bufferram, i.mem_unit),
+		 zram_units_to_kb(i.totalswap, i.mem_unit),
+		 zram_units_to_kb(i.freeswap, i.mem_unit));
 
 	show_mem(SHOW_MEM_FILTER_NODES, NULL);
 	dump_stack();
@@ -1366,7 +1412,7 @@ static int __zram_bvec_read(struct zram *zram, struct page *page, u32 index,
 
 	/* Should NEVER happen. Return bio error if it does. */
 	if (unlikely(ret))
-		pr_err("Decompression failed! err=%d, page=%u\n", ret, index);
+		zram_report_io_error(zram, "decompression", ret, index, 0, PAGE_SIZE);
 
 	return ret;
 }
@@ -1380,9 +1426,13 @@ static int zram_bvec_read(struct zram *zram, struct bio_vec *bvec,
 	page = bvec->bv_page;
 	if (is_partial_io(bvec)) {
 		/* Use a temporary buffer to decompress the page */
-		page = alloc_page(GFP_NOIO|__GFP_HIGHMEM);
-		if (!page)
+		page = alloc_page(GFP_NOIO | __GFP_HIGHMEM);
+		if (!page) {
+			zram_report_io_error(zram, "partial read page alloc",
+					     -ENOMEM, index, offset,
+					     bvec->bv_len);
 			return -ENOMEM;
+		}
 	}
 
 	ret = __zram_bvec_read(zram, page, index, bio, is_partial_io(bvec), access);
