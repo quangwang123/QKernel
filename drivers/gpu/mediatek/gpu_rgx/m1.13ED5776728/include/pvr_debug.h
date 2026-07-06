@@ -200,15 +200,15 @@ PVRSRVDebugAssertFail(const IMG_CHAR *pszFile,
 #if defined(PVRSRV_NEED_PVR_DPF) || defined(DOXYGEN)
 
 	/* New logging mechanism */
-	#define PVR_DBG_FATAL     do	{} while(0)     /*!< Debug level passed to PVRSRVDebugPrintf() for fatal errors. */
-	#define PVR_DBG_ERROR     do	{} while(0)     /*!< Debug level passed to PVRSRVDebugPrintf() for non-fatal errors. */
-	#define PVR_DBG_WARNING   do	{} while(0)   /*!< Debug level passed to PVRSRVDebugPrintf() for warnings. */
-	#define PVR_DBG_MESSAGE   do	{} while(0)   /*!< Debug level passed to PVRSRVDebugPrintf() for information only. */
-	#define PVR_DBG_VERBOSE   do	{} while(0)   /*!< Debug level passed to PVRSRVDebugPrintf() for very low-priority debug. */
-	#define PVR_DBG_CALLTRACE do	{} while(0) /*!< Debug level passed to PVRSRVDebugPrintf() for function tracing purposes. */
-	#define PVR_DBG_ALLOC     do	{} while(0)     /*!< Debug level passed to PVRSRVDebugPrintf() for tracking some of drivers memory operations. */
-	#define PVR_DBG_BUFFERED  do	{} while(0)  /*!< Debug level passed to PVRSRVDebugPrintf() when debug should be written to the debug circular buffer. */
-	#define PVR_DBG_DEBUG     do	{} while(0)     /*!< Debug level passed to PVRSRVDebugPrintf() for debug messages. */
+	#define PVR_DBG_FATAL     DBGPRIV_FATAL     /*!< Debug level passed to PVRSRVDebugPrintf() for fatal errors. */
+	#define PVR_DBG_ERROR     DBGPRIV_ERROR     /*!< Debug level passed to PVRSRVDebugPrintf() for non-fatal errors. */
+	#define PVR_DBG_WARNING   DBGPRIV_WARNING   /*!< Debug level passed to PVRSRVDebugPrintf() for warnings. */
+	#define PVR_DBG_MESSAGE   DBGPRIV_MESSAGE   /*!< Debug level passed to PVRSRVDebugPrintf() for information only. */
+	#define PVR_DBG_VERBOSE   DBGPRIV_VERBOSE   /*!< Debug level passed to PVRSRVDebugPrintf() for very low-priority debug. */
+	#define PVR_DBG_CALLTRACE DBGPRIV_CALLTRACE /*!< Debug level passed to PVRSRVDebugPrintf() for function tracing purposes. */
+	#define PVR_DBG_ALLOC     DBGPRIV_ALLOC     /*!< Debug level passed to PVRSRVDebugPrintf() for tracking some of drivers memory operations. */
+	#define PVR_DBG_BUFFERED  DBGPRIV_BUFFERED  /*!< Debug level passed to PVRSRVDebugPrintf() when debug should be written to the debug circular buffer. */
+	#define PVR_DBG_DEBUG     DBGPRIV_DEBUG     /*!< Debug level passed to PVRSRVDebugPrintf() for debug messages. */
 
 	/* These levels are always on with PVRSRV_NEED_PVR_DPF */
 	/*! @cond Doxygen_Suppress */
@@ -223,7 +223,11 @@ PVRSRVDebugAssertFail(const IMG_CHAR *pszFile,
 	#define __PVR_DPF_0x020UL(...)
 	#define __PVR_DPF_0x040UL(...)
 
-	#define __PVR_DPF(lvl, ...) do	{} while(0)
+	#if defined(__KERNEL__)
+	#define __PVR_DPF(lvl, fmt, ...) no_printk(fmt, ##__VA_ARGS__)
+	#else
+	#define __PVR_DPF(lvl, fmt, ...) do	{} while(0)
+	#endif
 
 	/*! @endcond */
 
@@ -303,6 +307,21 @@ IMG_EXPORT void IMG_CALLCONV PVRSRVDebugPrintfDumpCCB(void);
 
 #else /* defined(PVRSRV_NEED_PVR_DPF) */
 
+	#define PVR_DBG_FATAL     DBGPRIV_FATAL
+	#define PVR_DBG_ERROR     DBGPRIV_ERROR
+	#define PVR_DBG_WARNING   DBGPRIV_WARNING
+	#define PVR_DBG_MESSAGE   DBGPRIV_MESSAGE
+	#define PVR_DBG_VERBOSE   DBGPRIV_VERBOSE
+	#define PVR_DBG_CALLTRACE DBGPRIV_CALLTRACE
+	#define PVR_DBG_ALLOC     DBGPRIV_ALLOC
+	#define PVR_DBG_BUFFERED  DBGPRIV_BUFFERED
+	#define PVR_DBG_DEBUG     DBGPRIV_DEBUG
+
+	#if defined(__KERNEL__)
+	#define __PVR_DPF(lvl, fmt, ...) no_printk(fmt, ##__VA_ARGS__)
+	#else
+	#define __PVR_DPF(lvl, fmt, ...) do	{} while(0)
+	#endif
 	#define PVR_DPF(x) __PVR_DPF x
 
 	#define PVR_LOG_ERROR(_rc, _call) do	{} while(0)
