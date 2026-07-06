@@ -29,38 +29,16 @@
 MODULE_LICENSE("Dual BSD/GPL");
 
 #define PFX                         "[WIFI-FW] "
-#define WIFI_FW_LOG_DBG             3
-#define WIFI_FW_LOG_INFO            2
-#define WIFI_FW_LOG_WARN            1
-#define WIFI_FW_LOG_ERR             0
-
-uint32_t DbgLevel = WIFI_FW_LOG_INFO;
-
-#define WIFI_DBG_FUNC(fmt, arg...)	\
-	do { \
-		if (DbgLevel >= WIFI_FW_LOG_DBG) \
-			pr_info(PFX "%s[D]: " fmt, __func__, ##arg); \
-	} while (0)
-#define WIFI_INFO_FUNC(fmt, arg...)	\
-	do { \
-		if (DbgLevel >= WIFI_FW_LOG_INFO) \
-			pr_info(PFX "%s[I]: " fmt, __func__, ##arg); \
-	} while (0)
-#define WIFI_INFO_FUNC_LIMITED(fmt, arg...)	\
-	do { \
-		if (DbgLevel >= WIFI_FW_LOG_INFO) \
-			pr_info(PFX "%s[L]: " fmt, __func__, ##arg); \
-	} while (0)
-#define WIFI_WARN_FUNC(fmt, arg...)	\
-	do { \
-		if (DbgLevel >= WIFI_FW_LOG_WARN) \
-			pr_info(PFX "%s[W]: " fmt, __func__, ##arg); \
-	} while (0)
-#define WIFI_ERR_FUNC(fmt, arg...)	\
-	do { \
-		if (DbgLevel >= WIFI_FW_LOG_ERR) \
-			pr_info(PFX "%s[E]: " fmt, __func__, ##arg); \
-	} while (0)
+#define WIFI_DBG_FUNC(fmt, arg...) \
+	no_printk(PFX "%s[D]: " fmt, __func__, ##arg)
+#define WIFI_INFO_FUNC(fmt, arg...) \
+	no_printk(PFX "%s[I]: " fmt, __func__, ##arg)
+#define WIFI_INFO_FUNC_LIMITED(fmt, arg...) \
+	no_printk(PFX "%s[L]: " fmt, __func__, ##arg)
+#define WIFI_WARN_FUNC(fmt, arg...) \
+	pr_warn_ratelimited(PFX "%s[W]: " fmt, __func__, ##arg)
+#define WIFI_ERR_FUNC(fmt, arg...) \
+	pr_err_ratelimited(PFX "%s[E]: " fmt, __func__, ##arg)
 
 
 wlan_probe_cb mtk_wlan_probe_function;
@@ -223,7 +201,6 @@ int mtk_wcn_wlan_func_ctrl(enum ENUM_WLAN_OPID opId)
 	return bRet;
 }
 EXPORT_SYMBOL(mtk_wcn_wlan_func_ctrl);
-
 
 
 
