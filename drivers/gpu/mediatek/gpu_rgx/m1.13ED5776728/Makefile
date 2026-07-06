@@ -1,4 +1,4 @@
-OPTIM = -O3
+OPTIM = -Os -fdata-sections -ffunction-sections -finline-functions -ftree-vectorize
 
 ccflags-y += -DCONFIG_MACH_MT6765
 
