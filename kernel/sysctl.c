@@ -222,6 +222,8 @@ static int proc_dointvec_minmax_sysadmin(struct ctl_table *table, int write,
 
 static int proc_dointvec_minmax_coredump(struct ctl_table *table, int write,
 		void __user *buffer, size_t *lenp, loff_t *ppos);
+static int proc_swappiness(struct ctl_table *table, int write,
+		void __user *buffer, size_t *lenp, loff_t *ppos);
 #ifdef CONFIG_COREDUMP
 static int proc_dostring_coredump(struct ctl_table *table, int write,
 		void __user *buffer, size_t *lenp, loff_t *ppos);
@@ -1408,7 +1410,7 @@ static struct ctl_table vm_table[] = {
 		.data		= &vm_swappiness,
 		.maxlen		= sizeof(vm_swappiness),
 		.mode		= 0644,
-		.proc_handler	= proc_dointvec_minmax,
+		.proc_handler	= proc_swappiness,
 		.extra1		= &zero,
 		.extra2		= &two_hundred,
 	},
@@ -2596,6 +2598,18 @@ static int proc_dointvec_minmax_sysadmin(struct ctl_table *table, int write,
 	return proc_dointvec_minmax(table, write, buffer, lenp, ppos);
 }
 #endif
+
+static int proc_swappiness(struct ctl_table *table, int write,
+		void __user *buffer, size_t *lenp, loff_t *ppos)
+{
+	int ret;
+
+	vm_swappiness = VM_SWAPPINESS_DEFAULT;
+	ret = proc_dointvec_minmax(table, write, buffer, lenp, ppos);
+	vm_swappiness = VM_SWAPPINESS_DEFAULT;
+
+	return ret;
+}
 
 /**
  * struct do_proc_dointvec_minmax_conv_param - proc_dointvec_minmax() range checking structure
