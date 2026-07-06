@@ -23,6 +23,7 @@
 #include "osal_typedef.h"
 #include "../../debug_utility/ring.h"
 #include <linux/io.h>
+#include <linux/printk.h>
 #include <linux/string.h>
 #include <linux/workqueue.h>
 /*******************************************************************************
@@ -335,6 +336,9 @@ INT32 osal_memcmp(const PVOID buf1, const PVOID buf2, UINT32 len);
 #define osal_strstr(str1, str2) strstr(str1, str2)
 #define osal_strnstr(str1, str2, n) strnstr(str1, str2, n)
 #define osal_snprintf(buf, len, fmt, ...) snprintf(buf, len, fmt, ##__VA_ARGS__)
+#define osal_err_print(str, ...) no_printk(str, ##__VA_ARGS__)
+#define osal_dbg_print(str, ...) no_printk(str, ##__VA_ARGS__)
+#define osal_warn_print(str, ...) no_printk(str, ##__VA_ARGS__)
 #define osal_sprintf(str, fmt, ...) snprintf(str, DBG_LOG_STR_SIZE, fmt, ##__VA_ARGS__)
 #define osal_memset(buf, i, len) memset(buf, i, len)
 #define osal_memcpy(dst, src, len) memcpy(dst, src, len)
@@ -457,10 +461,25 @@ VOID osal_op_history_print(struct osal_op_history *log_history, PINT8 name);
 ********************************************************************************
 */
 
+#ifndef OSAL_KEEP_COMPAT_FUNCTIONS
+#define osal_printtimeofday(prefix) 0
+#define osal_buffer_dump(buf, title, len, limit) do { } while (0)
+#define osal_buffer_dump_data(buf, title, len, limit, flag) do { } while (0)
+#define osal_ftrace_print(str, ...) no_printk(str, ##__VA_ARGS__)
+#define osal_ftrace_print_ctrl(flag) 0
+#define osal_dump_thread_state(name) do { } while (0)
+#define osal_opq_dump(qName, pOpQ) do { } while (0)
+#define osal_opq_dump_locked(qName, pOpQ) do { } while (0)
+#define osal_op_history_init(log_history, queue_size) do { } while (0)
+#define osal_op_history_save(log_history, pOp) do { } while (0)
+#define osal_op_history_print(log_history, name) do { } while (0)
+#define osal_assert(condition) do { } while (0)
+#else
 #define osal_assert(condition) \
 do { \
 	if (!(condition)) \
 		osal_err_print("%s, %d, (%s)\n", __FILE__, __LINE__, #condition); \
 } while (0)
+#endif
 
 #endif /* _OSAL_H_ */

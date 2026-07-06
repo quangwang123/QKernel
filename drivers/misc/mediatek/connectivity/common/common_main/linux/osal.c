@@ -92,7 +92,6 @@ static UINT16 const crc16_table[256] = {
 	0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-INT32 ftrace_flag;
 /*******************************************************************************
 *                  F U N C T I O N   D E C L A R A T I O N S
 ********************************************************************************
@@ -189,68 +188,22 @@ INT32 osal_snprintf(PINT8 buf, UINT32 len, const PINT8 fmt, ...)
 
 INT32 osal_err_print(const PINT8 str, ...)
 {
-	va_list args;
-	INT32 ret;
-	INT8 tempString[DBG_LOG_STR_SIZE];
-
-	va_start(args, str);
-	ret = vsnprintf(tempString, DBG_LOG_STR_SIZE, str, args);
-	va_end(args);
-
-	if (ret > 0)
-		pr_no_info("%s", tempString);
-
-	return ret;
+	return 0;
 }
 
 INT32 osal_dbg_print(const PINT8 str, ...)
 {
-	va_list args;
-	INT32 ret;
-	INT8 tempString[DBG_LOG_STR_SIZE];
-
-	va_start(args, str);
-	ret = vsnprintf(tempString, DBG_LOG_STR_SIZE, str, args);
-	va_end(args);
-
-	if (ret > 0)
-		pr_no_info("%s", tempString);
-
-	return ret;
+	return 0;
 }
 
 INT32 osal_warn_print(const PINT8 str, ...)
 {
-	va_list args;
-	INT32 ret;
-	INT8 tempString[DBG_LOG_STR_SIZE];
-
-	va_start(args, str);
-	ret = vsnprintf(tempString, DBG_LOG_STR_SIZE, str, args);
-	va_end(args);
-
-	if (ret > 0)
-		pr_no_info("%s", tempString);
-
-	return ret;
+	return 0;
 }
 
 INT32 osal_dbg_assert(INT32 expr, const PINT8 file, INT32 line)
 {
-	if (!expr) {
-		pr_no_info("%s (%d)\n", file, line);
-		/*BUG_ON(!expr); */
-#ifdef CFG_COMMON_GPIO_DBG_PIN
-/* package this part */
-		gpio_direction_output(GPIO_ASSERT, 0);
-		pr_no_info("toggle GPIO_ASSERT = %d\n", GPIO_ASSERT);
-		udelay(10);
-		gpio_set_value(GPIO_ASSERT, 1);
-#endif
-		return 1;
-	}
 	return 0;
-
 }
 
 INT32 osal_dbg_assert_aee(const PINT8 module, const PINT8 detail_description, ...)
@@ -1431,14 +1384,7 @@ void osal_do_gettimeofday(struct timeval *tv)
 
 INT32 osal_printtimeofday(const PUINT8 prefix)
 {
-	INT32 ret;
-	INT32 sec;
-	INT32 usec;
-
-	ret = osal_gettimeofday(&sec, &usec);
-	ret += osal_dbg_print("%s>sec=%d, usec=%d\n", prefix, sec, usec);
-
-	return ret;
+	return 0;
 }
 
 VOID osal_get_local_time(PUINT64 sec, PULONG nsec)
@@ -1461,6 +1407,7 @@ UINT64 osal_elapsed_us(UINT64 ts, ULONG usec)
 
 VOID osal_buffer_dump(const PUINT8 buf, const PUINT8 title, const UINT32 len, const UINT32 limit)
 {
+<<<<<<< HEAD
 	INT32 k;
 	UINT32 dump_len;
 	char str[DBG_LOG_STR_SIZE] = {""};
@@ -1485,11 +1432,14 @@ VOID osal_buffer_dump(const PUINT8 buf, const PUINT8 title, const UINT32 len, co
 		pr_no_info("%s\n", str);
 
 	pr_no_info("end of dump\n");
+=======
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_buffer_dump_data(const PUINT32 buf, const PUINT8 title, const UINT32 len, const UINT32 limit,
 			   const INT32 flag)
 {
+<<<<<<< HEAD
 	INT32 k;
 	UINT32 dump_len;
 	char str[DBG_LOG_STR_SIZE] = {""};
@@ -1519,6 +1469,8 @@ VOID osal_buffer_dump_data(const PUINT32 buf, const PUINT8 title, const UINT32 l
 		else
 			pr_no_info("%s%s\n", title, str);
 	}
+=======
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 UINT32 osal_op_get_id(P_OSAL_OP pOp)
@@ -1541,31 +1493,11 @@ VOID osal_op_raise_signal(P_OSAL_OP pOp, INT32 result)
 
 INT32 osal_ftrace_print(const PINT8 str, ...)
 {
-	int ret = 0;
-#ifdef CONFIG_TRACING
-	va_list args;
-	INT8 tempString[DBG_LOG_STR_SIZE];
-
-	if (ftrace_flag) {
-		va_start(args, str);
-		ret = vsnprintf(tempString, DBG_LOG_STR_SIZE, str, args);
-		va_end(args);
-
-		if (ret > 0)
-			trace_printk("%s\n", tempString);
-	}
-#endif
-	return ret;
+	return 0;
 }
 
 INT32 osal_ftrace_print_ctrl(INT32 flag)
 {
-#ifdef CONFIG_TRACING
-	if (flag)
-		ftrace_flag = 1;
-	else
-		ftrace_flag = 0;
-#endif
 	return 0;
 }
 
@@ -1576,6 +1508,7 @@ VOID osal_set_op_result(P_OSAL_OP pOp, INT32 result)
 
 }
 
+<<<<<<< HEAD
 static VOID _osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
 {
 	/* Line format:
@@ -1661,11 +1594,14 @@ VOID osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
 	_osal_opq_dump(qName, pOpQ);
 
 	osal_unlock_sleepable_lock(&pOpQ->sLock);
+=======
+VOID osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
+{
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_opq_dump_locked(const char *qName, P_OSAL_OP_Q pOpQ)
 {
-	_osal_opq_dump(qName, pOpQ);
 }
 
 MTK_WCN_BOOL osal_opq_has_op(P_OSAL_OP_Q pOpQ, P_OSAL_OP pOp)
@@ -1686,6 +1622,7 @@ MTK_WCN_BOOL osal_opq_has_op(P_OSAL_OP_Q pOpQ, P_OSAL_OP pOp)
 	return MTK_WCN_BOOL_FALSE;
 }
 
+<<<<<<< HEAD
 static VOID osal_op_history_print_work(struct work_struct *work)
 {
 	struct osal_op_history *log_history = container_of(work, struct osal_op_history, dump_work);
@@ -1720,29 +1657,15 @@ static VOID osal_op_history_print_work(struct work_struct *work)
 	ring_buffer->base = NULL;
 }
 
+=======
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 VOID osal_op_history_init(struct osal_op_history *log_history, INT32 queue_size)
 {
-	int size = queue_size * sizeof(struct osal_op_history_entry);
-
-	spin_lock_init(&(log_history->lock));
-
-	log_history->queue = kzalloc(size, GFP_ATOMIC);
-	if (log_history->queue == NULL)
-		return;
-
-	/* queue_size must be power of 2 */
-	ring_init(
-		&log_history->queue,
-		queue_size,
-		0,
-		0,
-		&log_history->ring_buffer);
-
-	INIT_WORK(&log_history->dump_work, osal_op_history_print_work);
 }
 
 VOID osal_op_history_print(struct osal_op_history *log_history, PINT8 name)
 {
+<<<<<<< HEAD
 	struct osal_op_history_entry *queue = NULL;
 	struct ring *ring_buffer = NULL, *dump_ring_buffer = NULL;
 	INT32 queue_size;
@@ -1782,10 +1705,13 @@ VOID osal_op_history_print(struct osal_op_history *log_history, PINT8 name)
 	dump_ring_buffer->base = queue;
 	spin_unlock_irqrestore(lock, flags);
 	schedule_work(work);
+=======
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_op_history_save(struct osal_op_history *log_history, P_OSAL_OP pOp)
 {
+<<<<<<< HEAD
 	struct osal_op_history_entry *entry = NULL;
 	struct ring_segment seg;
 	INT32 index;
@@ -1821,4 +1747,6 @@ VOID osal_op_history_save(struct osal_op_history *log_history, P_OSAL_OP pOp)
 	entry->ts = sec;
 	entry->usec = usec;
 	spin_unlock_irqrestore(&(log_history->lock), flags);
+=======
+>>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
