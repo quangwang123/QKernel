@@ -73,6 +73,8 @@
  *                    E X T E R N A L   R E F E R E N C E S
  *******************************************************************************
  */
+#include <linux/printk.h>
+
 #include "config.h"
 #include "gl_typedef.h"
 #include "gl_wext_priv.h"
@@ -977,8 +979,8 @@ int8_t atoi(uint8_t ch);
 #define kalGetTimeTick()                jiffies_to_msecs(jiffies)
 
 #define WLAN_TAG                        "[wlan]"
-#define kalPrint(_Fmt...)               pr_info(WLAN_TAG _Fmt)
-#define kalPrintLimited(_Fmt...)        pr_info(WLAN_TAG _Fmt)
+#define kalPrint(_Fmt...)               no_printk(WLAN_TAG _Fmt)
+#define kalPrintLimited(_Fmt...)        no_printk(WLAN_TAG _Fmt)
 
 #define kalBreakPoint() \
 do { \
@@ -1838,4 +1840,3 @@ uint32_t kalSetSuspendFlagToEMI(IN struct ADAPTER
 	*prAdapter, IN u_int8_t fgSuspend);
 
 #endif /* _GL_KAL_H */
-
