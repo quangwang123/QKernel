@@ -459,7 +459,6 @@ IMG_EXPORT void IMG_CALLCONV PVRSRVDebugPrintfDumpCCB(void);
 #define PVR_LOG(X) no_printk X
 #else
 #define PVR_LOG(X) PVRSRVReleasePrintf X
-#endif
 
 /*************************************************************************/ /*!
 @Function       PVRSRVReleasePrintf
@@ -472,6 +471,7 @@ IMG_EXPORT void IMG_CALLCONV PVRSRVDebugPrintfDumpCCB(void);
 @Return         None
 */ /**************************************************************************/
 void IMG_CALLCONV PVRSRVReleasePrintf(const IMG_CHAR *pszFormat, ...) __printf(1, 2);
+#endif
 #endif
 
 /* PVR_TRACE() handling */

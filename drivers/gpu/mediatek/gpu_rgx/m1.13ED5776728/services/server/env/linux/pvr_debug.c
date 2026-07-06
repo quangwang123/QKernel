@@ -188,7 +188,9 @@ MODULE_PARM_DESC(gPVRDebugLevel,
 
 #endif /* defined(PVRSRV_NEED_PVR_DPF) && defined(CONFIG_MTK_ENG_BUILD) */
 
-#define	PVR_MAX_MSG_LEN PVR_MAX_DEBUG_MESSAGE_LEN
+#if defined(PVRSRV_NEED_PVR_TRACE)
+
+#define PVR_MAX_MSG_LEN PVR_MAX_DEBUG_MESSAGE_LEN
 
 /* Message buffer for messages */
 static IMG_CHAR gszBuffer[PVR_MAX_MSG_LEN + 1];
@@ -218,43 +220,6 @@ static IMG_BOOL VBAppend(IMG_CHAR *pszBuf, IMG_UINT32 ui32BufSiz, const IMG_CHAR
 	/* Return true if string was truncated */
 	return i32Len < 0 || i32Len >= (IMG_INT32)ui32Space;
 }
-
-/*************************************************************************/ /*!
-@Function       PVRSRVReleasePrintf
-@Description    To output an important message to the user in release builds
-@Input          pszFormat   The message format string
-@Input          ...         Zero or more arguments for use by the format string
-*/ /**************************************************************************/
-void PVRSRVReleasePrintf(const IMG_CHAR *pszFormat, ...)
-{
-	va_list vaArgs;
-	unsigned long ulLockFlags = 0;
-	IMG_CHAR *pszBuf = gszBuffer;
-	IMG_UINT32 ui32BufSiz = sizeof(gszBuffer);
-	IMG_INT32  result;
-
-	va_start(vaArgs, pszFormat);
-
-	spin_lock_irqsave(&gsDebugLock, ulLockFlags);
-
-	result = snprintf(pszBuf, (ui32BufSiz - 2), "PVR_K:  %u: ", current->pid);
-	PVR_ASSERT(result>0);
-	ui32BufSiz -= result;
-
-	if (VBAppend(pszBuf, ui32BufSiz, pszFormat, vaArgs))
-	{
-		printk(KERN_INFO "%s (truncated)\n", pszBuf);
-	}
-	else
-	{
-		printk(KERN_INFO "%s\n", pszBuf);
-	}
-
-	spin_unlock_irqrestore(&gsDebugLock, ulLockFlags);
-	va_end(vaArgs);
-}
-
-#if defined(PVRSRV_NEED_PVR_TRACE)
 
 /*************************************************************************/ /*!
 @Function       PVRTrace
@@ -297,26 +262,6 @@ void PVRSRVTrace(const IMG_CHAR *pszFormat, ...)
 #if defined(PVRSRV_NEED_PVR_DPF)
 
 #if 0
-/*
- * Append a string to a buffer using formatted conversion.
- * The function takes a variable number of arguments, calling
- * VBAppend to do the actual work.
- */
-__printf(3, 4)
-static IMG_BOOL BAppend(IMG_CHAR *pszBuf, IMG_UINT32 ui32BufSiz, const IMG_CHAR *pszFormat, ...)
-{
-	va_list VArgs;
-	IMG_BOOL bTrunc;
-
-	va_start (VArgs, pszFormat);
-
-	bTrunc = VBAppend(pszBuf, ui32BufSiz, pszFormat, VArgs);
-
-	va_end (VArgs);
-
-	return bTrunc;
-}
-
 /*************************************************************************/ /*!
 @Function       PVRSRVDebugPrintf
 @Description    To output a debug message to the user
