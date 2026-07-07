@@ -255,6 +255,9 @@ static void scan_and_kill(void)
 
 	/* Kill the victims */
 	for (i = 0; i < nr_to_kill; i++) {
+		static const struct sched_param min_rt_prio = {
+			.sched_priority = 1
+		};
 		struct victim_info *victim = &victims[i];
 		struct task_struct *t, *vtsk = victim->tsk;
 		struct mm_struct *mm = victim->mm;
@@ -283,7 +286,7 @@ static void scan_and_kill(void)
 		for_each_thread(vtsk, t)
 			set_tsk_thread_flag(t, TIF_MEMDIE);
 		for_each_thread(vtsk, t)
-			set_task_rt_prio(t, 1);
+			sched_setscheduler_nocheck(t, SCHED_RR, &min_rt_prio);
 		rcu_read_unlock();
 
 		/* Allow the victim to run on any CPU. This won't schedule. */
