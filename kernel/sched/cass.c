@@ -74,7 +74,7 @@ void cass_cpu_util(struct cass_cpu_cand *c, int this_cpu, bool sync)
 static __always_inline
 bool cass_cpu_better(const struct cass_cpu_cand *a,
 		     const struct cass_cpu_cand *b, int this_cpu,
-		     int prev_cpu, bool sync)
+		     int prev_cpu, int prev_llc_id, bool sync)
 {
 	unsigned long a_util = a->util * b->cap;
 	unsigned long b_util = b->util * a->cap;
@@ -105,9 +105,15 @@ bool cass_cpu_better(const struct cass_cpu_cand *a,
 	if (b->cpu == prev_cpu)
 		return false;
 
-	/* Prefer the CPU that shares a cache with the previous CPU */
-	return cpus_share_cache(a->cpu, prev_cpu) >
-	       cpus_share_cache(b->cpu, prev_cpu);
+	/*
+	 * Skip this tie-breaker when every CPU shares the same LLC, or while
+	 * scheduler domains are torn down and their cached LLC IDs are stale.
+	 */
+	if (prev_llc_id < 0)
+		return false;
+
+	return (per_cpu(sd_llc_id, a->cpu) == prev_llc_id) >
+	       (per_cpu(sd_llc_id, b->cpu) == prev_llc_id);
 }
 
 static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt)
@@ -116,13 +122,24 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 	int this_cpu = raw_smp_processor_id();
 	bool has_idle = false;
 	unsigned long p_util;
-	int cidx = 0, cpu;
+	int cidx = 0, cpu, prev_llc_id;
 
 	/*
 	 * Get the utilization for this task. Note that RT tasks don't have
 	 * per-entity load tracking.
 	 */
 	p_util = rt ? 0 : task_util_est(p);
+
+	/*
+	 * Cache the previous CPU's LLC ID once for the entire candidate scan.
+	 * A negative value suppresses a comparison that cannot distinguish CPUs
+	 * when the scheduler reports one cache-sharing domain spanning all CPUs.
+	 */
+	if (unlikely(!rcu_dereference(per_cpu(sd_llc, prev_cpu))) ||
+	    per_cpu(sd_llc_size, prev_cpu) >= nr_cpu_ids)
+		prev_llc_id = -1;
+	else
+		prev_llc_id = per_cpu(sd_llc_id, prev_cpu);
 
 	/*
 	 * Find the best CPU to wake @p on. Although idle_get_state() requires
@@ -180,7 +197,8 @@ static int cass_best_cpu(struct task_struct *p, int prev_cpu, bool sync, bool rt
 		 * Check if this CPU is better than the best CPU found so far.
 		 */
 		if (!best ||
-		    cass_cpu_better(curr, best, this_cpu, prev_cpu, sync)) {
+		    cass_cpu_better(curr, best, this_cpu, prev_cpu,
+				    prev_llc_id, sync)) {
 			best = curr;
 			cidx ^= 1;
 		}
