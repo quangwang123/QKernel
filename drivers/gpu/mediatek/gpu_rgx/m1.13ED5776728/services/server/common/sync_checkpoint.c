@@ -42,6 +42,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */ /**************************************************************************/
 
 #include "img_defs.h"
+
+#ifndef READ_ONCE
+#define READ_ONCE(x) (*(volatile typeof(x) *)&(x))
+#endif
+#ifndef WRITE_ONCE
+#define WRITE_ONCE(x, val) (*(volatile typeof(x) *)&(x) = (val))
+#endif
+
 #include "img_types.h"
 #include "allocmem.h"
 #include "devicemem.h"
@@ -232,17 +240,17 @@ static inline void RGXSRVHWPerfSyncCheckpointUFOIsSignalled(PVRSRV_RGXDEV_INFO *
 
 		if (psSyncCheckpointInt)
 		{
-			if ((psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_SIGNALLED) ||
-				(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ERRORED))
+			if ((psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_SIGNALLED) ||
+				(READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State) == PVRSRV_SYNC_CHECKPOINT_ERRORED))
 			{
-				sSyncData.sCheckSuccess.ui32FWAddr = SyncCheckpointGetFirmwareAddr((PSYNC_CHECKPOINT)psSyncCheckpointInt);
-				sSyncData.sCheckSuccess.ui32Value = psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State;
+				sSyncData.sCheckSuccess.ui32FWAddr = SyncCheckpointGetFirmwareAddr((PSYNC_CHECKPOINT)psSyncCheckpointInt));
+				sSyncData.sCheckSuccess.ui32Value = READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State);
 				eEv = RGX_HWPERF_UFO_EV_CHECK_SUCCESS;
 			}
 			else
 			{
 				sSyncData.sCheckFail.ui32FWAddr = SyncCheckpointGetFirmwareAddr((PSYNC_CHECKPOINT)psSyncCheckpointInt);
-				sSyncData.sCheckFail.ui32Value = psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State;
+				sSyncData.sCheckFail.ui32Value = READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State);
 				sSyncData.sCheckFail.ui32Required = PVRSRV_SYNC_CHECKPOINT_SIGNALLED;
 				eEv = RGX_HWPERF_UFO_EV_CHECK_FAIL;
 			}
@@ -263,7 +271,7 @@ static inline void RGXSRVHWPerfSyncCheckpointUFOUpdate(PVRSRV_RGXDEV_INFO *psDev
 		if (psSyncCheckpointInt)
 		{
 			sSyncData.sUpdate.ui32FWAddr = SyncCheckpointGetFirmwareAddr((PSYNC_CHECKPOINT)psSyncCheckpointInt);
-			sSyncData.sUpdate.ui32OldValue = psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State;
+			sSyncData.sUpdate.ui32OldValue = READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State);
 			sSyncData.sUpdate.ui32NewValue = PVRSRV_SYNC_CHECKPOINT_SIGNALLED;
 			RGXHWPerfHostPostUfoEvent(psDevInfo, RGX_HWPERF_UFO_EV_UPDATE, &sSyncData,
 			    (ui32FenceSyncFlags & PVRSRV_FENCE_FLAG_CTX_ATOMIC) ? IMG_FALSE : IMG_TRUE);
@@ -1077,14 +1085,14 @@ PVRSRV_ERROR SyncCheckpointContextDestroy(PSYNC_CHECKPOINT_CONTEXT psSyncCheckpo
 						psSyncCheckpoint->ui32UID,
 						psSyncCheckpoint->azName,
 						OSAtomicRead(&psSyncCheckpoint->hRefCount),
-						psSyncCheckpoint->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_SIGNALLED ?
+						psSyncCheckpoint-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_SIGNALLED ?
 								"PVRSRV_SYNC_CHECKPOINT_SIGNALLED" :
-								psSyncCheckpoint->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE ?
+								READ_ONCE(psSyncCheckpoint->psSyncCheckpointFwObj->ui32State) == PVRSRV_SYNC_CHECKPOINT_ACTIVE ?
 										"PVRSRV_SYNC_CHECKPOINT_ACTIVE" : "PVRSRV_SYNC_CHECKPOINT_ERRORED",
 						psSyncCheckpoint->ui32FWAddr,
 						OSAtomicRead(&psSyncCheckpoint->hEnqueuedCCBCount),
 						psSyncCheckpoint->psSyncCheckpointFwObj->ui32FwRefCount,
-						bDeferredFree ? "(deferred free)" : ""));
+						bDeferredFree ? "(deferred free)" : "")));
 
 #if (ENABLE_SYNC_CHECKPOINT_CONTEXT_DEBUG == 1)
 				gui32NumSyncCheckpointContexts++;
@@ -1199,7 +1207,7 @@ SyncCheckpointAlloc(PSYNC_CHECKPOINT_CONTEXT psSyncContext,
 	OSAtomicWrite(&psNewSyncCheckpoint->hRefCount, 1);
 	OSAtomicWrite(&psNewSyncCheckpoint->hEnqueuedCCBCount, 0);
 	psNewSyncCheckpoint->psSyncCheckpointFwObj->ui32FwRefCount = 0;
-	psNewSyncCheckpoint->psSyncCheckpointFwObj->ui32State = PVRSRV_SYNC_CHECKPOINT_ACTIVE;
+	psNewSyncCheckpoint-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, PVRSRV_SYNC_CHECKPOINT_ACTIVE);
 	psNewSyncCheckpoint->uiProcess = OSGetCurrentClientProcessIDKM();
 	OSCachedMemSet(&psNewSyncCheckpoint->sDeferredFreeListNode, 0, sizeof(psNewSyncCheckpoint->sDeferredFreeListNode));
 
@@ -1437,17 +1445,17 @@ SyncCheckpointSignal(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32 ui32FenceSync
 
 	if (psSyncCheckpointInt)
 	{
-		PVR_LOG_IF_FALSE((psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE),
-		                 "psSyncCheckpoint already signalled");
+		PVR_LOG_IF_FALSE((psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE),
+		                 "psSyncCheckpoint already signalled"));
 
-		if (psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE)
+		if (psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE)
 		{
 #if defined(SUPPORT_RGX)
-			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice;
+			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice);
 
 			RGXSRVHWPerfSyncCheckpointUFOUpdate(psDevInfo, psSyncCheckpointInt, ui32FenceSyncFlags);
 #endif
-			psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State = PVRSRV_SYNC_CHECKPOINT_SIGNALLED;
+			psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, PVRSRV_SYNC_CHECKPOINT_SIGNALLED);
 
 #if defined(PDUMP)
 			_SyncCheckpointUpdatePDump(psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode, psSyncCheckpointInt, PVRSRV_SYNC_CHECKPOINT_SIGNALLED, ui32FenceSyncFlags);
@@ -1461,7 +1469,7 @@ SyncCheckpointSignal(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32 ui32FenceSync
 					 __func__,
 					 PVRSRV_SYNC_CHECKPOINT_SIGNALLED,
 					 psSyncCheckpointInt->ui32UID,
-					 psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State));
+					 READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State)));
 		}
 	}
 }
@@ -1475,17 +1483,17 @@ SyncCheckpointSignalNoHW(PSYNC_CHECKPOINT psSyncCheckpoint)
 
 	if (psSyncCheckpointInt)
 	{
-		PVR_LOG_IF_FALSE((psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE),
-		                 "psSyncCheckpoint already signalled");
+		PVR_LOG_IF_FALSE((psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE),
+		                 "psSyncCheckpoint already signalled"));
 
-		if (psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE)
+		if (psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE)
 		{
 #if defined(SUPPORT_RGX)
-			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice;
+			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice);
 
 			RGXSRVHWPerfSyncCheckpointUFOUpdate(psDevInfo, psSyncCheckpointInt, PVRSRV_FENCE_FLAG_NONE);
 #endif
-			psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State = PVRSRV_SYNC_CHECKPOINT_SIGNALLED;
+			psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, PVRSRV_SYNC_CHECKPOINT_SIGNALLED);
 		}
 		else
 		{
@@ -1496,7 +1504,7 @@ SyncCheckpointSignalNoHW(PSYNC_CHECKPOINT psSyncCheckpoint)
 					__func__,
 					PVRSRV_SYNC_CHECKPOINT_SIGNALLED,
 					psSyncCheckpointInt->ui32UID,
-					psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State));
+					READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State)));
 #endif
 		}
 	}
@@ -1511,19 +1519,19 @@ SyncCheckpointError(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32 ui32FenceSyncF
 
 	if (psSyncCheckpointInt)
 	{
-		PVR_LOG_IF_FALSE((psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE),
-		                 "psSyncCheckpoint already signalled");
+		PVR_LOG_IF_FALSE((psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE),
+		                 "psSyncCheckpoint already signalled"));
 
-		if (psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE)
+		if (psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE)
 		{
 #if defined(SUPPORT_RGX)
-			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice;
+			PVRSRV_RGXDEV_INFO *psDevInfo = psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode->pvDevice);
 			if (!(ui32FenceSyncFlags & PVRSRV_FENCE_FLAG_SUPPRESS_HWP_PKT))
 			{
 				RGX_HWPERF_UFO_DATA_ELEMENT sSyncData;
 
 				sSyncData.sUpdate.ui32FWAddr = SyncCheckpointGetFirmwareAddr(psSyncCheckpoint);
-				sSyncData.sUpdate.ui32OldValue = psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State;
+				sSyncData.sUpdate.ui32OldValue = READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State);
 				sSyncData.sUpdate.ui32NewValue = PVRSRV_SYNC_CHECKPOINT_ERRORED;
 
 				RGXSRV_HWPERF_UFO(psDevInfo, RGX_HWPERF_UFO_EV_UPDATE, &sSyncData,
@@ -1531,7 +1539,7 @@ SyncCheckpointError(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32 ui32FenceSyncF
 			}
 #endif
 
-			psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State = PVRSRV_SYNC_CHECKPOINT_ERRORED;
+			psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, PVRSRV_SYNC_CHECKPOINT_ERRORED);
 
 #if defined(PDUMP)
 			_SyncCheckpointUpdatePDump(psSyncCheckpointInt->psSyncCheckpointBlock->psDevNode, psSyncCheckpointInt, PVRSRV_SYNC_CHECKPOINT_ERRORED, ui32FenceSyncFlags);
@@ -1554,8 +1562,8 @@ IMG_BOOL SyncCheckpointIsSignalled(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32
 
 		RGXSRVHWPerfSyncCheckpointUFOIsSignalled(psDevInfo, psSyncCheckpointInt, ui32FenceSyncFlags);
 #endif
-		bRet = ((psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_SIGNALLED) ||
-				(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ERRORED));
+		bRet = ((psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_SIGNALLED) ||
+				(READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State) == PVRSRV_SYNC_CHECKPOINT_ERRORED)));
 
 #if (ENABLE_SYNC_CHECKPOINT_ENQ_AND_SIGNAL_DEBUG == 1)
 		PVR_DPF((PVR_DBG_WARNING,
@@ -1583,7 +1591,7 @@ SyncCheckpointIsErrored(PSYNC_CHECKPOINT psSyncCheckpoint, IMG_UINT32 ui32FenceS
 
 		RGXSRVHWPerfSyncCheckpointUFOIsSignalled(psDevInfo, psSyncCheckpointInt, ui32FenceSyncFlags);
 #endif
-		bRet = (psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ERRORED);
+		bRet = (psSyncCheckpointInt-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ERRORED));
 
 #if (ENABLE_SYNC_CHECKPOINT_ENQ_AND_SIGNAL_DEBUG == 1)
 		PVR_DPF((PVR_DBG_WARNING,
@@ -1603,7 +1611,7 @@ SyncCheckpointGetStateString(PSYNC_CHECKPOINT psSyncCheckpoint)
 
 	PVR_LOG_RETURN_IF_FALSE((psSyncCheckpoint != NULL), "psSyncCheckpoint invalid", "Null");
 
-	switch (psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State)
+	switch (READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State))
 	{
 		case PVRSRV_SYNC_CHECKPOINT_SIGNALLED:
 			return "Signalled";
@@ -1832,7 +1840,7 @@ IMG_UINT32 SyncCheckpointStateFromUFO(PPVRSRV_DEVICE_NODE psDevNode,
 		psSyncCheckpointInt = IMG_CONTAINER_OF(psNode, _SYNC_CHECKPOINT, sListNode);
 		if (ui32FwAddr == SyncCheckpointGetFirmwareAddr((PSYNC_CHECKPOINT)psSyncCheckpointInt))
 		{
-			ui32State = psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State;
+			ui32State = READ_ONCE(psSyncCheckpointInt->psSyncCheckpointFwObj->ui32State);
 			break;
 		}
 	}
@@ -1960,7 +1968,7 @@ static void _SyncCheckpointState(PDLLIST_NODE psNode,
 {
 	_SYNC_CHECKPOINT *psSyncCheckpoint = IMG_CONTAINER_OF(psNode, _SYNC_CHECKPOINT, sListNode);
 
-	if (psSyncCheckpoint->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_ACTIVE)
+	if (psSyncCheckpoint-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_ACTIVE)
 	{
 		PVR_DUMPDEBUG_LOG("\t- ID = %d, FWAddr = 0x%08x, r%d:e%d:f%d: %s",
 		                   psSyncCheckpoint->ui32UID,
@@ -1969,7 +1977,7 @@ static void _SyncCheckpointState(PDLLIST_NODE psNode,
 		                   OSAtomicRead(&psSyncCheckpoint->hRefCount),
 		                   OSAtomicRead(&psSyncCheckpoint->hEnqueuedCCBCount),
 		                   psSyncCheckpoint->psSyncCheckpointFwObj->ui32FwRefCount,
-		                   psSyncCheckpoint->azName);
+		                   psSyncCheckpoint->azName));
 	}
 }
 
@@ -2643,12 +2651,12 @@ PVRSRV_ERROR PVRSRVSyncCheckpointSignalledPDumpPolKM(PVRSRV_FENCE hFence)
 	for (i=0; i < uiNumCheckpoints; i++)
 	{
 		psSyncCheckpoint = (_SYNC_CHECKPOINT *)apsCheckpoints[i];
-		if (psSyncCheckpoint->psSyncCheckpointFwObj->ui32State == PVRSRV_SYNC_CHECKPOINT_SIGNALLED)
+		if (psSyncCheckpoint-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, = PVRSRV_SYNC_CHECKPOINT_SIGNALLED)
 		{
 			PDUMPCOMMENTWITHFLAGS(psSyncCheckpoint->ui32PDumpFlags,
 							"Wait for Fence %s (ID:%d)",
 							psSyncCheckpoint->azName,
-							psSyncCheckpoint->ui32UID);
+							psSyncCheckpoint->ui32UID));
 
 			eError = DevmemPDumpDevmemPol32(psSyncCheckpoint->psSyncCheckpointBlock->hMemDesc,
 								_SyncCheckpointGetOffset(psSyncCheckpoint),
@@ -2874,7 +2882,7 @@ static IMG_BOOL _PutCheckpointInPool(_SYNC_CHECKPOINT *psSyncCheckpoint)
 		        ((psCtxCtl->ui32SyncCheckpointPoolCount > 0) &&
 		        (psCtxCtl->ui32SyncCheckpointPoolWp == psCtxCtl->ui32SyncCheckpointPoolRp));
 		bReturnedToPool = IMG_TRUE;
-		psSyncCheckpoint->psSyncCheckpointFwObj->ui32State = PVRSRV_SYNC_CHECKPOINT_UNDEF;
+		psSyncCheckpoint-WRITE_ONCE(>psSyncCheckpointFwObj->ui32State, PVRSRV_SYNC_CHECKPOINT_UNDEF);
 		psSyncCheckpoint->ui32ValidationCheck = SYNC_CHECKPOINT_PATTERN_IN_POOL;
 #if (ENABLE_SYNC_CHECKPOINT_POOL_DEBUG == 1)
 		PVR_DPF((PVR_DBG_WARNING,

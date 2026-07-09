@@ -113,11 +113,15 @@ static inline void OSTryDecreaseKmallocThreshold(void)
 static inline void OSResetKmallocFailCount(void)
 {
 	unsigned long flags;
-	spin_lock_irqsave(&kmalloc_lock, flags);
 
-	g_ui32kmallocFailCount = 0;
+	if (g_ui32kmallocFailCount != 0)
+	{
+		spin_lock_irqsave(&kmalloc_lock, flags);
 
-	spin_unlock_irqrestore(&kmalloc_lock, flags);
+		g_ui32kmallocFailCount = 0;
+
+		spin_unlock_irqrestore(&kmalloc_lock, flags);
+	}
 }
 
 static inline void _pvr_vfree(const void* pvAddr)

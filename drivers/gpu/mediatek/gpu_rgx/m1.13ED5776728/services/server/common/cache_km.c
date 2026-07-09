@@ -1265,7 +1265,7 @@ static PVRSRV_ERROR CacheOpPMRExec (PMR *psPMR,
 	IMG_BYTE *pbCpuVirtAddr = NULL;
 	IMG_BOOL *pbValid = abValid;
 
-	if (uiCacheOp == PVRSRV_CACHE_OP_NONE || uiCacheOp == PVRSRV_CACHE_OP_TIMELINE)
+	if (unlikely(uiCacheOp == PVRSRV_CACHE_OP_NONE || uiCacheOp == PVRSRV_CACHE_OP_TIMELINE))
 	{
 		return PVRSRV_OK;
 	}
@@ -1438,7 +1438,7 @@ static PVRSRV_ERROR CacheOpPMRExec (PMR *psPMR,
 
 	/* Type of allocation backing the PMR data */
 	ui32NumOfPages = uiPgAlignedSize >> gsCwq.uiPageShift;
-	if (ui32NumOfPages > PMR_MAX_TRANSLATION_STACK_ALLOC)
+	if (unlikely(ui32NumOfPages > PMR_MAX_TRANSLATION_STACK_ALLOC))
 	{
 		/* The pbValid array is allocated first as it is needed in
 		   both physical/virtual cache maintenance methods */

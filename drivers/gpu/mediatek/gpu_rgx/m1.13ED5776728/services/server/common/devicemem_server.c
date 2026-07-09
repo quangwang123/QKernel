@@ -626,7 +626,7 @@ DevmemIntMapPMR(DEVMEMINT_HEAP *psDevmemHeap,
 
 	/*Check if the PMR that needs to be mapped is sparse */
 	bIsSparse = PMR_IsSparse(psPMR);
-	if (bIsSparse)
+	if (unlikely(bIsSparse))
 	{
 		/*Get the flags*/
 		uiPMRFlags = PMR_Flags(psPMR);
@@ -745,7 +745,7 @@ DevmemIntUnmapPMR(DEVMEMINT_MAPPING *psMapping)
 	/*Check if the PMR that needs to be mapped is sparse */
 	bIsSparse = PMR_IsSparse(psMapping->psPMR);
 
-	if (bIsSparse)
+	if (unlikely(bIsSparse))
 	{
 		/*Get the flags*/
 		uiPMRFlags = PMR_Flags(psMapping->psPMR);

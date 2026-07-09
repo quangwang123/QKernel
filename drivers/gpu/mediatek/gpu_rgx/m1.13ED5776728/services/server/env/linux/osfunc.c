@@ -1414,7 +1414,7 @@ PVRSRV_ERROR OSCopyToUser(void *pvProcess,
 {
 	PVR_UNREFERENCED_PARAMETER(pvProcess);
 
-	if (pvr_copy_to_user(pvDest, pvSrc, ui32Bytes)==0)
+	if (likely(pvr_copy_to_user(pvDest, pvSrc, ui32Bytes)==0))
 		return PVRSRV_OK;
 	else
 		return PVRSRV_ERROR_FAILED_TO_COPY_VIRT_MEMORY;

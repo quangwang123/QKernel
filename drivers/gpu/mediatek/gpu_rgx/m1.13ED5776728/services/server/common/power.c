@@ -187,7 +187,7 @@ PVRSRV_ERROR PVRSRVPowerLock(PPVRSRV_DEVICE_NODE psDeviceNode)
 ******************************************************************************/
 PVRSRV_ERROR PVRSRVPowerTryLock(PPVRSRV_DEVICE_NODE psDeviceNode)
 {
-	if (!(OSTryLockAcquire(psDeviceNode->hPowerLock)))
+	if (unlikely(!(OSTryLockAcquire(psDeviceNode->hPowerLock))))
 	{
 		return PVRSRV_ERROR_RETRY;
 	}
@@ -574,7 +574,7 @@ PVRSRV_ERROR PVRSRVSetDevicePowerStateKM(PPVRSRV_DEVICE_NODE psDeviceNode,
 										 IMG_BOOL				bForced)
 {
 	PVRSRV_ERROR	eError;
-	PVRSRV_DATA*    psPVRSRVData = PVRSRVGetPVRSRVData();
+	PVRSRV_DATA*    psPVRSRVData;
 	PVRSRV_POWER_DEV *psPowerDevice;
 
 	psPowerDevice = psDeviceNode->psPowerDev;
@@ -582,6 +582,8 @@ PVRSRV_ERROR PVRSRVSetDevicePowerStateKM(PPVRSRV_DEVICE_NODE psDeviceNode,
 	{
 		return PVRSRV_OK;
 	}
+
+	psPVRSRVData = PVRSRVGetPVRSRVData();
 
 	if (eNewPowerState == PVRSRV_DEV_POWER_STATE_DEFAULT)
 	{
@@ -613,7 +615,7 @@ PVRSRV_ERROR PVRSRVSetDevicePowerStateKM(PPVRSRV_DEVICE_NODE psDeviceNode,
 			}
 		}
 #if defined(PVRSRV_SERVER_THREADS_INDEFINITE_SLEEP)
-		else if (eNewPowerState == PVRSRV_DEV_POWER_STATE_OFF)
+		else if (unlikely(eNewPowerState == PVRSRV_DEV_POWER_STATE_OFF))
 		{
 			/* signal watchdog thread and give it a chance to switch to
 			 * longer / infinite wait time */

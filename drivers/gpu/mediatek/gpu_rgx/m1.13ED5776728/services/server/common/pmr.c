@@ -394,7 +394,7 @@ _PMRCreate(PMR_SIZE_T uiLogicalSize,
 	}
 
 	eError = OSLockCreate(&psPMR->hLock);
-	if (eError != PVRSRV_OK)
+	if (unlikely(eError != PVRSRV_OK))
 	{
 		OSFreeMem(psPMR);
 		return eError;
@@ -469,16 +469,26 @@ _UnrefAndMaybeDestroy(PMR *psPMR)
 
 	PVR_ASSERT(psPMR != NULL);
 
-	/* Acquire PMR factory lock if provided */
-	if (psPMR->psFuncTab->pfnGetPMRFactoryLock)
-	{
-		psPMR->psFuncTab->pfnGetPMRFactoryLock();
-	}
-
 	iRefCount = _Unref(psPMR);
 
-	if (iRefCount == 0)
+	if (unlikely(iRefCount == 0))
 	{
+		/* Acquire PMR factory lock if provided */
+		if (psPMR->psFuncTab->pfnGetPMRFactoryLock)
+		{
+			psPMR->psFuncTab->pfnGetPMRFactoryLock();
+		}
+
+		/* Re-check refcount after acquiring the lock in case another thread 
+		 * took a reference while we were waiting for the lock */
+		if (OSAtomicRead(&psPMR->iRefCount) != 0)
+		{
+			if (psPMR->psFuncTab->pfnReleasePMRFactoryLock)
+			{
+				psPMR->psFuncTab->pfnReleasePMRFactoryLock();
+			}
+			return;
+		}
 		if (psPMR->psFuncTab->pfnFinalize != NULL)
 		{
 			eError2 = psPMR->psFuncTab->pfnFinalize(psPMR->pvFlavourData);
@@ -496,7 +506,7 @@ _UnrefAndMaybeDestroy(PMR *psPMR)
 			 * freeing the PMR itself. The PMR handle will then be freed at a later point
 			 * when the same PMR is unreferenced.
 			 * */
-			if (PVRSRV_ERROR_PMR_STILL_REFERENCED == eError2)
+			if (unlikely(PVRSRV_ERROR_PMR_STILL_REFERENCED == eError2))
 			{
 				if (psPMR->psFuncTab->pfnReleasePMRFactoryLock)
 				{
@@ -566,17 +576,9 @@ _UnrefAndMaybeDestroy(PMR *psPMR)
 		psCtx->uiNumLivePMRs--;
 		OSLockRelease(psCtx->hLock);
 	}
-	else
-	{
-		/* Release PMR factory lock acquired if any */
-		if (psPMR->psFuncTab->pfnReleasePMRFactoryLock)
-		{
-			psPMR->psFuncTab->pfnReleasePMRFactoryLock();
-		}
-	}
 }
 
-static IMG_BOOL _PMRIsSparse(const PMR *psPMR)
+static INLINE IMG_BOOL _PMRIsSparse(const PMR *psPMR)
 {
 	return psPMR->bSparseAlloc;
 }
@@ -1112,7 +1114,7 @@ _PMRAcquireKernelMappingData(PMR *psPMR,
 
 	PVR_ASSERT(psPMR != NULL);
 
-	if (_PMRIsSparse(psPMR) && !bMapSparse)
+	if (unlikely(_PMRIsSparse(psPMR) && !bMapSparse))
 	{
 		/* Mapping of sparse allocations must be signalled. */
 		return PVRSRV_ERROR_PMR_NOT_PERMITTED;

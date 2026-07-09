@@ -1139,7 +1139,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	IMG_UINT32   ui32DispatchTableEntry, ui32GroupBoundary;
 	PVRSRV_ERROR err = PVRSRV_OK;
 	PVRSRV_POOL_TOKEN hBridgeBufferPoolToken = NULL;
-	IMG_UINT32 ui32Timestamp = OSClockus();
+	IMG_UINT32 ui32Timestamp;
 #if defined(DEBUG_BRIDGE_KM)
 	IMG_UINT64	ui64TimeStart;
 	IMG_UINT64	ui64TimeEnd;
@@ -1151,7 +1151,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	PVR_DBG_BREAK;
 #endif
 
-	if (psBridgePackageKM->ui32BridgeID >= BRIDGE_DISPATCH_TABLE_START_ENTRY_COUNT)
+	if (unlikely(psBridgePackageKM->ui32BridgeID >= BRIDGE_DISPATCH_TABLE_START_ENTRY_COUNT))
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Out of range dispatch table group ID: %d",
 		        __func__, psBridgePackageKM->ui32BridgeID));
@@ -1164,7 +1164,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	ui32GroupBoundary = g_BridgeDispatchTableStartOffsets[ui32DispatchTableIndex][PVR_DISPATCH_OFFSET_LAST_FUNC];
 
 	/* bridge function is not implemented in this build */
-	if (0 == ui32DispatchTableEntry)
+	if (unlikely(0 == ui32DispatchTableEntry))
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 		         "%s: Dispatch table entry=%d, boundary = %d, (bridge module %d, function %d)",
@@ -1180,7 +1180,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 				  psConnection);
 		goto return_error;
 	}
-	if ((ui32DispatchTableEntry + psBridgePackageKM->ui32FunctionID) > ui32GroupBoundary)
+	if (unlikely((ui32DispatchTableEntry + psBridgePackageKM->ui32FunctionID) > ui32GroupBoundary))
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 		         "%s: Dispatch table entry=%d, boundary = %d, (bridge module %d, function %d)",
@@ -1193,7 +1193,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	}
 	ui32DispatchTableEntry += psBridgePackageKM->ui32FunctionID;
 	ui32DispatchTableEntryIndex = OSConfineArrayIndexNoSpeculation(ui32DispatchTableEntry, ui32GroupBoundary+1);
-	if (BRIDGE_DISPATCH_TABLE_ENTRY_COUNT <= ui32DispatchTableEntry)
+	if (unlikely(BRIDGE_DISPATCH_TABLE_ENTRY_COUNT <= ui32DispatchTableEntry))
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Dispatch table entry=%d, entry count = %lu,"
 		        " (bridge module %d, function %d)", __func__,
@@ -1274,7 +1274,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	pfBridgeHandler =
 		(BridgeWrapperFunction)g_BridgeDispatchTable[ui32DispatchTableEntryIndex].pfFunction;
 
-	if (pfBridgeHandler == NULL)
+	if (unlikely(pfBridgeHandler == NULL))
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: ui32DispatchTableEntry = %d is not a registered function!",
 				 __func__, ui32DispatchTableEntry));
@@ -1286,7 +1286,7 @@ PVRSRV_ERROR BridgedDispatchKM(CONNECTION_DATA * psConnection,
 	 * In the event this changes an error may be +ve or -ve,
 	 * so try to return something consistent here.
 	 */
-	if (0 != pfBridgeHandler(ui32DispatchTableEntryIndex,
+	if (unlikely(0 != pfBridgeHandler(ui32DispatchTableEntryIndex,
 						  psBridgeIn,
 						  psBridgeOut,
 						  psConnection)
@@ -1364,6 +1364,7 @@ return_error:
 	/* ignore transport layer bridge to avoid HTB flooding */
 	if (psBridgePackageKM->ui32BridgeID != PVRSRV_BRIDGE_PVRTL)
 	{
+		ui32Timestamp = OSClockus();
 		if (err)
 		{
 			HTBLOGK(HTB_SF_BRG_BRIDGE_CALL_ERR, ui32Timestamp,
