@@ -8245,8 +8245,8 @@ static int detach_tasks(struct lb_env *env)
 	lockdep_assert_held(&env->src_rq->lock);
 
 	/*
-	 * Source run queue has been emptied by another CPU, clear
-	 * LBF_ALL_PINNED flag as we will not test any task.
+	 * The source runqueue may have been emptied by another CPU before we
+	 * acquired its lock. Clear LBF_ALL_PINNED because no task was tested.
 	 */
 	if (env->src_rq->nr_running <= 1) {
 		env->flags &= ~LBF_ALL_PINNED;
