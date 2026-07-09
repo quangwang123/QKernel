@@ -738,7 +738,7 @@ choice
 
 	config DEFAULT_BBR2
 		bool "BBR2" if TCP_CONG_BBR2=y
-        
+
 	config DEFAULT_RENO
 		bool "Reno"
 endchoice
