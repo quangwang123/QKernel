@@ -85,7 +85,7 @@ static u32 suspend_pcm_flags = {
 };
 
 static u32 suspend_pcm_flags1 = {
-	0
+	SPM_FLAG1_ENABLE_CPU_SLEEP_VOLT
 };
 
 #if defined(CONFIG_MTK_GIC_V3_EXT)
