@@ -77,7 +77,7 @@
 		ieoc = <700000>;	/* uA */
 		safety_timer = <12>;		/* hour */
 		en_st;
-		en_wdt;
+		/* en_wdt; disabled for reboot watchdog experiment */
 	};
 };
 
