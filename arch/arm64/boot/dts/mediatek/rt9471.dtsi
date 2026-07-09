@@ -39,7 +39,7 @@
 			ichg = <1000000>;		/* uA */
 			ieoc = <200000>;		/* uA */
 			safe_tmr = <10>;		/* hour */
-			wdt = <40>;			/* sec */
+			wdt = <0>;			/* disabled for reboot watchdog experiment */
 			/*
 			 * 0: MIVR register
 			 * 1: MIVR = VBAT + 200mV
