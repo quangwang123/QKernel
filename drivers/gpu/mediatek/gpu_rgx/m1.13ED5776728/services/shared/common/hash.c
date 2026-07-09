@@ -68,7 +68,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 
 #define	KEY_TO_INDEX(pHash, key, uSize) \
-	((pHash)->pfnHashFunc((pHash)->uKeySize, (key), (uSize)) & ((uSize) - 1))
+	((pHash)->pfnHashFunc((pHash)->uKeySize, (key), (uSize)) % (uSize))
 
 #define	KEY_COMPARE(pHash, pKey1, pKey2) \
 	((pHash)->pfnKeyComp((pHash)->uKeySize, (pKey1), (pKey2)))
@@ -261,7 +261,7 @@ _Resize(HASH_TABLE *pHash, IMG_UINT32 uNewSize)
 #endif
 
 	ppNewTable = _AllocZMem(sizeof(BUCKET *) * uNewSize);
-	if (unlikely(ppNewTable == NULL))
+	if (ppNewTable == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 				"%s %d: call to _AllocZMem failed size: %zu",
@@ -316,7 +316,7 @@ HASH_TABLE * HASH_Create_Extended_Int (IMG_UINT32 uInitialLen, size_t uKeySize, 
 {
 	HASH_TABLE *pHash;
 
-	if (unlikely(uInitialLen == 0 || uKeySize == 0 || pfnHashFunc == NULL || pfnKeyComp == NULL))
+	if (uInitialLen == 0 || uKeySize == 0 || pfnHashFunc == NULL || pfnKeyComp == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: invalid input parameters", __func__));
 		return NULL;
@@ -325,7 +325,7 @@ HASH_TABLE * HASH_Create_Extended_Int (IMG_UINT32 uInitialLen, size_t uKeySize, 
 	PVR_DPF((PVR_DBG_MESSAGE, "%s: InitialSize=0x%x", __func__, uInitialLen));
 
 	pHash = _AllocMem(sizeof(HASH_TABLE));
-	if (unlikely(pHash == NULL))
+	if (pHash == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 				"%s %d: call to _AllocMem failed size: %zu",
@@ -344,7 +344,7 @@ HASH_TABLE * HASH_Create_Extended_Int (IMG_UINT32 uInitialLen, size_t uKeySize, 
 	pHash->pfnKeyComp = pfnKeyComp;
 
 	pHash->ppBucketTable = _AllocZMem(sizeof(BUCKET *) * pHash->uSize);
-	if (unlikely(pHash->ppBucketTable == NULL))
+	if (pHash->ppBucketTable == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 				"%s %d: call to _AllocZMem failed size: %zu",
@@ -508,14 +508,14 @@ HASH_Insert_Extended(HASH_TABLE *pHash, void *pKey, uintptr_t v)
 
 	PVR_ASSERT(pHash != NULL);
 
-	if (unlikely(pHash == NULL))
+	if (pHash == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: invalid parameter", __func__));
 		return IMG_FALSE;
 	}
 
 	pBucket = _AllocMem(sizeof(BUCKET) + pHash->uKeySize);
-	if (unlikely(pBucket == NULL))
+	if (pBucket == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 				"%s %d: call to _AllocMem failed size: %zu",
@@ -533,7 +533,7 @@ HASH_Insert_Extended(HASH_TABLE *pHash, void *pKey, uintptr_t v)
 	pHash->uCount++;
 
 	/* check if we need to think about re-balancing */
-	if (unlikely(pHash->uCount > pHash->uGrowThreshold))
+	if (pHash->uCount > pHash->uGrowThreshold)
 	{
 		/* Ignore the return code from _Resize because the hash table is
 		   still in a valid state and although not ideally sized, it is still
@@ -576,7 +576,7 @@ HASH_Remove_Extended(HASH_TABLE *pHash, void *pKey)
 
 	PVR_ASSERT(pHash != NULL);
 
-	if (unlikely(pHash == NULL))
+	if (pHash == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Null hash table", __func__));
 		return 0;
@@ -644,7 +644,7 @@ HASH_Retrieve_Extended(HASH_TABLE *pHash, void *pKey)
 
 	PVR_ASSERT(pHash != NULL);
 
-	if (unlikely(pHash == NULL))
+	if (pHash == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Null hash table", __func__));
 		return 0;

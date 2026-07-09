@@ -376,7 +376,7 @@ PVRSRV_ERROR LinuxEventObjectWait(IMG_HANDLE hOSEventObject,
 	PVRSRV_LINUX_EVENT_OBJECT_LIST *psLinuxEventObjectList = psLinuxEventObject->psLinuxEventObjectList;
 
 	/* Check if the driver is good shape */
-	if (unlikely(psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK))
+	if (psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK)
 	{
 		return PVRSRV_ERROR_TIMEOUT;
 	}
@@ -398,7 +398,7 @@ PVRSRV_ERROR LinuxEventObjectWait(IMG_HANDLE hOSEventObject,
 		prepare_to_wait(&psLinuxEventObject->sWait, &sWait, TASK_INTERRUPTIBLE);
 		ui32EventSignalCount = (IMG_UINT32) atomic_read(&psLinuxEventObjectList->sEventSignalCount);
 
-		if (likely(psLinuxEventObject->ui32EventSignalCountPrevious != ui32EventSignalCount))
+		if (psLinuxEventObject->ui32EventSignalCountPrevious != ui32EventSignalCount)
 		{
 			/* There is a pending event signal i.e. LinuxEventObjectSignal()
 			 * was called on the event object since the last time we checked.
@@ -484,15 +484,15 @@ PVRSRV_ERROR LinuxEventObjectWaitUntilSignalled(IMG_HANDLE hOSEventObject)
 			psLinuxEventObject->psLinuxEventObjectList;
 
 	/* Check if the driver is in good shape */
-	if (unlikely(psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK))
+	if (psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK)
 	{
 		return PVRSRV_ERROR_TIMEOUT;
 	}
 
 	prepare_to_wait(&psLinuxEventObject->sWait, &sWait, TASK_INTERRUPTIBLE);
 
-	if (likely(psLinuxEventObject->ui32EventSignalCountPrevious !=
-	    (IMG_UINT32) atomic_read(&psLinuxEventObjectList->sEventSignalCount)))
+	if (psLinuxEventObject->ui32EventSignalCountPrevious !=
+	    (IMG_UINT32) atomic_read(&psLinuxEventObjectList->sEventSignalCount))
 	{
 		/* There is a pending signal, so return without waiting */
 		goto finish;

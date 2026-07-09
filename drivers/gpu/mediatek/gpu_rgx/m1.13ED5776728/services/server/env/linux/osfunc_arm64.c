@@ -95,28 +95,28 @@ static inline void FlushRange(void *pvRangeAddrStart,
 	begin_user_mode_access();
 
 	pbEnd = (IMG_BYTE *) PVR_ALIGN((uintptr_t)pbEnd, (uintptr_t)ui32CacheLineSize);
-	switch (eCacheOp)
+	for (pbBase = pbStart; pbBase < pbEnd; pbBase += ui32CacheLineSize)
 	{
-		case PVRSRV_CACHE_OP_CLEAN:
-			for (pbBase = pbStart; pbBase < pbEnd; pbBase += ui32CacheLineSize)
+		switch (eCacheOp)
+		{
+			case PVRSRV_CACHE_OP_CLEAN:
 				asm volatile ("dc cvac, %0" :: "r" (pbBase));
-			break;
+				break;
 
-		case PVRSRV_CACHE_OP_INVALIDATE:
-			for (pbBase = pbStart; pbBase < pbEnd; pbBase += ui32CacheLineSize)
+			case PVRSRV_CACHE_OP_INVALIDATE:
 				asm volatile ("dc ivac, %0" :: "r" (pbBase));
-			break;
+				break;
 
-		case PVRSRV_CACHE_OP_FLUSH:
-			for (pbBase = pbStart; pbBase < pbEnd; pbBase += ui32CacheLineSize)
+			case PVRSRV_CACHE_OP_FLUSH:
 				asm volatile ("dc civac, %0" :: "r" (pbBase));
-			break;
+				break;
 
-		default:
-			PVR_DPF((PVR_DBG_ERROR,
-					"%s: Cache maintenance operation type %d is invalid",
-					__func__, eCacheOp));
-			break;
+			default:
+				PVR_DPF((PVR_DBG_ERROR,
+						"%s: Cache maintenance operation type %d is invalid",
+						__func__, eCacheOp));
+				break;
+		}
 	}
 
 	end_user_mode_access();

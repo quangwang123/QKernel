@@ -557,7 +557,7 @@ e0:
 @Return         The page catalogue index
  */
 /*****************************************************************************/
-static INLINE IMG_UINT32 _CalcPCEIdx(IMG_DEV_VIRTADDR sDevVAddr,
+static IMG_UINT32 _CalcPCEIdx(IMG_DEV_VIRTADDR sDevVAddr,
                               const MMU_DEVVADDR_CONFIG *psDevVAddrConfig,
                               IMG_BOOL bRoundUp)
 {
@@ -596,7 +596,7 @@ static INLINE IMG_UINT32 _CalcPCEIdx(IMG_DEV_VIRTADDR sDevVAddr,
 @Return         The page directory index
  */
 /*****************************************************************************/
-static INLINE IMG_UINT32 _CalcPDEIdx(IMG_DEV_VIRTADDR sDevVAddr,
+static IMG_UINT32 _CalcPDEIdx(IMG_DEV_VIRTADDR sDevVAddr,
                               const MMU_DEVVADDR_CONFIG *psDevVAddrConfig,
                               IMG_BOOL bRoundUp)
 {
@@ -635,7 +635,7 @@ static INLINE IMG_UINT32 _CalcPDEIdx(IMG_DEV_VIRTADDR sDevVAddr,
 @Return         The page entry index
  */
 /*****************************************************************************/
-static INLINE IMG_UINT32 _CalcPTEIdx(IMG_DEV_VIRTADDR sDevVAddr,
+static IMG_UINT32 _CalcPTEIdx(IMG_DEV_VIRTADDR sDevVAddr,
                               const MMU_DEVVADDR_CONFIG *psDevVAddrConfig,
                               IMG_BOOL bRoundUp)
 {
@@ -725,7 +725,7 @@ static PVRSRV_ERROR _MMU_PhysMem_RAImportAlloc(RA_PERARENA_HANDLE hArenaHandle,
 	                                                 &psMapping->sMemHandle,
 	                                                 &psMapping->sDevPAddr);
 #endif
-	if (unlikely(eError != PVRSRV_OK))
+	if (eError != PVRSRV_OK)
 	{
 #if defined(PVRSRV_ENABLE_PROCESS_STATS)
 		PVRSRVStatsUpdateOOMStats(PVRSRV_PROCESS_STAT_TYPE_OOM_PHYSMEM_COUNT,
@@ -1028,7 +1028,7 @@ static PVRSRV_ERROR _PxMemAlloc(MMU_CONTEXT *psMMUContext,
 	/* allocate the object */
 	eError = _MMU_PhysMemAlloc(psMMUContext->psPhysMemCtx,
 	                           psMemDesc, uiBytes, uiAlign);
-	if (unlikely(eError != PVRSRV_OK))
+	if (eError != PVRSRV_OK)
 	{
 		PVR_LOG_GOTO_WITH_ERROR("_MMU_PhysMemAlloc", eError, PVRSRV_ERROR_OUT_OF_MEMORY, e0);
 	}
@@ -1682,7 +1682,7 @@ static PVRSRV_ERROR _MMU_AllocLevel(MMU_CONTEXT *psMMUContext,
 					ui32AllocSize += sizeof(MMU_Levelx_INFO *) * (uiNextEntries - 1);
 				}
 				psNextLevel = OSAllocZMem(ui32AllocSize);
-				if (unlikely(psNextLevel == NULL))
+				if (psNextLevel == NULL)
 				{
 					uiAllocState = 0;
 					goto e0;
@@ -2755,7 +2755,7 @@ MMU_MapPages(MMU_CONTEXT *psMMUContext,
 
 	/* Allocate memory for page-frame-numbers and validity states,
 	   N.B. assert could be triggered by an illegal uiSizeBytes */
-	if (unlikely(ui32MapPageCount > PMR_MAX_TRANSLATION_STACK_ALLOC))
+	if (ui32MapPageCount > PMR_MAX_TRANSLATION_STACK_ALLOC)
 	{
 		psDevPAddr = OSAllocMem(ui32MapPageCount * sizeof(IMG_DEV_PHYADDR));
 		PVR_LOG_GOTO_IF_NOMEM(psDevPAddr, eError, e0);
@@ -3319,7 +3319,7 @@ MMU_MapPMRFast (MMU_CONTEXT *psMMUContext,
 	   N.B. assert could be triggered by an illegal uiSizeBytes */
 	uiCount = uiSizeBytes >> uiLog2HeapPageSize;
 	PVR_ASSERT((IMG_DEVMEM_OFFSET_T)uiCount << uiLog2HeapPageSize == uiSizeBytes);
-	if (unlikely(uiCount > PMR_MAX_TRANSLATION_STACK_ALLOC))
+	if (uiCount > PMR_MAX_TRANSLATION_STACK_ALLOC)
 	{
 		psDevPAddr = OSAllocMem(uiCount * sizeof(IMG_DEV_PHYADDR));
 		PVR_LOG_GOTO_IF_NOMEM(psDevPAddr, eError, return_error);
@@ -3581,19 +3581,17 @@ MMU_UnmapPMRFast(MMU_CONTEXT *psMMUContext,
 	               &psLevel, &uiPTEIndex);
 	uiFlushStart = uiPTEIndex;
 
-	IMG_UINT32 uiBytesPerEntry = psConfig->uiBytesPerEntry;
-
 	/* Unmap page by page and keep the loop as quick as possible.
 	 * Only use parts of _SetupPTE that need to be executed. */
 	while (ui32Loop < ui32PageCount)
 	{
 
 		/* Set the PT entry to invalid and poison it with a bad address */
-		if (uiBytesPerEntry == 8)
+		if (psConfig->uiBytesPerEntry == 8)
 		{
 			((IMG_UINT64*)psLevel->sMemDesc.pvCpuVAddr)[uiPTEIndex] = uiEntry;
 		}
-		else if (uiBytesPerEntry == 4)
+		else if (psConfig->uiBytesPerEntry == 4)
 		{
 			((IMG_UINT32*)psLevel->sMemDesc.pvCpuVAddr)[uiPTEIndex] = (IMG_UINT32) uiEntry;
 		}
@@ -3647,8 +3645,8 @@ MMU_UnmapPMRFast(MMU_CONTEXT *psMMUContext,
 		{
 			psDevNode->sDevMMUPxSetup.pfnDevPxClean(psDevNode,
 			                                        &psLevel->sMemDesc.psMapping->sMemHandle,
-			                                        uiFlushStart * uiBytesPerEntry + psLevel->sMemDesc.uiOffset,
-			                                        (uiPTEIndex+1 - uiFlushStart) * uiBytesPerEntry);
+			                                        uiFlushStart * psConfig->uiBytesPerEntry + psLevel->sMemDesc.uiOffset,
+			                                        (uiPTEIndex+1 - uiFlushStart) * psConfig->uiBytesPerEntry);
 
 			_MMU_GetPTInfo(psMMUContext, sDevVAddr, psDevVAddrConfig,
 			               &psLevel, &uiPTEIndex);

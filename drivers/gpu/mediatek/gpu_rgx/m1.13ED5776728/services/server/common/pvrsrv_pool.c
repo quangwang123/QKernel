@@ -123,7 +123,7 @@ static PVRSRV_ERROR _DestroyPoolEntry(PVRSRV_POOL *psPool,
 
 void PVRSRVPoolDestroy(PVRSRV_POOL *psPool)
 {
-	if (unlikely(psPool->uiNumBusy != 0))
+	if (psPool->uiNumBusy != 0)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Attempt to destroy pool %s "
 						"with %u entries still in use",
@@ -242,7 +242,7 @@ PVRSRV_ERROR PVRSRVPoolPut(PVRSRV_POOL *psPool, PVRSRV_POOL_TOKEN hToken)
 	/* put this entry in the pool if the pool has space,
 	 * otherwise free it
 	 */
-	if (likely(psPool->uiNumFree < psPool->uiMaxEntries))
+	if (psPool->uiNumFree < psPool->uiMaxEntries)
 	{
 		dllist_add_to_tail(&psPool->sFreeList, &psEntry->sNode);
 		psPool->uiNumFree++;

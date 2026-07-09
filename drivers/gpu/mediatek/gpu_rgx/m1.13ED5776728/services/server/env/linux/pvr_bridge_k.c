@@ -452,7 +452,7 @@ PVRSRV_ERROR PVRSRVDriverThreadEnter(void)
 	 * g_iDriverSuspended in LinuxBridgeBlockClientsAccess() */
 	OSAtomicIncrement(&g_iNumActiveDriverThreads);
 
-	if (unlikely(OSAtomicRead(&g_iDriverSuspended) == _DRIVER_SUSPENDED))
+	if (OSAtomicRead(&g_iDriverSuspended) == _DRIVER_SUSPENDED)
 	{
 		/* decrement here because the driver is going to be suspended and
 		 * this thread is going to be frozen so we don't want to wait for
@@ -506,7 +506,7 @@ PVRSRV_BridgeDispatchKM(struct drm_device __maybe_unused *dev, void *arg, struct
 	CONNECTION_DATA *psConnection = LinuxConnectionFromFile(pDRMFile->filp);
 	PVRSRV_ERROR error;
 
-	if (unlikely(psConnection == NULL))
+	if (psConnection == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "%s: Connection is closed", __func__));
 		return -EFAULT;
@@ -552,7 +552,7 @@ PVRSRV_MMap(struct file *pFile, struct vm_area_struct *ps_vma)
 	PMR *psPMR;
 	PVRSRV_ERROR eError;
 
-	if (unlikely(psConnection == NULL))
+	if (psConnection == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR, "Invalid connection data"));
 		return -ENOENT;

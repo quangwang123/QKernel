@@ -1426,7 +1426,7 @@ _AllocOSPageArray(PVRSRV_DEVICE_NODE *psDevNode,
 
 	/* Allocate the struct to hold the metadata */
 	psPageArrayData = kmem_cache_alloc(g_psLinuxPageArray, GFP_KERNEL);
-	if (unlikely(psPageArrayData == NULL))
+	if (psPageArrayData == NULL)
 	{
 		PVR_DPF((PVR_DBG_ERROR,
 				 "%s: OS refused the memory allocation for the private data.",
@@ -1447,7 +1447,7 @@ _AllocOSPageArray(PVRSRV_DEVICE_NODE *psDevNode,
 	 * try to acquire the vmalloc hash table lock again.
 	 */
 	psPageArrayData->pagearray = OSAllocZMemNoStats(sizeof(struct page *) * uiNumDevPageSizeVirtPages);
-	if (unlikely(psPageArrayData->pagearray == NULL))
+	if (psPageArrayData->pagearray == NULL)
 	{
 		eError = PVRSRV_ERROR_OUT_OF_MEMORY;
 		goto e_free_kmem_cache;
@@ -1707,6 +1707,7 @@ _AllocOSPage_CMA(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 
 	do
 	{
+		DisableOOMKiller();
 #if defined(CONFIG_L4) || defined(PVR_LINUX_PHYSMEM_SUPPRESS_DMA_AC)
 		virt_addr = NULL;
 #else
@@ -1733,6 +1734,7 @@ _AllocOSPage_CMA(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 			}
 			else
 			{
+				EnableOOMKiller();
 				return PVRSRV_ERROR_OUT_OF_MEMORY;
 			}
 		}
@@ -1844,9 +1846,11 @@ _AllocOSPage(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 	PVR_ASSERT(uiMinOrder == 0);
 
 	/* Allocate the page */
+	DisableOOMKiller();
 	psPage = alloc_pages(gfp_flags, uiAllocOrder);
+	EnableOOMKiller();
 
-	if (unlikely(psPage == NULL))
+	if (psPage == NULL)
 	{
 		return PVRSRV_ERROR_OUT_OF_MEMORY;
 	}
@@ -1990,7 +1994,6 @@ _AllocOSPages_Fast(PMR_OSPAGEARRAY_DATA *psPageArrayData)
 	ui32GfpFlags = (ui32Order > ui32MinOrder) ? ui32HighOrderGfpFlags : gfp_flags;
 	ui32NumPageReq = (1 << ui32Order);
 
-	DisableOOMKiller();
 	while (uiArrayIndex < uiPagesToAlloc)
 	{
 		IMG_UINT32 ui32PageRemain = uiPagesToAlloc - uiArrayIndex;
@@ -2071,7 +2074,6 @@ _AllocOSPages_Fast(PMR_OSPAGEARRAY_DATA *psPageArrayData)
 			}
 		}
 	}
-	EnableOOMKiller();
 
 	if (bIncreaseMaxOrder && (g_uiMaxOrder < PVR_LINUX_PHYSMEM_MAX_ALLOC_ORDER_NUM))
 	{	/* All successful allocations on max order. Let's ask for more next time */
@@ -2172,7 +2174,6 @@ _AllocOSPages_Fast(PMR_OSPAGEARRAY_DATA *psPageArrayData)
 
 /* Error path */
 e_free_pages:
-	EnableOOMKiller();
 	{
 		IMG_UINT32 ui32PageToFree;
 
@@ -2285,7 +2286,6 @@ _AllocOSPages_Sparse(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 
 	/* Allocate pages from the OS or move the pages that we got from the pool
 	 * to the page array */
-	DisableOOMKiller();
 	for (i = 0; i < uiPagesToAlloc; i++)
 	{
 		/* Check if the indices we are allocating are in range */
@@ -2344,7 +2344,9 @@ _AllocOSPages_Sparse(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 			}
 			else
 			{
+				DisableOOMKiller();
 				ppsPageArray[puiAllocIndices[i]] = alloc_pages(ui32GfpFlags, uiOrder);
+				EnableOOMKiller();
 			}
 
 			if (ppsPageArray[puiAllocIndices[i]] != NULL)
@@ -2386,7 +2388,6 @@ _AllocOSPages_Sparse(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 			}
 		}
 	}
-	EnableOOMKiller();
 
 	if (psPageArrayData->bZero && uiOrder == 0)
 	{
@@ -2447,7 +2448,6 @@ _AllocOSPages_Sparse(PMR_OSPAGEARRAY_DATA *psPageArrayData,
 
 /* Error path */
 e_free_pages:
-	EnableOOMKiller();
 	{
 		IMG_UINT32 ui32PageToFree;
 

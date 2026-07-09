@@ -269,9 +269,9 @@ void PVRSRVCleanupThreadAddWork(PVRSRV_CLEANUP_THREAD_WORK *psData)
 
 	PVR_ASSERT(psData != NULL);
 #if defined(PVRSRV_FORCE_UNLOAD_IF_BAD_STATE)
-	if (unlikely(psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK || psPVRSRVData->bUnload))
+	if (psPVRSRVData->eServicesState != PVRSRV_SERVICES_STATE_OK || psPVRSRVData->bUnload)
 #else
-	if (unlikely(psPVRSRVData->bUnload))
+	if (psPVRSRVData->bUnload)
 #endif
 	{
 		CLEANUP_THREAD_FN pfnFree = psData->pfnFree;
