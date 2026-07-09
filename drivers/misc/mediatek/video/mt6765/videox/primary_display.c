@@ -191,8 +191,8 @@ static inline int _convert_disp_input_to_ovl(struct OVL_CONFIG_STRUCT *dst, stru
 	dst->dst_x = src->tgt_offset_x;
 	dst->dst_y = src->tgt_offset_y;
 
-	dst->dst_w = min(src->src_width, src->tgt_width);
-	dst->dst_h = min(src->src_height, src->tgt_height);
+	dst->dst_w = src->tgt_width;
+	dst->dst_h = src->tgt_height;
 
 	dst->keyEn = src->src_use_color_key;
 	dst->key = src->src_color_key;

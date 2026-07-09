@@ -473,10 +473,6 @@ static int _convert_fb_layer_to_disp_input(struct fb_overlay_layer *src,
 	dst->tgt_offset_y = src->tgt_offset_y;
 	dst->tgt_width = src->tgt_width;
 	dst->tgt_height = src->tgt_height;
-	if (dst->tgt_width > dst->src_width)
-		dst->tgt_width = dst->src_width;
-	if (dst->tgt_height > dst->src_height)
-		dst->tgt_height = dst->src_height;
 
 	dst->src_pitch = src->src_pitch;
 
