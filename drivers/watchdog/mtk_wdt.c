@@ -76,7 +76,7 @@
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
 static unsigned int timeout;
-static bool disable_resets_for_experiment = true;
+static bool disable_resets_for_experiment __read_mostly = true;
 
 struct mtk_wdt_dev {
 	struct watchdog_device wdt_dev;
