@@ -76,7 +76,6 @@
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
 static unsigned int timeout;
-static bool disable_resets_for_experiment __read_mostly = true;
 
 struct mtk_wdt_dev {
 	struct watchdog_device wdt_dev;
@@ -147,55 +146,6 @@ static const struct reset_control_ops mtk_reset_ops = {
 	.deassert   = mtk_reset_deassert,
 	.status     = mtk_reset_status,
 };
-
-static void mtk_wdt_dump_regs(struct mtk_wdt_dev *mtk_wdt, const char *tag)
-{
-	void __iomem *wdt_base;
-
-	if (!mtk_wdt)
-		return;
-
-	wdt_base = mtk_wdt->wdt_base;
-	if (!wdt_base)
-		return;
-
-	pr_emerg("mtk-wdt: %s mode=0x%08x length=0x%08x nonrst2=0x%08x req_mode=0x%08x hw_running=%d status=0x%lx\n",
-		 tag ? tag : "<null>",
-		 readl(wdt_base + WDT_MODE),
-		 readl(wdt_base + WDT_LENGTH),
-		 readl(wdt_base + WDT_NONRST2),
-		 readl(wdt_base + MTK_WDT_REQ_MODE),
-		 watchdog_hw_running(&mtk_wdt->wdt_dev),
-		 mtk_wdt->wdt_dev.status);
-}
-
-static void mtk_wdt_disable_hw_for_experiment(struct mtk_wdt_dev *mtk_wdt,
-					      const char *reason)
-{
-	void __iomem *wdt_base;
-	u32 reg;
-
-	if (!disable_resets_for_experiment || !mtk_wdt)
-		return;
-
-	wdt_base = mtk_wdt->wdt_base;
-	if (!wdt_base)
-		return;
-
-	pr_emerg("mtk-wdt: disabling hardware reset for experiment: reason=%s\n",
-		 reason ? reason : "<null>");
-	mtk_wdt_dump_regs(mtk_wdt, "before experiment disable");
-
-	writel(WDT_RST_RELOAD, wdt_base + WDT_RST);
-
-	reg = readl(wdt_base + WDT_MODE);
-	reg &= ~(WDT_MODE_EN | WDT_MODE_EXRST_EN | WDT_MODE_IRQ_EN |
-		 WDT_MODE_DUAL_EN | WDT_MODE_AUTO_START | WDT_BYPASS_PWR_KEY);
-	writel(WDT_MODE_KEY | reg, wdt_base + WDT_MODE);
-
-	clear_bit(WDOG_HW_RUNNING, &mtk_wdt->wdt_dev.status);
-	mtk_wdt_dump_regs(mtk_wdt, "after experiment disable");
-}
 
 static void mtk_wdt_mark_stage(struct mtk_wdt_dev *mtk_wdt)
 {
@@ -378,12 +328,6 @@ static void mtk_wdt_force_reset_mode(struct mtk_wdt_dev *mtk_wdt)
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 	u32 reg;
 
-	if (disable_resets_for_experiment) {
-		pr_emerg("mtk-wdt: force reset mode suppressed for experiment\n");
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "force reset mode");
-		return;
-	}
-
 	reg = readl(wdt_base + WDT_MODE);
 	pr_emerg("mtk-wdt: force reset mode begin mode_before=0x%08x\n", reg);
 	reg &= ~(WDT_MODE_DUAL_EN | WDT_MODE_IRQ_EN);
@@ -400,13 +344,6 @@ static void __maybe_unused mtk_wdt_arm_restart_timeout(
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 	u32 reg;
 
-	if (disable_resets_for_experiment) {
-		pr_emerg("mtk-wdt: restart timeout arm suppressed for experiment: timeout=%u\n",
-			 timeout);
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "restart timeout arm");
-		return;
-	}
-
 	reg = WDT_LENGTH_TIMEOUT(timeout << 6) | WDT_LENGTH_KEY;
 	pr_emerg("mtk-wdt: arm restart timeout=%u length=0x%08x\n",
 		 timeout, reg);
@@ -420,12 +357,6 @@ static void __maybe_unused mtk_wdt_arm_restart_timeout(
 static void __maybe_unused mtk_wdt_trigger_sw_reset(struct mtk_wdt_dev *mtk_wdt)
 {
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
-
-	if (disable_resets_for_experiment) {
-		pr_emerg("mtk-wdt: software reset trigger suppressed for experiment\n");
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "software reset trigger");
-		return;
-	}
 
 	mtk_wdt_force_reset_mode(mtk_wdt);
 
@@ -477,12 +408,6 @@ static int mtk_wdt_ping(struct watchdog_device *wdt_dev)
 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 
-	if (disable_resets_for_experiment) {
-		pr_info_ratelimited("watchdog%d, mtk wdt ping ignored, hardware reset disabled for experiment, wdd->status=%ld\n",
-				    wdt_dev->id, wdt_dev->status);
-		return 0;
-	}
-
 	iowrite32(WDT_RST_RELOAD, wdt_base + WDT_RST);
 
 	pr_info("watchdog%d, mtk wdt ping, wdd->status=%ld\n",
@@ -499,12 +424,6 @@ static int mtk_wdt_set_timeout(struct watchdog_device *wdt_dev,
 	u32 reg;
 
 	wdt_dev->timeout = timeout;
-
-	if (disable_resets_for_experiment) {
-		pr_info("watchdog%d, mtk wdt set_timeout(%u) ignored, hardware reset disabled for experiment\n",
-			wdt_dev->id, timeout);
-		return 0;
-	}
 
 	/*
 	 * One bit is the value of 512 ticks
@@ -523,13 +442,6 @@ static int mtk_wdt_stop(struct watchdog_device *wdt_dev)
 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 	u32 reg;
-
-	if (disable_resets_for_experiment) {
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "stop requested");
-		pr_info("watchdog%d, mtk wdt stop, hardware reset disabled for experiment, wdd->status=%ld\n",
-			 wdt_dev->id, wdt_dev->status);
-		return 0;
-	}
 
 	reg = readl(wdt_base + WDT_MODE);
 	reg &= ~WDT_MODE_EN;
@@ -550,13 +462,6 @@ static int mtk_wdt_start(struct watchdog_device *wdt_dev)
 	struct mtk_wdt_dev *mtk_wdt = watchdog_get_drvdata(wdt_dev);
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 	int ret;
-
-	if (disable_resets_for_experiment) {
-		pr_emerg("mtk-wdt: start requested timeout=%u, keeping hardware reset disabled for experiment\n",
-			 wdt_dev->timeout);
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "start requested");
-		return 0;
-	}
 
 	ret = mtk_wdt_set_timeout(wdt_dev, wdt_dev->timeout);
 	if (ret < 0)
@@ -624,9 +529,7 @@ static int mtk_wdt_probe(struct platform_device *pdev)
 
 	mtk_wdt_hw_init(pdev->dev.of_node, mtk_wdt);
 
-	if (disable_resets_for_experiment)
-		mtk_wdt_disable_hw_for_experiment(mtk_wdt, "probe");
-	else if (readl(mtk_wdt->wdt_base + WDT_MODE) & WDT_MODE_EN)
+	if (readl(mtk_wdt->wdt_base + WDT_MODE) & WDT_MODE_EN)
 		mtk_wdt_start(&mtk_wdt->wdt_dev);
 	else
 		mtk_wdt_stop(&mtk_wdt->wdt_dev);
@@ -653,14 +556,8 @@ static int mtk_wdt_probe(struct platform_device *pdev)
 	if (unlikely(err))
 		dev_info(&pdev->dev, "toprgu does not support as reset controller\n");
 
-	if (disable_resets_for_experiment)
-		dev_info(&pdev->dev,
-			 "Watchdog registered with hardware reset disabled for experiment (timeout=%d sec, nowayout=%d)\n",
-			 mtk_wdt->wdt_dev.timeout, nowayout);
-	else
-		dev_info(&pdev->dev,
-			 "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
-			 mtk_wdt->wdt_dev.timeout, nowayout);
+	dev_info(&pdev->dev, "Watchdog enabled (timeout=%d sec, nowayout=%d)\n",
+			mtk_wdt->wdt_dev.timeout, nowayout);
 
 	return 0;
 }
@@ -749,10 +646,6 @@ MODULE_PARM_DESC(timeout, "Watchdog heartbeat in seconds");
 module_param(nowayout, bool, 0);
 MODULE_PARM_DESC(nowayout, "Watchdog cannot be stopped once started (default="
 			__MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-
-module_param(disable_resets_for_experiment, bool, 0644);
-MODULE_PARM_DESC(disable_resets_for_experiment,
-		 "Disable TOPRGU watchdog hardware resets while keeping the driver registered");
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Matthias Brugger <matthias.bgg@gmail.com>");
