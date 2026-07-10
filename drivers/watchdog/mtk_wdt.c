@@ -203,42 +203,8 @@ static bool mtk_wdt_needs_restart_fallback(const char *cmd)
 	       mtk_wdt_cmd_matches(cmd, "fastboot");
 }
 
-static const char *mtk_wdt_reboot_notifier_action_name(unsigned long action)
-{
-	switch (action) {
-	case SYS_RESTART:
-		return "SYS_RESTART";
-	case SYS_HALT:
-		return "SYS_HALT";
-	case SYS_POWER_OFF:
-		return "SYS_POWER_OFF";
-	default:
-		return "unknown";
-	}
-}
-
-static const char *mtk_wdt_reboot_mode_name(unsigned long action)
-{
-	switch ((enum reboot_mode)action) {
-	case REBOOT_UNDEFINED:
-		return "REBOOT_UNDEFINED";
-	case REBOOT_COLD:
-		return "REBOOT_COLD";
-	case REBOOT_WARM:
-		return "REBOOT_WARM";
-	case REBOOT_HARD:
-		return "REBOOT_HARD";
-	case REBOOT_SOFT:
-		return "REBOOT_SOFT";
-	case REBOOT_GPIO:
-		return "REBOOT_GPIO";
-	default:
-		return "unknown";
-	}
-}
-
-static void __maybe_unused mtk_wdt_set_restart_mode(struct mtk_wdt_dev *mtk_wdt,
-						    const char *cmd)
+static void mtk_wdt_set_restart_mode(struct mtk_wdt_dev *mtk_wdt,
+				     const char *cmd)
 {
 	void __iomem *wdt_base;
 	u32 magic = 0;
@@ -337,8 +303,7 @@ static void mtk_wdt_force_reset_mode(struct mtk_wdt_dev *mtk_wdt)
 	pr_emerg("mtk-wdt: force reset mode done mode_after=0x%08x\n", reg);
 }
 
-static void __maybe_unused mtk_wdt_arm_restart_timeout(
-					struct mtk_wdt_dev *mtk_wdt,
+static void mtk_wdt_arm_restart_timeout(struct mtk_wdt_dev *mtk_wdt,
 					unsigned int timeout)
 {
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
@@ -354,7 +319,7 @@ static void __maybe_unused mtk_wdt_arm_restart_timeout(
 	set_bit(WDOG_HW_RUNNING, &mtk_wdt->wdt_dev.status);
 }
 
-static void __maybe_unused mtk_wdt_trigger_sw_reset(struct mtk_wdt_dev *mtk_wdt)
+static void mtk_wdt_trigger_sw_reset(struct mtk_wdt_dev *mtk_wdt)
 {
 	void __iomem *wdt_base = mtk_wdt->wdt_base;
 
@@ -374,16 +339,22 @@ static int mtk_wdt_reboot_notify(struct notifier_block *nb,
 	const char *cmd = data;
 	bool fallback = mtk_wdt_needs_restart_fallback(cmd);
 
-	pr_emerg("mtk-wdt: reboot notifier action=%s(%lu) cmd='%s' fallback=%d\n",
-		 mtk_wdt_reboot_notifier_action_name(action), action,
-		 cmd ? cmd : "<null>", fallback);
+	pr_emerg("mtk-wdt: reboot notifier action=%lu cmd='%s' fallback=%d\n",
+		 action, cmd ? cmd : "<null>", fallback);
 
-	if (action != SYS_RESTART)
+	if (action != SYS_RESTART || !fallback)
 		return NOTIFY_DONE;
 
-	pr_emerg("mtk-wdt: restart requested from reboot notifier, cmd='%s', fallback=%d restart_timeout_reset=%d; watchdog restart disabled for experiment\n",
-		 cmd ? cmd : "<null>", fallback,
-		 mtk_wdt->restart_timeout_reset);
+	mtk_wdt->restart_timeout_reset = true;
+	mtk_wdt_set_restart_mode(mtk_wdt, cmd);
+	mtk_wdt_arm_restart_timeout(mtk_wdt, WDT_RESTART_FALLBACK_TIMEOUT);
+
+	/*
+	 * Plain reboot is reliable through PSCI, but this board needs the
+	 * TOPRGU timeout path to carry recovery/bootloader intent.
+	 */
+	pr_emerg("mtk-wdt: forcing restart handler path for special reboot\n");
+	arm_pm_restart = NULL;
 
 	return NOTIFY_DONE;
 }
@@ -395,10 +366,18 @@ static int mtk_wdt_restart(struct watchdog_device *wdt_dev,
 	bool timeout_reset = mtk_wdt->restart_timeout_reset ||
 			     mtk_wdt_needs_restart_fallback(data);
 
-	pr_emerg("mtk-wdt: restart requested but disabled for experiment: mode=%s(%lu) cmd='%s' timeout_reset=%d restart_timeout_reset=%d\n",
-		 mtk_wdt_reboot_mode_name(action), action,
-		 data ? (const char *)data : "<null>", timeout_reset,
-		 mtk_wdt->restart_timeout_reset);
+	pr_emerg("mtk-wdt: restart handler cmd='%s' timeout_reset=%d\n",
+		 data ? (const char *)data : "<null>", timeout_reset);
+	mtk_wdt_set_restart_mode(mtk_wdt, data);
+
+	if (timeout_reset) {
+		mtk_wdt_arm_restart_timeout(mtk_wdt,
+					    WDT_RESTART_DIRECT_TIMEOUT);
+		while (1)
+			mdelay(100);
+	}
+
+	mtk_wdt_trigger_sw_reset(mtk_wdt);
 
 	return 0;
 }

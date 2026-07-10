@@ -38,11 +38,11 @@
 			cv = <4350000>;		/* uA */
 			ieoc = <150000>;	/* uA */
 			safety_timer = <12>;	/* hour */
-			dc_wdt = <0>;		/* disabled for reboot watchdog experiment */
+			dc_wdt = <4000000>;	/* us */
 			ircmp_resistor = <25000>;	/* uohm */
 			ircmp_vclamp = <32000>;		/* uV */
 			enable_te;
-			/* enable_wdt; disabled for reboot watchdog experiment */
+			enable_wdt;
 			lbp_hys_sel = <1>;	/* 0: 100mV, 1: 200mV */
 			lbp_dt = <1>;		/* 0: 10ms, 1: 20ms */
 						/* 2: 40ms, 3: 500us */
