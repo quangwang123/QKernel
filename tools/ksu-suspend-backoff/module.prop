@@ -1,0 +1,6 @@
+id=suspend-backoff-fix
+name=Suspend Backoff Fix
+version=1.0
+versionCode=1
+author=danya2271
+description=Disable Android short-suspend backoff on wake-heavy MT6765 devices
