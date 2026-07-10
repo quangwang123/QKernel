@@ -1407,70 +1407,11 @@ UINT64 osal_elapsed_us(UINT64 ts, ULONG usec)
 
 VOID osal_buffer_dump(const PUINT8 buf, const PUINT8 title, const UINT32 len, const UINT32 limit)
 {
-<<<<<<< HEAD
-	INT32 k;
-	UINT32 dump_len;
-	char str[DBG_LOG_STR_SIZE] = {""};
-	INT32 strlen = 0;
-	char *p = NULL;
-
-	pr_no_info("[%s] len=%d, limit=%d, start dump\n", title, len, limit);
-
-	dump_len = ((limit != 0) && (len > limit)) ? limit : len;
-	p = str;
-	for (k = 0; k < dump_len; k++) {
-		if ((k+1) % 16 != 0) {
-			strlen = osal_sprintf(p, "%02x ", buf[k]);
-			p += strlen;
-		} else {
-			strlen = osal_sprintf(p, "%02x\n",  buf[k]);
-			pr_no_info("%s", str);
-			p = str;
-		}
-	}
-	if (k % 16 != 0)
-		pr_no_info("%s\n", str);
-
-	pr_no_info("end of dump\n");
-=======
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_buffer_dump_data(const PUINT32 buf, const PUINT8 title, const UINT32 len, const UINT32 limit,
 			   const INT32 flag)
 {
-<<<<<<< HEAD
-	INT32 k;
-	UINT32 dump_len;
-	char str[DBG_LOG_STR_SIZE] = {""};
-	INT32 strlen = 0;
-	char *p = NULL;
-	INT32 count = 0;
-
-	dump_len = ((limit != 0) && (len > limit)) ? limit : len;
-	p = str;
-	for (k = 0; k < dump_len; k++) {
-		count++;
-		if (count % 8 != 0) {
-			strlen = osal_sprintf(p, "0x%08x,", buf[k]);
-			p += strlen;
-		} else {
-			strlen = osal_sprintf(p, "0x%08x\n", buf[k]);
-			if (flag)
-				osal_ftrace_print("%s%s", title, str);
-			else
-				pr_no_info("%s%s", title, str);
-			p = str;
-		}
-	}
-	if (count % 8 != 0) {
-		if (flag)
-			osal_ftrace_print("%s%s\n", title, str);
-		else
-			pr_no_info("%s%s\n", title, str);
-	}
-=======
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 UINT32 osal_op_get_id(P_OSAL_OP pOp)
@@ -1508,96 +1449,8 @@ VOID osal_set_op_result(P_OSAL_OP pOp, INT32 result)
 
 }
 
-<<<<<<< HEAD
-static VOID _osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
-{
-	/* Line format:
-	 * [LogicalIdx(PhysicalIdx)]Address:OpId(Ref)(Result)-Info-OpData0,OpData1,OpData2,OpData3,OpData5_
-	 *	[LogicalIdx]	max 10+2=12 chars (decimal)
-	 *	(PhysicalIdx)	max 10+2=12 chars (decimal)
-	 *	Address:	max 16+1=17 chars (hex)
-	 *	OpId		max 10 chars (decimal)
-	 *	(Ref)		max 2+2=4 chars (should only be 1 digit, reserve 2 in case of negative number)
-	 *	(Result)	max 11+2=13 chars (signed decimal)
-	 *	-Info-		max 8+2=10 chars (hex)
-	 *	OpData,		max 16+1=17 chars (hex)
-	 */
-#define OPQ_DUMP_OP_PER_LINE 1
-#define OPQ_DUMP_OPDATA_PER_OP 6
-#define OPQ_DUMP_OP_BUF_SIZE (12 + 12 + 17 + 10 + 4 + 13 + 10 + (17 * (OPQ_DUMP_OPDATA_PER_OP)) + 1)
-#define OPQ_DUMP_LINE_BUF_SIZE ((OPQ_DUMP_OP_BUF_SIZE * OPQ_DUMP_OP_PER_LINE) + 1)
-	UINT32 rd;
-	UINT32 wt;
-	UINT32 idx = 0;
-	UINT32 opDataIdx;
-	UINT32 idxInBuf;
-	int printed;
-	P_OSAL_OP op;
-	char buf[OPQ_DUMP_LINE_BUF_SIZE];
-
-	rd = pOpQ->read;
-	wt = pOpQ->write;
-
-	pr_no_info("%s(%p), sz:%u/%u, rd:%u, wt:%u\n", qName, pOpQ, RB_COUNT(pOpQ), RB_SIZE(pOpQ), rd, wt);
-	while (rd != wt && idx < RB_SIZE(pOpQ)) {
-		idxInBuf = idx % OPQ_DUMP_OP_PER_LINE;
-		op = pOpQ->queue[rd & RB_MASK(pOpQ)];
-
-		if (idxInBuf == 0) {
-			printed = 0;
-			buf[0] = 0;
-		}
-
-		if (op) {
-			printed += snprintf(buf + printed, OPQ_DUMP_LINE_BUF_SIZE - printed,
-						"[%u(%u)]%p:%u(%d)(%d)-%u-",
-						idx,
-						(rd & RB_MASK(pOpQ)),
-						op,
-						op->op.opId,
-						atomic_read(&op->ref_count),
-						op->result,
-						op->op.u4InfoBit);
-			for (opDataIdx = 0; opDataIdx < OPQ_DUMP_OPDATA_PER_OP; opDataIdx++)
-				printed += snprintf(buf + printed, OPQ_DUMP_LINE_BUF_SIZE - printed,
-						"%zx,", op->op.au4OpData[opDataIdx]);
-			if (printed > 0)
-				buf[printed-1] = ' ';
-		} else {
-			printed += snprintf(buf + printed, OPQ_DUMP_LINE_BUF_SIZE - printed,
-						"[%u(%u)]%p ", idx, (rd & RB_MASK(pOpQ)), op);
-		}
-		if (printed < 1 || printed >= (sizeof(buf) - 1))
-			return;
-
-		buf[printed++] = ' ';
-
-		if (idxInBuf == OPQ_DUMP_OP_PER_LINE - 1  || rd == wt - 1) {
-			buf[printed - 1] = 0;
-			pr_no_info("%s\n", buf);
-		}
-		rd++;
-		idx++;
-	}
-}
-
 VOID osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
 {
-	int err;
-
-	err = osal_lock_sleepable_lock(&pOpQ->sLock);
-	if (err) {
-		pr_no_info("Failed to lock queue (%d)\n", err);
-		return;
-	}
-
-	_osal_opq_dump(qName, pOpQ);
-
-	osal_unlock_sleepable_lock(&pOpQ->sLock);
-=======
-VOID osal_opq_dump(const char *qName, P_OSAL_OP_Q pOpQ)
-{
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_opq_dump_locked(const char *qName, P_OSAL_OP_Q pOpQ)
@@ -1622,131 +1475,14 @@ MTK_WCN_BOOL osal_opq_has_op(P_OSAL_OP_Q pOpQ, P_OSAL_OP pOp)
 	return MTK_WCN_BOOL_FALSE;
 }
 
-<<<<<<< HEAD
-static VOID osal_op_history_print_work(struct work_struct *work)
-{
-	struct osal_op_history *log_history = container_of(work, struct osal_op_history, dump_work);
-	struct ring *ring_buffer = &log_history->dump_ring_buffer;
-	struct ring_segment seg;
-	struct osal_op_history_entry *queue = ring_buffer->base;
-	struct osal_op_history_entry *entry = NULL;
-	INT32 index = 0;
-
-	if (queue == NULL) {
-		pr_no_info("queue shouldn't be NULL, %s", log_history->name);
-		return;
-	}
-
-	RING_READ_FOR_EACH_ITEM(RING_SIZE(ring_buffer), seg, ring_buffer) {
-		index = seg.ring_pt - ring_buffer->base;
-		entry = &queue[index];
-		pr_no_info("(%llu.%06lu) %s: pOp(%p):%u(%d)-%x-%zx,%zx,%zx,%zx\n",
-			entry->ts,
-			entry->usec,
-			log_history->name,
-			entry->opbuf_address,
-			entry->op_id,
-			entry->opbuf_ref_count,
-			entry->op_info_bit,
-			entry->param_0,
-			entry->param_1,
-			entry->param_2,
-			entry->param_3);
-	}
-	kfree(queue);
-	ring_buffer->base = NULL;
-}
-
-=======
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 VOID osal_op_history_init(struct osal_op_history *log_history, INT32 queue_size)
 {
 }
 
 VOID osal_op_history_print(struct osal_op_history *log_history, PINT8 name)
 {
-<<<<<<< HEAD
-	struct osal_op_history_entry *queue = NULL;
-	struct ring *ring_buffer = NULL, *dump_ring_buffer = NULL;
-	INT32 queue_size;
-	ULONG flags;
-	struct work_struct *work = &log_history->dump_work;
-	spinlock_t *lock = &(log_history->lock);
-
-	if (log_history->queue == NULL) {
-		pr_no_info("Queue is NULL, name: %s\n", name);
-		return;
-	}
-
-	spin_lock_irqsave(lock, flags);
-	ring_buffer = &log_history->ring_buffer;
-	queue_size = sizeof(struct osal_op_history_entry)
-			 * RING_SIZE(ring_buffer);
-
-	/* Allocate memory before getting lock to save time of holding lock */
-	queue = kmalloc(queue_size, GFP_ATOMIC);
-	if (queue == NULL) {
-		spin_unlock_irqrestore(lock, flags);
-		return;
-	}
-	dump_ring_buffer = &log_history->dump_ring_buffer;
-
-	if (dump_ring_buffer->base != NULL) {
-		spin_unlock_irqrestore(lock, flags);
-		kfree(queue);
-		pr_no_info("print is ongoing: %s\n", name);
-		return;
-	}
-
-	osal_snprintf(log_history->name, sizeof(log_history->name), "%s", name);
-	osal_memcpy(queue, log_history->queue, queue_size);
-	osal_memcpy(dump_ring_buffer, ring_buffer, sizeof(struct ring));
-	/* assign value to base after memory copy */
-	dump_ring_buffer->base = queue;
-	spin_unlock_irqrestore(lock, flags);
-	schedule_work(work);
-=======
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
 
 VOID osal_op_history_save(struct osal_op_history *log_history, P_OSAL_OP pOp)
 {
-<<<<<<< HEAD
-	struct osal_op_history_entry *entry = NULL;
-	struct ring_segment seg;
-	INT32 index;
-	UINT64 sec = 0;
-	ULONG usec = 0;
-	ULONG flags;
-
-	if (log_history->queue == NULL)
-		return;
-
-	osal_get_local_time(&sec, &usec);
-
-	spin_lock_irqsave(&(log_history->lock), flags);
-	RING_OVERWRITE_FOR_EACH(1, seg, &log_history->ring_buffer) {
-		index = seg.ring_pt - log_history->ring_buffer.base;
-		entry = &log_history->queue[index];
-	}
-
-	if (entry == NULL) {
-		pr_no_info("Entry is null, size %d\n", RING_SIZE(&log_history->ring_buffer));
-		spin_unlock_irqrestore(&(log_history->lock), flags);
-		return;
-	}
-
-	entry->opbuf_address = pOp;
-	entry->op_id = pOp->op.opId;
-	entry->opbuf_ref_count = atomic_read(&pOp->ref_count);
-	entry->op_info_bit = pOp->op.u4InfoBit;
-	entry->param_0 = pOp->op.au4OpData[0];
-	entry->param_1 = pOp->op.au4OpData[1];
-	entry->param_2 = pOp->op.au4OpData[2];
-	entry->param_3 = pOp->op.au4OpData[3];
-	entry->ts = sec;
-	entry->usec = usec;
-	spin_unlock_irqrestore(&(log_history->lock), flags);
-=======
->>>>>>> 1c7698836d28 (connectivity: common: compile out osal diagnostics)
 }
