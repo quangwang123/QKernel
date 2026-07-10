@@ -86,6 +86,7 @@ struct mtk_charger_type {
 	struct work_struct chr_work;
 
 	enum power_supply_usb_type type;
+	int status;
 
 	int first_connect;
 	int bc12_active;
@@ -102,6 +103,7 @@ struct tag_bootmode {
 
 static enum power_supply_property chr_type_properties[] = {
 	POWER_SUPPLY_PROP_ONLINE,
+	POWER_SUPPLY_PROP_STATUS,
 	POWER_SUPPLY_PROP_TYPE,
 	POWER_SUPPLY_PROP_USB_TYPE,
 	POWER_SUPPLY_PROP_VOLTAGE_NOW,
@@ -538,6 +540,7 @@ void do_charger_detect(struct mtk_charger_type *info, bool en)
 	union power_supply_propval prop, prop2, prop3;
 	enum power_supply_type old_psy_type = info->psy_desc.type;
 	enum power_supply_usb_type old_usb_type = info->type;
+	int old_status = info->status;
 	bool old_online = old_usb_type != POWER_SUPPLY_USB_TYPE_UNKNOWN;
 	bool online;
 
@@ -569,8 +572,13 @@ void do_charger_detect(struct mtk_charger_type *info, bool en)
 	pr_notice("%s type:%d usb_type:%d\n", __func__, prop2.intval, prop3.intval);
 
 	online = info->type != POWER_SUPPLY_USB_TYPE_UNKNOWN;
+	if (!online)
+		info->status = POWER_SUPPLY_STATUS_DISCHARGING;
+	else if (!old_online || info->status == POWER_SUPPLY_STATUS_UNKNOWN)
+		info->status = POWER_SUPPLY_STATUS_CHARGING;
+
 	if (old_online != online || old_psy_type != info->psy_desc.type ||
-	    old_usb_type != info->type)
+	    old_usb_type != info->type || old_status != info->status)
 		power_supply_changed(info->psy);
 }
 
@@ -653,6 +661,9 @@ static int psy_chr_type_get_property(struct power_supply *psy,
 		else
 			val->intval = 1;
 		break;
+	case POWER_SUPPLY_PROP_STATUS:
+		val->intval = info->status;
+		break;
 	case POWER_SUPPLY_PROP_TYPE:
 		 val->intval = info->psy_desc.type;
 		break;
@@ -682,6 +693,23 @@ int psy_chr_type_set_property(struct power_supply *psy,
 	switch (psp) {
 	case POWER_SUPPLY_PROP_ONLINE:
 		info->type = get_charger_type(info);
+		break;
+	case POWER_SUPPLY_PROP_STATUS:
+		switch (val->intval) {
+		case POWER_SUPPLY_STATUS_UNKNOWN:
+		case POWER_SUPPLY_STATUS_CHARGING:
+		case POWER_SUPPLY_STATUS_DISCHARGING:
+		case POWER_SUPPLY_STATUS_NOT_CHARGING:
+		case POWER_SUPPLY_STATUS_FULL:
+			break;
+		default:
+			return -EINVAL;
+		}
+
+		if (info->status != val->intval) {
+			info->status = val->intval;
+			power_supply_changed(info->psy);
+		}
 		break;
 	default:
 		return -EINVAL;
@@ -827,6 +855,7 @@ static int mt6357_charger_type_probe(struct platform_device *pdev)
 
 	info->psy_desc.name = "mtk_charger_type";
 	info->psy_desc.type = POWER_SUPPLY_TYPE_UNKNOWN;
+	info->status = POWER_SUPPLY_STATUS_DISCHARGING;
 	info->psy_desc.properties = chr_type_properties;
 	info->psy_desc.num_properties = ARRAY_SIZE(chr_type_properties);
 	info->psy_desc.get_property = psy_chr_type_get_property;
