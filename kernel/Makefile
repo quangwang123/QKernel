@@ -3,6 +3,11 @@
 # Makefile for the linux kernel.
 #
 
+ifdef CONFIG_MINIMAL_LTO
+ccflags-y += -flto
+subdir-ccflags-y += -flto
+endif
+
 ccflags-y += -mllvm -inline-threshold=788
 ccflags-y += -mllvm -unroll-threshold=569
 ccflags-y += -mllvm -inlinehint-threshold=455
