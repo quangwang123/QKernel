@@ -80,6 +80,9 @@ static int mtkfb_vsync_flush(struct file *a_pstFile, fl_owner_t a_id)
 	return 0;
 }
 
+static long mtkfb_vsync_unlocked_ioctl(struct file *file, unsigned int cmd,
+	unsigned long arg);
+
 #ifdef CONFIG_COMPAT
 static long compat_mtkfb_vsync_unlocked_ioctl(struct file *file,
 		unsigned int cmd, unsigned long arg)
@@ -90,9 +93,6 @@ static long compat_mtkfb_vsync_unlocked_ioctl(struct file *file,
 	compat_uint_t u;
 	int err = 0;
 	long ret = 0;
-
-	if (!file->f_op || !file->f_op->unlocked_ioctl)
-		return -ENOTTY;
 
 	data32 = compat_ptr(arg);
 	data = compat_alloc_user_space(sizeof(unsigned long));
@@ -105,8 +105,7 @@ static long compat_mtkfb_vsync_unlocked_ioctl(struct file *file,
 		return err;
 	}
 
-	ret = file->f_op->unlocked_ioctl(file, cmd,
-					(unsigned long)data);
+	ret = mtkfb_vsync_unlocked_ioctl(file, cmd, (unsigned long)data);
 	return ret;
 
 }
