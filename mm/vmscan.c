@@ -2387,6 +2387,7 @@ static unsigned int swpinout_threshold = 12000;
 module_param_named(threshold, swpinout_threshold, uint, 0644);
 static bool swap_is_allowed(void)
 {
+#ifdef CONFIG_VM_EVENT_COUNTERS
 	static unsigned long prev_time, last_thrashing_time;
 	static unsigned long prev_swpinout;
 	static bool no_thrashing = true;
@@ -2420,12 +2421,17 @@ static bool swap_is_allowed(void)
 		prev_swpinout = swpinout;
 		prev_time = jiffies;
 	}
+#endif
 
 	/* Only kswapd is allowed to do more jobs */
 	if (!current_is_kswapd())
 		return false;
 
+#ifdef CONFIG_VM_EVENT_COUNTERS
 	return no_thrashing;
+#else
+	return true;
+#endif
 }
 #endif
 
