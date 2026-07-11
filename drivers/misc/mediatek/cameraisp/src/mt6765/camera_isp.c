@@ -690,7 +690,11 @@ static  spinlock_t      SpinLockRegScen;
 
 /* maximum number for supporting user to do interrupt operation */
 /* index 0 is for all the user that do not do register irq first */
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define IRQ_USER_NUM_MAX 16
+#else
 #define IRQ_USER_NUM_MAX 32
+#endif
 static  spinlock_t      SpinLock_UserKey;
 
 #if (TIMESTAMP_QUEUE_EN == 1)
