@@ -19,6 +19,7 @@
 #include "wmt_step.h"
 #include "wmt_lib.h"
 #include <linux/ratelimit.h>
+#include <linux/vmalloc.h>
 
 #define STP_DBG_PAGED_TRACE_SIZE (2048*sizeof(char))
 #define SUB_PKT_SIZE 1024
@@ -33,7 +34,6 @@
 ENUM_STP_FW_ISSUE_TYPE issue_type;
 UINT8 g_paged_trace_buffer[STP_DBG_PAGED_TRACE_SIZE] = { 0 };
 UINT32 g_paged_trace_len;
-UINT8 g_paged_dump_buffer[STP_DBG_PAGED_DUMP_BUFFER_SIZE] = { 0 };
 UINT32 g_paged_dump_len;
 
 static PUINT8 soc_task_str[STP_DBG_TASK_ID_MAX] = {
@@ -181,6 +181,7 @@ static _osal_inline_ UINT64 stp_dbg_soc_elapsed_time(UINT64 ts, ULONG nsec)
 
 static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 {
+	UINT8 *paged_dump_buffer;
 	INT32 ret = 0;
 	UINT32 counter = 0;
 	UINT32 dump_num = 0;
@@ -214,6 +215,10 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 
 	if (dump_sink == 0)
 		return 0;
+
+	paged_dump_buffer = vzalloc(STP_DBG_PAGED_DUMP_BUFFER_SIZE);
+	if (!paged_dump_buffer)
+		return -ENOMEM;
 
 	/* handshake error handle: notify FW assert in abnormal case */
 	if (p_ecsi->p_ecso->emi_apmem_ctrl_state == 0x0) {
@@ -304,15 +309,21 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 		/* dump_len should not be negative */
 		if (dump_len < 0)
 			dump_len = 0;
+		if (dump_len > STP_DBG_PAGED_DUMP_BUFFER_SIZE) {
+			STP_DBG_pr_info("dump len is over than 32K(%d)\n",
+					dump_len);
+			ret = -EOVERFLOW;
+			abort = 1;
+			goto paged_dump_end;
+		}
 
 		/*move dump info according to dump_addr & dump_len */
-		osal_memcpy_fromio(&g_paged_dump_buffer[0], dump_vir_addr, dump_len);
+		osal_memcpy_fromio(paged_dump_buffer, dump_vir_addr, dump_len);
 
-		if (dump_len <= 32 * 1024) {
-			STP_DBG_PR_DBG("coredump mode: %d!\n", dump_sink);
-			switch (dump_sink) {
+		STP_DBG_PR_DBG("coredump mode: %d!\n", dump_sink);
+		switch (dump_sink) {
 			case 1:
-				ret = stp_dbg_aee_send(&g_paged_dump_buffer[0], dump_len, 0);
+				ret = stp_dbg_aee_send(paged_dump_buffer, dump_len, 0);
 				if (ret == 0)
 					STP_DBG_PR_DBG("aee send ok!\n");
 				else if (ret == 1)
@@ -325,7 +336,7 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 					STP_DBG_pr_info("aee send error!\n");
 				break;
 			case 2:
-				ret = stp_dbg_soc_put_emi_dump_to_nl(&g_paged_dump_buffer[0], dump_len);
+				ret = stp_dbg_soc_put_emi_dump_to_nl(paged_dump_buffer, dump_len);
 				if (ret == 0)
 					STP_DBG_PR_DBG("dump send ok!\n");
 				else if (ret == 1) {
@@ -337,10 +348,10 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 				break;
 			default:
 				STP_DBG_pr_info("unknown sink %d\n", dump_sink);
-				return -1;
-			}
-		} else
-			STP_DBG_pr_info("dump len is over than 32K(%d)\n", dump_len);
+				ret = -1;
+				abort = 1;
+				goto paged_dump_end;
+		}
 
 		g_paged_dump_len += dump_len;
 		wmt_plat_update_host_sync_num();
@@ -353,7 +364,8 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 		STP_DBG_PR_DBG("++ paged dump counter(%d) ++\n", page_counter);
 		/* dump 1st 512 bytes data to kernel log for fw requirement */
 		if (page_counter == 1)
-			stp_dbg_dump_log(&g_paged_dump_buffer[0], dump_len < 512 ? dump_len : 512);
+			stp_dbg_dump_log(paged_dump_buffer,
+					 dump_len < 512 ? dump_len : 512);
 
 		osal_get_local_time(&start_ts, &start_nsec);
 		while (1) {
@@ -410,6 +422,7 @@ paged_dump_end:
 		}
 	} while (1);
 
+	vfree(paged_dump_buffer);
 	return ret;
 }
 
