@@ -2320,7 +2320,7 @@ priv_get_ndis(IN struct net_device *prNetDev,
 	return 0;
 }				/* priv_get_ndis */
 
-#if CFG_SUPPORT_QA_AGENT
+#if CFG_SUPPORT_QA_TOOL
 /*----------------------------------------------------------------------------*/
 /*!
  * \brief The routine handles ATE set operation.
