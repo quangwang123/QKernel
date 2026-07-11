@@ -878,7 +878,11 @@ struct ISP_TIME_LOG_STRUCT {
 };
 
 #if (TIMESTAMP_QUEUE_EN == 1)
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define ISP_TIMESTPQ_DEPTH      (128)
+#else
 #define ISP_TIMESTPQ_DEPTH      (256)
+#endif
 struct ISP_TIMESTPQ_INFO_STRUCT {
 	struct {
 		struct S_START_T   TimeQue[ISP_TIMESTPQ_DEPTH];
