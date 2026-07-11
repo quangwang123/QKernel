@@ -708,7 +708,6 @@ static int rndis_reset_response(struct rndis_params *params,
 	/* drain the response queue */
 	while ((xbuf = rndis_get_next_response(params, &length)))
 		rndis_free_response(params, xbuf);
-	rndis_test_reset_msg_cnt++;
 
 	r = rndis_add_response(params, sizeof(rndis_reset_cmplt_type));
 	if (!r)
@@ -829,7 +828,6 @@ int rndis_msg_parser(struct rndis_params *params, u8 *buf)
 	if (rndis_debug)
 		RNDIS_DBG("MsgType is %d, RequestID is 0x%x\n",
 				MsgType, MsgID);
-	rndis_test_last_msg_id = MsgID;
 
 	if (!params)
 		return -ENOTSUPP;

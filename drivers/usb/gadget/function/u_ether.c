@@ -118,22 +118,6 @@ static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
 	xprintk(dev , KERN_INFO , fmt , ## args)
 
 /*-------------------------------------------------------------------------*/
-unsigned int rndis_test_last_resp_id;
-unsigned int rndis_test_last_msg_id;
-EXPORT_SYMBOL_GPL(rndis_test_last_msg_id);
-
-unsigned long rndis_test_reset_msg_cnt;
-EXPORT_SYMBOL_GPL(rndis_test_reset_msg_cnt);
-unsigned long rndis_test_rx_usb_in;
-unsigned long rndis_test_rx_net_out;
-unsigned long rndis_test_rx_nomem;
-unsigned long rndis_test_rx_error;
-unsigned long rndis_test_tx_net_in;
-unsigned long rndis_test_tx_busy;
-unsigned long rndis_test_tx_stop;
-unsigned long rndis_test_tx_nomem;
-unsigned long rndis_test_tx_usb_out;
-unsigned long rndis_test_tx_complete;
 #define U_ETHER_DBG(fmt, args...) \
 		pr_debug("U_ETHER,%s, " fmt, __func__, ## args)
 /* NETWORK DRIVER HOOKUP (to the layer above this driver) */
@@ -238,7 +222,6 @@ rx_submit(struct eth_dev *dev, struct usb_request *req, gfp_t gfp_flags)
 	skb = alloc_skb(size + NET_IP_ALIGN, gfp_flags);
 	if (skb == NULL) {
 		U_ETHER_DBG("no rx skb\n");
-		rndis_test_rx_nomem++;
 		goto enomem;
 	}
 
@@ -304,7 +287,6 @@ static void rx_complete(struct usb_ep *ep, struct usb_request *req)
 			/* no buffer copies needed, unless hardware can't
 			 * use skb buffers.
 			 */
-	rndis_test_rx_usb_in++;
 		break;
 
 	/* software-driven interface shutdown */
@@ -401,16 +383,6 @@ extra:
 	return 0;
 }
 
-#define MAX_ROW 8192
-static int chksum_table[MAX_ROW];
-static int chksum_windex;
-static unsigned int chksum_wvalue;
-static int chksum_rindex;
-static unsigned int chksum_rvalue;
-static bool tx_out_of_order_audit;
-module_param(tx_out_of_order_audit, bool, 0644);
-static bool tx_out_of_order;
-module_param(tx_out_of_order, bool, 0400);
 static bool sending_aggregation;
 static int sending_aggregation_cnt;
 module_param(sending_aggregation_cnt, int, 0400);
@@ -429,8 +401,6 @@ static int alloc_requests(struct eth_dev *dev, struct gether *link, unsigned n)
 		U_ETHER_DBG("can't alloc tx requests\n");
 		return status;
 	}
-	tx_out_of_order = false;
-	chksum_windex = chksum_wvalue = chksum_rindex = chksum_rvalue = 0;
 	sending_aggregation_cnt = max_diff_ns = total_diff_ns = 0;
 	spin_unlock(&dev->req_lock);
 
@@ -488,7 +458,6 @@ static void process_rx_w(struct work_struct *work)
 				|| skb->len > ETH_FRAME_LEN) {
 			dev->net->stats.rx_errors++;
 			dev->net->stats.rx_length_errors++;
-			rndis_test_rx_error++;
 			DBG(dev, "rx length %d\n", skb->len);
 			dev_kfree_skb_any(skb);
 			continue;
@@ -499,7 +468,6 @@ static void process_rx_w(struct work_struct *work)
 #if defined(NETDEV_TRACE) && defined(NETDEV_UL_TRACE)
 		skb->dbg_flag = 0x4;
 #endif
-		rndis_test_rx_net_out++;
 		status = netif_rx_ni(skb);
 	}
 }
@@ -575,18 +543,8 @@ static void tx_complete(struct usb_ep *ep, struct usb_request *req)
 			dev->net->stats.tx_bytes += req->length;
 	}
 	dev->net->stats.tx_packets++;
-	rndis_test_tx_complete++;
-
 	spin_lock(&dev->req_lock);
 	list_add_tail(&req->list, &dev->tx_reqs);
-	if (tx_out_of_order_audit) {
-		chksum_rindex += req->num_sgs;
-		chksum_rindex %= MAX_ROW;
-		chksum_rvalue += req->num_mapped_sgs;
-		req->num_sgs = req->num_mapped_sgs = 0;
-		tx_out_of_order = (chksum_rvalue !=
-			chksum_table[chksum_rindex]) ? true : false;
-	}
 	if (dev->port_usb->multi_pkt_xfer && !req->context) {
 		dev->no_tx_req_used--;
 		req->length = 0;
@@ -689,7 +647,6 @@ static int alloc_tx_buffer(struct eth_dev *dev)
 		}
 	return 0;
 free_buf:
-	rndis_test_tx_nomem++;
 	dev->tx_req_bufsize = 0;
 	list_for_each(act, &dev->tx_reqs) {
 		req = container_of(act, struct usb_request, list);
@@ -718,9 +675,9 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 	unsigned int		frag_data_len = 0;
 	unsigned int		frag_total_len = 0;
 	char			*frag_data_addr;
-	static unsigned long	okCnt, busyCnt;
+#ifdef CONFIG_MEDIATEK_SOLUTION
 	static DEFINE_RATELIMIT_STATE(ratelimit1, 1 * HZ, 2);
-	static DEFINE_RATELIMIT_STATE(ratelimit2, 1 * HZ, 2);
+#endif
 
 	if (!skb)
 		return -EINVAL;
@@ -781,52 +738,26 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 			return -ENOMEM;
 		}
 	}
-	if (__ratelimit(&ratelimit1)) {
 #ifdef CONFIG_MEDIATEK_SOLUTION
+	if (__ratelimit(&ratelimit1))
 		usb_boost();
 #endif
-		U_ETHER_DBG("COM[%d,%d,%x,%x,%lu]\n",
-			dev->gadget->speed, max_size, rndis_test_last_msg_id,
-			rndis_test_last_resp_id, rndis_test_reset_msg_cnt);
-		U_ETHER_DBG("rx[%lu,%lu,%lu,%lu] tx[%lu,%lu,%lu,%lu,%lu,%lu]\n",
-			rndis_test_rx_usb_in, rndis_test_rx_net_out,
-			rndis_test_rx_nomem, rndis_test_rx_error,
-			rndis_test_tx_net_in, rndis_test_tx_usb_out,
-			rndis_test_tx_busy, rndis_test_tx_nomem,
-			rndis_test_tx_stop, rndis_test_tx_complete);
-	}
-	rndis_test_tx_net_in++;
 	/*
 	 * this freelist can be empty if an interrupt triggered disconnect()
 	 * and reconfigured the gadget (shutting down this queue) after the
 	 * network stack decided to xmit but before we got the spinlock.
 	 */
 	if (list_empty(&dev->tx_reqs)) {
-		busyCnt++;
-		if (__ratelimit(&ratelimit2))
-			U_ETHER_DBG("okCnt: %lu, busyCnt: %lu, tx_busy: %lu\n",
-					okCnt, busyCnt, rndis_test_tx_busy);
 		spin_unlock_irqrestore(&dev->req_lock, flags);
-		rndis_test_tx_busy++;
 		return NETDEV_TX_BUSY;
 	}
-	okCnt++;
 
 	req = container_of(dev->tx_reqs.next, struct usb_request, list);
 	list_del(&req->list);
 
 	/* temporarily stop TX queue when the freelist empties */
 	if (list_empty(&dev->tx_reqs)) {
-		rndis_test_tx_stop++;
 		netif_stop_queue(net);
-	}
-	if (tx_out_of_order_audit) {
-		chksum_wvalue += (unsigned int)(uintptr_t)skb;
-		chksum_windex++;
-		chksum_windex %= MAX_ROW;
-		chksum_table[chksum_windex] = chksum_wvalue;
-		req->num_sgs++;
-		req->num_mapped_sgs += (unsigned int)(uintptr_t)skb;
 	}
 	spin_unlock_irqrestore(&dev->req_lock, flags);
 
@@ -943,7 +874,6 @@ static netdev_tx_t eth_start_xmit(struct sk_buff *skb,
 		dev->no_tx_req_used--;
 		break;
 	case 0:
-		rndis_test_tx_usb_out++;
 		atomic_inc(&dev->tx_qlen);
 	}
 
@@ -1517,17 +1447,6 @@ void gether_disconnect(struct gether *link)
 		return;
 
 	U_ETHER_DBG("\n");
-	rndis_test_rx_usb_in = 0;
-	rndis_test_rx_net_out = 0;
-	rndis_test_rx_nomem = 0;
-	rndis_test_rx_error = 0;
-	rndis_test_tx_net_in = 0;
-	rndis_test_tx_busy = 0;
-	rndis_test_tx_stop = 0;
-	rndis_test_tx_nomem = 0;
-	rndis_test_tx_usb_out = 0;
-	rndis_test_tx_complete = 0;
-
 	netif_stop_queue(dev->net);
 	netif_carrier_off(dev->net);
 
