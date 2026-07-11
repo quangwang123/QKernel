@@ -1824,9 +1824,7 @@ CONFIG_MTK_PWM=y
 # Memory
 #
 CONFIG_EXTREME_LOW_RAM=y
-# CONFIG_MTK_GMO_RAM_OPTIMIZE is not set
-# CONFIG_MTK_ENABLE_GMO is not set
-# CONFIG_MTK_ENABLE_AGO is not set
+CONFIG_MTK_GMO_RAM_OPTIMIZE=y
 
 #
 # Performance, Power, and Thermal
