@@ -1038,8 +1038,18 @@ typedef struct _FAULT_INFO_LOG_
 	 * the HWINFO number of the FW, as the FW HWINFO log may contain
 	 * non-page fault HWRs
 	 */
+#if defined(CONFIG_MTK_ENABLE_GMO)
+	FAULT_INFO asFaults[1];
+#else
 	FAULT_INFO asFaults[RGXFWIF_HWINFO_MAX];
+#endif
 } FAULT_INFO_LOG;
+
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define FAULT_INFO_LOG_INDEX(index) 0
+#else
+#define FAULT_INFO_LOG_INDEX(index) (index)
+#endif
 
 #define FAULT_INFO_PROC_INFO   (0x1U)
 #define FAULT_INFO_DEVMEM_HIST (0x2U)
@@ -1996,7 +2006,8 @@ static void _RGXDumpFWHWRInfo(DUMPDEBUG_PRINTF_FUNC *pfnDumpDebugPrintf,
 					OSLockAcquire(psDevInfo->hDebugFaultInfoLock);
 
 					/* Find the matching Fault Info for this HWRInfo */
-					psInfo = &gsFaultInfoLog.asFaults[ui32ReadIndex];
+					psInfo = &gsFaultInfoLog.asFaults[
+						FAULT_INFO_LOG_INDEX(ui32ReadIndex)];
 
 					/* if they do not match, we need to update the psInfo */
 					if ((psInfo->ui64CRTimer != psHWRInfo->ui64CRTimer) ||
