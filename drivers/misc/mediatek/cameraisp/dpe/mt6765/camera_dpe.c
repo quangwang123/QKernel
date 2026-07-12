@@ -390,6 +390,13 @@ static struct SV_LOG_STR gSvLog[DPE_IRQ_TYPE_AMOUNT];
 /*    each log must shorter than 512 bytes */
 /*    total log length in each irq/logtype can't over 1024 bytes */
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, args...) do { \
+	if ((logT) == _LOG_ERR) \
+		pr_err_ratelimited(fmt, ##args); \
+} while (0)
+#define IRQ_LOG_PRINTER(irq, ppb, logT) do { } while (0)
+#else
 #define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, ...) do { \
 	char *ptr; \
 	char *pDes; \
@@ -538,6 +545,7 @@ if (pSrc->_cnt[ppb][logT] != 0) { \
 		pSrc->_cnt[ppb][logT] = 0;\
 	} \
 } while (0)
+#endif
 
 /* DPE registers */
 #define DPE_RST_HW                    (DPE_BASE_HW)
@@ -4600,6 +4608,7 @@ static signed int __init DPE_Init(void)
 
 
 	/* isr log */
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (PAGE_SIZE <
 	    ((DPE_IRQ_TYPE_AMOUNT * NORMAL_STR_LEN *
 	    ((DBG_PAGE + INF_PAGE + ERR_PAGE) + 1)) *
@@ -4643,6 +4652,7 @@ static signed int __init DPE_Init(void)
 		/* log buffer, in case of overflow */
 		tmp = (void *)((char *)tmp + NORMAL_STR_LEN);
 	}
+#endif
 
 	/* Cmdq */
 	/* Register DPE callback */
