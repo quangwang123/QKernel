@@ -13,7 +13,9 @@
 /* spinlock : OalHWContextLock */
 struct VAL_VCODEC_OAL_HW_CONTEXT_T hw_ctx[VCODEC_INST_NUM];
 /* mutex : NonCacheMemoryListLock */
+#ifndef CONFIG_MTK_ENABLE_GMO
 struct VAL_NON_CACHE_MEMORY_LIST_T ncache_mem_list[VCODEC_INST_NUM_x_10];
+#endif
 
 /* For both hybrid and pure HW */
 struct VAL_VCODEC_HW_LOCK_T CodecHWLock;	/* mutex : CodecHWLock */
@@ -243,6 +245,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T *free_slot(unsigned long ulpa)
 }
 
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 /*
  * Add non cache memory to list
  */
@@ -427,3 +430,4 @@ unsigned long search_ncmem_byKPA(unsigned long a_ulKPA)
 
 	return ncache_mem_list[u4I].ulKVA + ulVA_Offset;
 }
+#endif

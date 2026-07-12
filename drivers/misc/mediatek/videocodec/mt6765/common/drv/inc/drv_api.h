@@ -35,7 +35,9 @@ struct VAL_NON_CACHE_MEMORY_LIST_T {
 /* spinlock : OalHWContextLock */
 extern struct VAL_VCODEC_OAL_HW_CONTEXT_T oal_hw_context[VCODEC_INST_NUM];
 /* mutex : NonCacheMemoryListLock */
+#ifndef CONFIG_MTK_ENABLE_GMO
 extern struct VAL_NON_CACHE_MEMORY_LIST_T ncache_mem_list[VCODEC_INST_NUM_x_10];
+#endif
 
 /* For both hybrid and pure HW */
 extern struct VAL_VCODEC_HW_LOCK_T CodecHWLock;	/* mutex : VdecHWLock */
@@ -53,6 +55,7 @@ struct VAL_VCODEC_OAL_HW_CONTEXT_T
 	*set_slot_TID(struct VAL_VCODEC_THREAD_ID_T a_prVcodecThreadID,
 			unsigned int *a_prIndex);
 struct VAL_VCODEC_OAL_HW_CONTEXT_T *free_slot(unsigned long ulpa);
+#ifndef CONFIG_MTK_ENABLE_GMO
 void add_ncmem(unsigned long a_ulKVA,
 			unsigned long a_ulKPA,
 			unsigned long a_ulSize,
@@ -61,5 +64,6 @@ void add_ncmem(unsigned long a_ulKVA,
 void free_ncmem(unsigned long a_ulKVA, unsigned long a_ulKPA);
 void ffree_ncmem(unsigned int a_u4Tid);
 unsigned long search_ncmem_byKPA(unsigned long a_u4KPA);
+#endif
 
 #endif
