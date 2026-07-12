@@ -111,6 +111,23 @@ struct mcdi_prof_breakdown {
 };
 #endif
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline unsigned int mcdi_usage_get_cnt(int cpu, int state_idx)
+{
+	return 0;
+}
+
+static inline void mcdi_usage_time_start(int cpu) { }
+static inline void mcdi_usage_time_stop(int cpu) { }
+static inline void mcdi_usage_calc(int cpu) { }
+static inline bool mcdi_usage_cpu_valid(int cpu) { return true; }
+static inline void mcdi_profile_ts(int cpu_idx, unsigned int prof_idx) { }
+static inline void mcdi_profile_calc(int cpu) { }
+static inline void mcdi_prof_core_cluster_off_token(int cpu) { }
+static inline void mcdi_prof_set_idle_state(int cpu, int state) { }
+static inline void mcdi_prof_init(void) { }
+static inline void mcdi_procfs_profile_init(struct proc_dir_entry *mcdi_dir) { }
+#else
 unsigned int mcdi_usage_get_cnt(int cpu, int state_idx);
 void mcdi_usage_time_start(int cpu);
 void mcdi_usage_time_stop(int cpu);
@@ -124,5 +141,6 @@ void mcdi_prof_core_cluster_off_token(int cpu);
 void mcdi_prof_set_idle_state(int cpu, int state);
 void mcdi_prof_init(void);
 void mcdi_procfs_profile_init(struct proc_dir_entry *mcdi_dir);
+#endif
 
 #endif /* __MTK_MCDI_PROFILE_H__ */
