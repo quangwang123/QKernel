@@ -9514,6 +9514,7 @@ static struct HQA_CMD_TABLE HQA_CMD_TABLES[] = {
  * \retval 0			On success.
  */
 /*----------------------------------------------------------------------------*/
+#if CFG_SUPPORT_QA_AGENT
 int HQA_CMDHandler(struct net_device *prNetDev,
 		   IN union iwreq_data *prIwReqData,
 		   struct HQA_CMD_FRAME *HqaCmdFrame)
@@ -9657,4 +9658,5 @@ ERROR1:
 ERROR0:
 	return i4Status;
 }
+#endif
 #endif
