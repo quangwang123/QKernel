@@ -282,7 +282,7 @@ static const struct file_operations ccci_log_fops = {
 #define CCCI_INIT_SETTING_BUF	(4096*2)
 #define CCCI_BOOT_UP_BUF		(4096*16)
 
-#ifdef CCCI_LOG_DISABLE
+#if defined(CCCI_LOG_DISABLE) || defined(CONFIG_MTK_ENABLE_GMO)
 #define CCCI_NORMAL_BUF			(0)
 #define CCCI_REPEAT_BUF			(0)
 #define CCCI_HISTORY_BUF		(0)
@@ -296,10 +296,16 @@ static const struct file_operations ccci_log_fops = {
 
 #define MD3_CCCI_INIT_SETTING_BUF   (4096*2)
 #define MD3_CCCI_BOOT_UP_BUF                (4096*16)
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define MD3_CCCI_NORMAL_BUF                 (0)
+#define MD3_CCCI_REPEAT_BUF                 (0)
+#define MD3_CCCI_HISTORY_BUF                (0)
+#else
 #define MD3_CCCI_NORMAL_BUF                 (4096*2)
 #define MD3_CCCI_REPEAT_BUF                 (4096*32)
-#define MD3_CCCI_REG_DUMP_BUF               (4096*32)
 #define MD3_CCCI_HISTORY_BUF                (4096*32)
+#endif
+#define MD3_CCCI_REG_DUMP_BUF               (4096*32)
 
 struct ccci_dump_buffer {
 	void *buffer;
