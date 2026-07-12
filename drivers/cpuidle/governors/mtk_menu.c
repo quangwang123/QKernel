@@ -571,7 +571,9 @@ static void menu_reflect(struct cpuidle_device *dev, int index)
 	data->needs_update = 1;
 	data->tick_wakeup = tick_nohz_idle_got_tick();
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mtk_idle_dump_cnt_in_interval();
+#endif
 	mcdi_heart_beat_log_dump();
 }
 

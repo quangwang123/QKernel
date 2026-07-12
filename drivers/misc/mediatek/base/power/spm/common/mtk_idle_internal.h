@@ -163,11 +163,17 @@ unsigned int spm_get_resource_usage_by_user(unsigned int user);
  *******************************************************************/
 
 /* idle ratio for internal use */
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline bool mtk_idle_get_ratio_status(void) { return false; }
+static inline void mtk_idle_disable_ratio_calc(void) { }
+static inline void mtk_idle_enable_ratio_calc(void) { }
+#else
 bool mtk_idle_get_ratio_status(void);
-void mtk_idle_ratio_calc_start(int type, int cpu);
-void mtk_idle_ratio_calc_stop(int type, int cpu);
 void mtk_idle_disable_ratio_calc(void);
 void mtk_idle_enable_ratio_calc(void);
+#endif
+void mtk_idle_ratio_calc_start(int type, int cpu);
+void mtk_idle_ratio_calc_stop(int type, int cpu);
 void mtk_idle_dump_cnt_in_interval(void);
 
 bool mtk_idle_select_state(int type, int reason);

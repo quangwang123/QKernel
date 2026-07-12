@@ -33,15 +33,19 @@ int __attribute__((weak)) mtk_idle_cond_append_info(
 	bool short_log, int idle_type, char *logptr, unsigned int logsize);
 
 /* idle ratio */
+#ifndef CONFIG_MTK_ENABLE_GMO
 static bool idle_ratio_en;
 static unsigned long long idle_ratio_profile_start_time;
 static unsigned long long idle_ratio_profile_duration;
+#endif
 
 /* idle block information */
 static unsigned long long idle_block_log_prev_time;
 static unsigned int idle_block_log_time_criteria = 5000;    /* 5 sec */
+#ifndef CONFIG_MTK_ENABLE_GMO
 static unsigned long long idle_cnt_dump_prev_time;
 static unsigned int idle_cnt_dump_criteria = 5000;          /* 5 sec */
+#endif
 
 /*External weak functions: implemented in mtk_cpufreq_api.c*/
 unsigned int __attribute__((weak))
@@ -56,7 +60,9 @@ struct mtk_idle_buf {
 	char *p_idx;
 };
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static struct mtk_idle_buf idle_log;
+#endif
 static struct mtk_idle_buf idle_state_log;
 
 #define reset_idle_buf(idle) \
@@ -67,9 +73,11 @@ static struct mtk_idle_buf idle_state_log;
 			(idle).p_idx\
 			, IDLE_LOG_BUF_LEN - strlen((idle).buf), fmt, ##args))
 
-#define reset_log()              reset_idle_buf(idle_log)
-#define get_log()                get_idle_buf(idle_log)
+#ifndef CONFIG_MTK_ENABLE_GMO
+#define reset_log() reset_idle_buf(idle_log)
+#define get_log() get_idle_buf(idle_log)
 #define append_log(fmt, args...) idle_buf_append(idle_log, fmt, ##args)
+#endif
 
 struct mtk_idle_block {
 	u64 prev_time;
@@ -93,17 +101,25 @@ static struct mtk_idle_recent_ratio recent_ratio = {
 	.end_ts = 0,
 };
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 struct mtk_idle_ratio {
 	char *name;
 	unsigned long long start;
 	unsigned long long value;
 };
+#endif
 
 struct mtk_idle_prof {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	struct mtk_idle_ratio ratio;
+#endif
 	struct mtk_idle_block block;
 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define DEFINE_ATTR(abbr_name, block_name, block_ms) \
+	{ .block = { .name = (block_name), .time_critera = (block_ms) } }
+#else
 #define DEFINE_ATTR(abbr_name, block_name, block_ms)   \
 	{                                                  \
 		.ratio = {                                     \
@@ -115,6 +131,8 @@ struct mtk_idle_prof {
 			.init = false,                             \
 		}                                              \
 	}                                                  \
+
+#endif
 
 static struct mtk_idle_prof idle_prof[NR_IDLE_TYPES] = {
 	[IDLE_TYPE_DP]  = DEFINE_ATTR("DP", "dpidle", 30000),
@@ -139,8 +157,10 @@ void mtk_idle_ratio_calc_start(int type, int cpu)
 {
 	unsigned long flags;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (idle_ratio_en && type >= 0 && type < NR_IDLE_TYPES)
 		idle_prof[type].ratio.start = idle_get_current_time_ms();
+#endif
 
 	if (type < IDLE_TYPE_RG) {
 		spin_lock_irqsave(&recent_idle_ratio_spin_lock, flags);
@@ -158,11 +178,13 @@ void mtk_idle_ratio_calc_start(int type, int cpu)
 
 void mtk_idle_ratio_calc_stop(int type, int cpu)
 {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (idle_ratio_en && type >= 0 && type < NR_IDLE_TYPES)
 		idle_prof[type].ratio.value +=
 		(
 			idle_get_current_time_ms() - idle_prof[type].ratio.start
 		);
+#endif
 
 	if (type < IDLE_TYPE_RG) {
 		struct mtk_idle_recent_ratio *ratio = NULL;
@@ -257,6 +279,7 @@ void mtk_idle_ratio_calc_stop(int type, int cpu)
 	#endif
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 bool mtk_idle_get_ratio_status(void)
 {
 	return idle_ratio_en;
@@ -278,7 +301,9 @@ void mtk_idle_enable_ratio_calc(void)
 		idle_ratio_en = true;
 	}
 }
+#endif
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static void mtk_idle_dump_cnt(int type)
 {
 	static struct mtk_idle_buf buf;
@@ -379,6 +404,7 @@ void mtk_idle_dump_cnt_in_interval(void)
 		idle_ratio_profile_start_time = idle_get_current_time_ms();
 	}
 }
+#endif
 
 static DEFINE_SPINLOCK(idle_blocking_spin_lock);
 
