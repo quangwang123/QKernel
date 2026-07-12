@@ -3078,6 +3078,10 @@ static void __init dcache_init_early(void)
 	if (hashdist)
 		return;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (!dhash_entries)
+		dhash_entries = 64 * 1024;
+#endif
 	dentry_hashtable =
 		alloc_large_system_hash("Dentry cache",
 					sizeof(struct hlist_bl_head),
@@ -3106,6 +3110,10 @@ static void __init dcache_init(void)
 	if (!hashdist)
 		return;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (!dhash_entries)
+		dhash_entries = 64 * 1024;
+#endif
 	dentry_hashtable =
 		alloc_large_system_hash("Dentry cache",
 					sizeof(struct hlist_bl_head),
