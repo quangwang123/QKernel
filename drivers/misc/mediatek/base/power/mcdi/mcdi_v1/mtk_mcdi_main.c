@@ -15,7 +15,9 @@
 #include <linux/string.h>
 #include <linux/tick.h>
 #include <linux/uaccess.h>
+#ifndef CONFIG_MTK_ENABLE_GMO
 #include <linux/kthread.h>
+#endif
 #include <linux/delay.h>
 #include <linux/slab.h>
 
@@ -71,9 +73,11 @@ static DEFINE_SPINLOCK(mcdi_heart_beat_spin_lock);
 static unsigned int mcdi_heart_beat_log_dump_thd = 5000; /* 5 sec */
 #endif
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static bool mcdi_stress_en;
 static unsigned int mcdi_stress_us = 10 * 1000;
 static struct task_struct *mcdi_stress_tsk[NF_CPU];
+#endif
 
 int __attribute__((weak)) mtk_enter_idle_state(int mode)
 {
@@ -160,6 +164,7 @@ void mcdi_wakeup_all_cpu(void)
 	wait_until_all_cpu_powered_on();
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static int mcdi_stress_task(void *arg)
 {
 	while (mcdi_stress_en)
@@ -196,6 +201,7 @@ static void mcdi_stress_stop(void)
 	mcdi_stress_en = false;
 	msleep(20);
 }
+#endif
 
 static void mcdi_idle_state_setting(unsigned long idx, unsigned long enable)
 {
@@ -342,9 +348,11 @@ static ssize_t mcdi_info_read(struct file *filp,
 	if (!dbg_buf)
 		return -ENOMEM;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mcdi_log("mcdi stress test: %s (timer:%dus)",
 			mcdi_stress_en ? "Enalbe" : "Disable",
 			mcdi_stress_us);
+#endif
 
 	for (cpu = 0; cpu < NF_CPU; cpu++) {
 
@@ -399,10 +407,12 @@ static ssize_t mcdi_info_read(struct file *filp,
 				"latency [CPU Type] [state] [val(dec)]");
 	mcdi_log("  %-40s : set idle state residency value\n",
 				"residency [CPU Type] [state] [val(dec)]");
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mcdi_log("  %-40s : enable disable stress test\n",
 				"stress[0|1]");
 	mcdi_log("  %-40s : set stress timer interval\n",
 				"stress_timer [time_us(dec)]");
+#endif
 	mcdi_log("  %-40s : check remain sleep each core(CPC mode)\n",
 				"remain [0|1]");
 	mcdi_log("  %-40s : enable/disable timer when enter cluster off\n",
@@ -501,6 +511,7 @@ parse_cmd:
 
 		return count;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	} else if (!strncmp(cmd_str, "stress", sizeof("stress"))) {
 
 		if (param_cnt == 1) {
@@ -512,6 +523,7 @@ parse_cmd:
 
 		return count;
 
+#endif
 	} else if (!strncmp(cmd_str, "remain", sizeof("remain"))) {
 
 		if (param_cnt == 1 && mcdi_is_cpc_mode())
@@ -526,12 +538,14 @@ parse_cmd:
 
 		return count;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	} else if (!strncmp(cmd_str, "stress_timer", sizeof("stress_timer"))) {
 
 		if (param_cnt == 1)
 			mcdi_stress_us = clamp_val(param_0, 100, 20000);
 
 		return count;
+#endif
 
 	} else {
 		return -EINVAL;
