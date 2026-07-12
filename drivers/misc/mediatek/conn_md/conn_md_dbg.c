@@ -24,12 +24,18 @@ static const struct  file_operations conn_md_dbg_fops = {
 };
 #endif
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static int conn_md_test_dbg(int par1, int par2, int par3);
+#endif
 static int conn_md_dbg_set_log_lvl(int par1, int par2, int par3);
 static int conn_md_dbg_dmp_msg_log(int par1, int par2, int par3);
 
 static const  conn_md_dev_dbg_func conn_md_dbg_func[] = {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	conn_md_test_dbg,
+#else
+	NULL,
+#endif
 	conn_md_dbg_set_log_lvl,
 	conn_md_dbg_dmp_msg_log,
 	NULL,
@@ -120,10 +126,12 @@ static int conn_md_dbg_write(struct file *file, const char *buffer,
 	return len;
 }
 
-int conn_md_test_dbg(int par1, int par2, int par3)
+#ifndef CONFIG_MTK_ENABLE_GMO
+static int conn_md_test_dbg(int par1, int par2, int par3)
 {
 	return conn_md_test();
 }
+#endif
 
 int conn_md_dbg_init(void)
 {

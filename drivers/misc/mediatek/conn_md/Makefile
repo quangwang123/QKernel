@@ -28,7 +28,9 @@ ifneq ($(KERNELRELEASE),)
     conn_md_drv-objs += conn_md_log.o
     conn_md_drv-objs += conn_md_dump.o
     conn_md_drv-objs += conn_md_dbg.o
+ifneq ($(CONFIG_MTK_ENABLE_GMO),y)
     conn_md_drv-objs += conn_md_test.o
+endif
 
 # Otherwise we were called directly from the command
 # line; invoke the kernel build system.
