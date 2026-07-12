@@ -2431,6 +2431,7 @@ static struct kernel_param_ops vote_freq_ops = {
 module_param_cb(vote_freq, &vote_freq_ops, &vote_freq, 0644);
 MODULE_PARM_DESC(vote_freq, "vote mmdvfs to specified freq, 0 for unset");
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 #define UT_MAX_REQUEST 10
 static s32 qos_ut_case;
 static struct plist_head ut_req_list;
@@ -2680,6 +2681,7 @@ static struct kernel_param_ops mmdvfs_ut_ops = {
 };
 module_param_cb(mmdvfs_ut_case, &mmdvfs_ut_ops, &mmdvfs_ut_case, 0644);
 MODULE_PARM_DESC(mmdvfs_ut_case, "force mmdvfs UT test case");
+#endif
 
 int set_disp_bw_ceiling(const char *val, const struct kernel_param *kp)
 {
