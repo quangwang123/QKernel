@@ -873,10 +873,12 @@ struct ISP_IRQ_INFO_STRUCT {
 	signed int     PassedBySigCnt[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 	/* */
 	unsigned int    LastestSigTime_sec[ISP_IRQ_TYPE_AMOUNT][32];
 	/* latest time for each interrupt */
 	unsigned int    LastestSigTime_usec[ISP_IRQ_TYPE_AMOUNT][32];
+#endif
 	/* latest time for each interrupt */
 };
 
@@ -5151,12 +5153,14 @@ static long ISP_Buf_CTRL_FUNC(unsigned long Param)
 					rt_buf_ctrl.module, rt_dma);
 			/*  */
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 			memset((void *)IspInfo.IrqInfo.LastestSigTime_usec
 				[rt_buf_ctrl.module],
 				0, sizeof(unsigned int) * 32);
 			memset((void *)IspInfo.IrqInfo.LastestSigTime_sec
 				[rt_buf_ctrl.module],
 				0, sizeof(unsigned int) * 32);
+#endif
 			/* remove, cause clear will be involked only when
 			 * current module r totally stopped
 			 */
@@ -9526,10 +9530,12 @@ pr_info("- E. register IRQ: done\n");
 					IspInfo.IrqInfo.
 					    PassedBySigCnt[i][p][q] = 0;
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.
 					    LastestSigTime_sec[i][p] = 0;
 					IspInfo.IrqInfo.
 					    LastestSigTime_usec[i][p] = 0;
+#endif
 				}
 			}
 		}
@@ -12895,10 +12901,12 @@ irqreturn_t ISP_Irq_CAMSV_0(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with the
 		 * time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -12978,10 +12986,12 @@ irqreturn_t ISP_Irq_CAMSV_0(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -12996,6 +13006,7 @@ irqreturn_t ISP_Irq_CAMSV_0(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -13022,6 +13033,7 @@ irqreturn_t ISP_Irq_CAMSV_0(signed int  Irq, void *DeviceId)
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -13123,10 +13135,12 @@ irqreturn_t ISP_Irq_CAMSV_1(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with the
 		 * time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -13205,10 +13219,12 @@ irqreturn_t ISP_Irq_CAMSV_1(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
-			    (unsigned int)(usec);
+			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -13223,6 +13239,7 @@ irqreturn_t ISP_Irq_CAMSV_1(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -13249,6 +13266,7 @@ irqreturn_t ISP_Irq_CAMSV_1(signed int  Irq, void *DeviceId)
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -13350,10 +13368,12 @@ irqreturn_t ISP_Irq_CAMSV_2(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with
 		 * the time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -13433,10 +13453,12 @@ irqreturn_t ISP_Irq_CAMSV_2(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -13451,6 +13473,7 @@ irqreturn_t ISP_Irq_CAMSV_2(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -13477,6 +13500,7 @@ irqreturn_t ISP_Irq_CAMSV_2(signed int  Irq, void *DeviceId)
 			 * in this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -13577,10 +13601,12 @@ irqreturn_t ISP_Irq_CAMSV_3(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with
 		 * the time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -13659,10 +13685,12 @@ irqreturn_t ISP_Irq_CAMSV_3(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -13677,6 +13705,7 @@ irqreturn_t ISP_Irq_CAMSV_3(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -13703,6 +13732,7 @@ irqreturn_t ISP_Irq_CAMSV_3(signed int  Irq, void *DeviceId)
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -13803,10 +13833,12 @@ irqreturn_t ISP_Irq_CAMSV_4(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with the
 		 * time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -13885,10 +13917,12 @@ irqreturn_t ISP_Irq_CAMSV_4(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -13903,6 +13937,7 @@ irqreturn_t ISP_Irq_CAMSV_4(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i]&
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -13929,6 +13964,7 @@ irqreturn_t ISP_Irq_CAMSV_4(signed int  Irq, void *DeviceId)
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -14030,10 +14066,12 @@ irqreturn_t ISP_Irq_CAMSV_5(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with the
 		 * time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			IRQ_LOG_KEEPER(module, m_CurrentPPB, _LOG_INF,
@@ -14112,10 +14150,12 @@ irqreturn_t ISP_Irq_CAMSV_5(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		/* sw sof counter */
 		sof_count[module]++;
@@ -14130,6 +14170,7 @@ irqreturn_t ISP_Irq_CAMSV_5(signed int  Irq, void *DeviceId)
 		/* 1. update interrupt status to all users */
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -14156,6 +14197,7 @@ irqreturn_t ISP_Irq_CAMSV_5(signed int  Irq, void *DeviceId)
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -14330,10 +14372,12 @@ irqreturn_t ISP_Irq_CAM_A(signed int Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with
 		 * the time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			/*SW p1_don is not reliable*/
@@ -14702,10 +14746,12 @@ irqreturn_t ISP_Irq_CAM_A(signed int Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
-		    (unsigned int)(sec);
+			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
-		    (unsigned int)(usec);
+			(unsigned int)(usec);
+#endif
 
 		#if 0
 		/* sw sof counter */
@@ -14738,6 +14784,7 @@ LB_CAMA_SOF_IGNORE:
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 		IspInfo.IrqInfo.Status[module][DMA_INT][i] |= DmaStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -14764,6 +14811,7 @@ LB_CAMA_SOF_IGNORE:
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
@@ -14961,10 +15009,12 @@ irqreturn_t ISP_Irq_CAM_B(signed int  Irq, void *DeviceId)
 		/* update pass1 done time stamp for eis user(need match with
 		 * the time stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][10] =
 			(unsigned int)(usec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][10] =
 			(unsigned int)(sec);
+#endif
 
 		if (IspInfo.DebugMask & ISP_DBG_INT) {
 			/*SW p1_don is not reliable*/
@@ -15329,10 +15379,12 @@ irqreturn_t ISP_Irq_CAM_B(signed int  Irq, void *DeviceId)
 		/* update SOF time stamp for eis user(need match with the time
 		 * stamp in image header)
 		 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.LastestSigTime_usec[module][12] =
 			(unsigned int)(sec);
 		IspInfo.IrqInfo.LastestSigTime_sec[module][12] =
 			(unsigned int)(usec);
+#endif
 
 		#if 0
 		/* sw sof counter */
@@ -15364,6 +15416,7 @@ LB_CAMB_SOF_IGNORE:
 		IspInfo.IrqInfo.Status[module][SIGNAL_INT][i] |= IrqStatus;
 		IspInfo.IrqInfo.Status[module][DMA_INT][i] |= DmaStatus;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		/* 2. update signal time and passed by signal count */
 		if (IspInfo.IrqInfo.MarkedFlag[module][SIGNAL_INT][i] &
 		    IspInfo.IrqInfo.Mask[module][SIGNAL_INT]) {
@@ -15390,6 +15443,7 @@ LB_CAMB_SOF_IGNORE:
 			 * this irq type
 			 */
 		}
+#endif
 	}
 	spin_unlock(&(IspInfo.SpinLockIrq[module]));
 	/*  */
