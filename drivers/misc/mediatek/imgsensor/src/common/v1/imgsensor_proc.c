@@ -13,9 +13,9 @@
 
 #include "imgsensor_proc.h"
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 char mtk_ccm_name[camera_info_size] = { 0 };
 char mtk_i2c_dump[128] = { 0 };
-
 
 
 
@@ -412,6 +412,7 @@ static int proc_camsensor_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, subsys_camsensor_read, NULL);
 };
+#endif
 
 static int imgsensor_proc_status_read(struct seq_file *m, void *v)
 {
@@ -441,6 +442,7 @@ static const struct file_operations fcamera_proc_fops_status = {
 	.read = seq_read,
 };
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static const struct file_operations fcamera_proc_fops1 = {
 	.owner = THIS_MODULE,
 	.open = proc_camera_info_open,
@@ -482,11 +484,13 @@ static const struct file_operations fcamera_proc_fops_set_pdaf_type = {
 	.read = seq_read,
 	.write = proc_SensorType_write
 };
+#endif
 
 
 
 enum IMGSENSOR_RETURN imgsensor_proc_init(void)
 {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	memset(mtk_ccm_name, 0, camera_info_size);
 
 	proc_create("driver/camsensor", 0664, NULL, &fcamera_proc_fops);
@@ -495,10 +499,11 @@ enum IMGSENSOR_RETURN imgsensor_proc_init(void)
 	proc_create("driver/camsensor4", 0664, NULL, &fcamera_proc_fops4);
 	proc_create(
 	    "driver/pdaf_type", 0664, NULL, &fcamera_proc_fops_set_pdaf_type);
-	proc_create(PROC_SENSOR_STAT, 0664, NULL, &fcamera_proc_fops_status);
 
 	/* Camera information */
 	proc_create(PROC_CAMERA_INFO, 0664, NULL, &fcamera_proc_fops1);
+#endif
+	proc_create(PROC_SENSOR_STAT, 0664, NULL, &fcamera_proc_fops_status);
 
 	return IMGSENSOR_RETURN_SUCCESS;
 }
