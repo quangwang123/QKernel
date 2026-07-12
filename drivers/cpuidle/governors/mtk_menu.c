@@ -574,7 +574,9 @@ static void menu_reflect(struct cpuidle_device *dev, int index)
 #ifndef CONFIG_MTK_ENABLE_GMO
 	mtk_idle_dump_cnt_in_interval();
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mcdi_heart_beat_log_dump();
+#endif
 }
 
 /**

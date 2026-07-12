@@ -50,10 +50,11 @@ static unsigned long mcdi_cnt_cluster[NF_CLUSTER];
 void __iomem *mcdi_sysram_base;
 #define MCDI_SYSRAM (mcdi_sysram_base + MCDI_DEBUG_INFO_NON_REPLACE_OFFSET)
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static unsigned long mcdi_cnt_cpu_last[NF_CPU];
 static unsigned long mcdi_cnt_cluster_last[NF_CLUSTER];
-
 static unsigned long ac_cpu_cond_info_last[NF_ANY_CORE_CPU_COND_INFO];
+#endif
 
 static const char *ac_cpu_cond_name[NF_ANY_CORE_CPU_COND_INFO] = {
 	"pause",
@@ -63,10 +64,11 @@ static const char *ac_cpu_cond_name[NF_ANY_CORE_CPU_COND_INFO] = {
 	"last core"
 };
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static unsigned long long mcdi_heart_beat_log_prev;
 static DEFINE_SPINLOCK(mcdi_heart_beat_spin_lock);
-
-static unsigned int mcdi_heart_beat_log_dump_thd = 5000;          /* 5 sec */
+static unsigned int mcdi_heart_beat_log_dump_thd = 5000; /* 5 sec */
+#endif
 
 static bool mcdi_stress_en;
 static unsigned int mcdi_stress_us = 10 * 1000;
@@ -560,6 +562,7 @@ static void __go_to_wfi(int cpu)
 	/* add_cpu_to_prefer_schedule_domain(cpu); */
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 void mcdi_heart_beat_log_dump(void)
 {
 	static struct mtk_mcdi_buf buf;
@@ -639,6 +642,7 @@ void mcdi_heart_beat_log_dump(void)
 
 	printk_deferred("%s\n", get_mcdi_buf(buf));
 }
+#endif
 
 int wfi_enter(int cpu)
 {
