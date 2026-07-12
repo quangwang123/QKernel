@@ -196,7 +196,11 @@ typedef struct {
 typedef struct {
 	/* MTK_WCN_MUTEX           mtx; */
 	OSAL_UNSLEEPABLE_LOCK mtx;
+#ifdef CONFIG_MTK_ENABLE_GMO
+	UINT8 *buffer;
+#else
 	UINT8 buffer[MTKSTP_BUFFER_SIZE];
+#endif
 	UINT32 read_p;
 	UINT32 write_p;
 } mtkstp_ring_buffer_struct;
