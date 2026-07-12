@@ -21,11 +21,15 @@ else
 	MTK_PLATFORM := $(subst ",,$(CONFIG_MTK_PLATFORM))
 endif
 
+ifneq ($(CONFIG_MTK_ENABLE_GMO),y)
+panelmaster-y := fbconfig_kdebug.o
+endif
+
 obj-$(CONFIG_MTK_FB) += mtkfb_console.o		\
 			disp_assert_layer.o	\
 			mtkfb.o			\
 			mtkfb_fence.o		\
-			fbconfig_kdebug.o	\
+			$(panelmaster-y)	\
 			mtkfb_vsync.o		\
 			debug.o			\
 			primary_display.o	\
