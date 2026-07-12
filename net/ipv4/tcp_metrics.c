@@ -1005,10 +1005,14 @@ static int __net_init tcp_net_metrics_init(struct net *net)
 
 	slots = tcpmhash_entries;
 	if (!slots) {
+#ifdef CONFIG_MTK_ENABLE_GMO
+		slots = 2 * 1024;
+#else
 		if (totalram_pages >= 128 * 1024)
 			slots = 16 * 1024;
 		else
 			slots = 8 * 1024;
+#endif
 	}
 
 	tcp_metrics_hash_log = order_base_2(slots);
