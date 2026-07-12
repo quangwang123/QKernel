@@ -616,8 +616,10 @@ int mt_ppm_main(void)
 	struct ppm_client_req *last_req = &(ppm_main_info.last_req);
 	unsigned int policy_mask = 0;
 	int i;
+#ifndef CONFIG_MTK_ENABLE_GMO
 	ktime_t now;
 	unsigned long long delta;
+#endif
 
 	FUNC_ENTER(FUNC_LV_MAIN);
 
@@ -765,7 +767,9 @@ int mt_ppm_main(void)
 			/* notify needed client only */
 			if (notify_dvfs && !notify_hps) {
 				to = PPM_CLIENT_DVFS;
+#ifndef CONFIG_MTK_ENABLE_GMO
 				now = ktime_get();
+#endif
 				if (log_print)
 					ppm_main_log_print(policy_mask,
 						p->min_power_budget,
@@ -774,11 +778,13 @@ int mt_ppm_main(void)
 					goto nofity_end;
 
 				p->client_info[to].limit_cb(*c_req);
+#ifndef CONFIG_MTK_ENABLE_GMO
 				delta = ktime_to_us(
 					ktime_sub(ktime_get(), now));
 				ppm_profile_update_client_exec_time(to, delta);
 				ppm_dbg(TIME_PROFILE,
 					"notify dvfs time = %lld us\n", delta);
+#endif
 				goto nofity_end;
 			} else if (notify_hps && !notify_dvfs) {
 				to = PPM_CLIENT_HOTPLUG;
@@ -786,7 +792,9 @@ int mt_ppm_main(void)
 					ppm_main_log_print(policy_mask,
 						ppm_main_info.min_power_budget,
 						c_req->root_cluster, buf);
+#ifndef CONFIG_MTK_ENABLE_GMO
 				now = ktime_get();
+#endif
 
 				if (!p->client_info[to].limit_cb) {
 					/* force update to HPS next time */
@@ -795,11 +803,13 @@ int mt_ppm_main(void)
 				}
 
 				ppm_main_info.client_info[to].limit_cb(*c_req);
+#ifndef CONFIG_MTK_ENABLE_GMO
 				delta = ktime_to_us(
 					ktime_sub(ktime_get(), now));
 				ppm_profile_update_client_exec_time(to, delta);
 				ppm_dbg(TIME_PROFILE,
 					"notify hps time = %lld us\n", delta);
+#endif
 				goto nofity_end;
 			}
 		}
@@ -809,17 +819,21 @@ int mt_ppm_main(void)
 
 		/* send request to client */
 		for_each_ppm_clients(i) {
+#ifndef CONFIG_MTK_ENABLE_GMO
 			now = ktime_get();
+#endif
 			if (ppm_main_info.client_info[i].limit_cb)
 				ppm_main_info.client_info[i].limit_cb(*c_req);
 			else if (i == PPM_CLIENT_HOTPLUG)
 				force_update_to_hps = 1;
+#ifndef CONFIG_MTK_ENABLE_GMO
 			delta = ktime_to_us(ktime_sub(ktime_get(), now));
 			ppm_profile_update_client_exec_time(i, delta);
 			ppm_dbg(TIME_PROFILE,
 				"%s callback done! time = %lld us\n",
 				(i == PPM_CLIENT_DVFS)
 				? "DVFS" : "HPS", delta);
+#endif
 		}
 
 nofity_end:
@@ -1193,4 +1207,3 @@ module_exit(ppm_main_exit);
 
 MODULE_DESCRIPTION("MediaTek PPM Driver v0.1");
 MODULE_LICENSE("GPL");
-

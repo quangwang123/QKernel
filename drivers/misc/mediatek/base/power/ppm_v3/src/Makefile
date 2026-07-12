@@ -33,7 +33,9 @@ obj-y += mtk_ppm_interface.o
 obj-y += mtk_ppm_api.o
 
 # for profiling
+ifneq ($(CONFIG_MTK_ENABLE_GMO),y)
 obj-y += mtk_ppm_profile.o
+endif
 
 # for IPI to SSPM
 obj-y += mtk_ppm_ipi.o
