@@ -14,11 +14,12 @@
 #define PROC_SENSOR_STAT "driver/imgsensor_status_info"
 
 #define IMGSENSOR_STATUS_INFO_LENGTH 128
+#ifndef CONFIG_MTK_ENABLE_GMO
 #define camera_info_size 4096
 
 extern char mtk_ccm_name[camera_info_size];
+#endif
 extern struct IMGSENSOR *pgimgsensor;
 
 enum IMGSENSOR_RETURN imgsensor_proc_init(void);
 #endif
-
