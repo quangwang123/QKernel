@@ -71,7 +71,9 @@ static INT32 flag;
 static INT32 bt_ftrace_flag;
 static bool btonflag = 0;
 UINT32 gBtDbgLevel = BT_LOG_INFO;
+#ifndef CONFIG_MTK_ENABLE_GMO
 struct bt_dbg_st g_bt_dbg_st;
+#endif
 #if (PM_QOS_CONTROL == 1)
 static struct pm_qos_request qos_req;
 static struct pm_qos_ctrl qos_ctrl;
@@ -92,9 +94,26 @@ static loff_t rd_offset;
 *                              F U N C T I O N S
 ********************************************************************************
 */
+#ifndef CONFIG_MTK_ENABLE_GMO
 extern int bt_dev_dbg_init(void);
 extern int bt_dev_dbg_deinit(void);
 extern int bt_dev_dbg_set_state(bool turn_on);
+#else
+static inline int bt_dev_dbg_init(void)
+{
+	return 0;
+}
+
+static inline int bt_dev_dbg_deinit(void)
+{
+	return 0;
+}
+
+static inline int bt_dev_dbg_set_state(bool turn_on)
+{
+	return 0;
+}
+#endif
 
 static INT32 ftrace_print(const PINT8 str, ...)
 {
@@ -541,10 +560,12 @@ ssize_t BT_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos
 			wait_event(BT_wq, flag != 0);
 			flag = 0;
 		} else {	/* Got something from STP driver */
+#ifndef CONFIG_MTK_ENABLE_GMO
 			// for bt_dbg user trx function
 			if (g_bt_dbg_st.trx_enable) {
 				g_bt_dbg_st.trx_cb(i_buf, retval);
 			}
+#endif
 			//BT_LOG_PRT_DBG("Read bytes %d\n", retval);
 			BT_LOG_PRT_DBG_RAW(i_buf, retval, "%s: len[%d], RX: ", __func__, retval);
 			break;
