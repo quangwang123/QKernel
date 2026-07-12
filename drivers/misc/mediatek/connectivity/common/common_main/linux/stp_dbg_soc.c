@@ -19,6 +19,7 @@
 #include "wmt_step.h"
 #include "wmt_lib.h"
 #include <linux/ratelimit.h>
+#include <linux/slab.h>
 #include <linux/vmalloc.h>
 
 #define STP_DBG_PAGED_TRACE_SIZE (2048*sizeof(char))
@@ -32,8 +33,6 @@
 #define ROM_V4_PATCH "ROMv4"
 
 ENUM_STP_FW_ISSUE_TYPE issue_type;
-UINT8 g_paged_trace_buffer[STP_DBG_PAGED_TRACE_SIZE] = { 0 };
-UINT32 g_paged_trace_len;
 UINT32 g_paged_dump_len;
 
 static PUINT8 soc_task_str[STP_DBG_TASK_ID_MAX] = {
@@ -132,11 +131,15 @@ static _osal_inline_ VOID stp_dbg_soc_emi_dump_buffer(UINT8 *buffer, UINT32 len)
 
 static _osal_inline_ INT32 stp_dbg_soc_put_emi_dump_to_nl(PUINT8 data_buf, INT32 dump_len)
 {
-	static UINT8  tmp[SUB_PKT_SIZE + NL_PKT_HEADER_LEN];
+	UINT8 *tmp;
 	INT32 remain = dump_len, index = 0;
 	INT32 ret = 0;
 	INT32 len;
 	INT32 offset = 0;
+
+	tmp = kmalloc(SUB_PKT_SIZE + NL_PKT_HEADER_LEN, GFP_KERNEL);
+	if (!tmp)
+		return -ENOMEM;
 
 	if (dump_len > 0) {
 		index = 0;
@@ -167,6 +170,7 @@ static _osal_inline_ INT32 stp_dbg_soc_put_emi_dump_to_nl(PUINT8 data_buf, INT32
 	} else
 		STP_DBG_pr_info("dump entry length is 0\n");
 
+	kfree(tmp);
 	return ret;
 }
 
@@ -428,6 +432,7 @@ paged_dump_end:
 
 static _osal_inline_ INT32 stp_dbg_soc_paged_trace(VOID)
 {
+	UINT8 *trace_buf;
 	INT32 ret = 0;
 	UINT32 ctrl_val = 0;
 	UINT32 loop_cnt1 = 0;
@@ -442,6 +447,9 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_trace(VOID)
 		STP_DBG_pr_info("get EMI info failed.\n");
 		return -1;
 	}
+	trace_buf = kmalloc(STP_DBG_PAGED_TRACE_SIZE, GFP_KERNEL);
+	if (!trace_buf)
+		return -ENOMEM;
 
 	do {
 		ctrl_val = 0;
@@ -465,7 +473,6 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_trace(VOID)
 
 		buffer_start = wmt_plat_get_dump_info(p_ecsi->p_ecso->emi_apmem_ctrl_chip_print_buff_start);
 		buffer_idx = wmt_plat_get_dump_info(p_ecsi->p_ecso->emi_apmem_ctrl_chip_print_buff_idx);
-		g_paged_trace_len = buffer_idx;
 		STP_DBG_pr_info("paged trace buffer addr(%08x),buffer_len(%d)\n", buffer_start,
 				buffer_idx);
 		dump_vir_addr = wmt_plat_get_emi_virt_add(buffer_start - p_ecsi->emi_phy_addr);
@@ -474,17 +481,18 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_trace(VOID)
 			ret = -2;
 			break;
 		}
-		osal_memcpy_fromio(&g_paged_trace_buffer[0], dump_vir_addr,
+		osal_memcpy_fromio(trace_buf, dump_vir_addr,
 				buffer_idx < STP_DBG_PAGED_TRACE_SIZE ? buffer_idx : STP_DBG_PAGED_TRACE_SIZE);
 		/*moving paged trace according to buffer_start & buffer_len */
 
 		dump_len =
 			buffer_idx < STP_DBG_PAGED_TRACE_SIZE ? buffer_idx : STP_DBG_PAGED_TRACE_SIZE;
 		pr_info("-- paged trace ascii output --");
-		stp_dbg_dump_log(&g_paged_trace_buffer[0], dump_len);
+		stp_dbg_dump_log(trace_buf, dump_len);
 		ret = 0;
 	} while (0);
 
+	kfree(trace_buf);
 	return ret;
 }
 
