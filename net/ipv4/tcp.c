@@ -3876,6 +3876,11 @@ void __init tcp_init(void)
 	inet_hashinfo2_init(&tcp_hashinfo, "tcp_listen_portaddr_hash",
 			    thash_entries, 21,  /* one slot per 2 MB*/
 			    0, 64 * 1024);
+#ifdef CONFIG_MTK_ENABLE_GMO
+	/* 8K buckets are ample for phones and keep both TCP hashes compact. */
+	if (!thash_entries)
+		thash_entries = 8192;
+#endif
 	tcp_hashinfo.bind_bucket_cachep =
 		kmem_cache_create("tcp_bind_bucket",
 				  sizeof(struct inet_bind_bucket), 0,
