@@ -13,7 +13,11 @@
 #include <linux/kmemleak.h>
 #include <linux/user_namespace.h>
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define UCOUNTS_HASHTABLE_BITS 9
+#else
 #define UCOUNTS_HASHTABLE_BITS 10
+#endif
 static struct hlist_head ucounts_hashtable[(1 << UCOUNTS_HASHTABLE_BITS)];
 static DEFINE_SPINLOCK(ucounts_lock);
 
