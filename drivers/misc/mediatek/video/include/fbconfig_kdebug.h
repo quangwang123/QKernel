@@ -10,8 +10,13 @@
 #include <linux/types.h>
 #include "ddp_ovl.h"
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline void PanelMaster_Init(void) { }
+static inline void PanelMaster_Deinit(void) { }
+#else
 void PanelMaster_Init(void);
 void PanelMaster_Deinit(void);
+#endif
 int fb_config_execute_cmd(void);
 int fbconfig_get_esd_check_exec(void);
 extern int m4u_query_mva_info(unsigned int mva, unsigned int size,
@@ -145,9 +150,18 @@ struct misc_property {
 	unsigned int reserved:26;
 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline void Panel_Master_DDIC_config(void) { }
+static inline int fbconfig_get_esd_check(enum DSI_INDEX dsi_id, uint32_t cmd,
+					uint8_t *buffer, uint32_t num)
+{
+	return 0;
+}
+#else
 void Panel_Master_DDIC_config(void);
 int fbconfig_get_esd_check(enum DSI_INDEX dsi_id, uint32_t cmd,
 						uint8_t *buffer, uint32_t num);
+#endif
 
 #include <linux/uaccess.h>
 #include <linux/compat.h>
