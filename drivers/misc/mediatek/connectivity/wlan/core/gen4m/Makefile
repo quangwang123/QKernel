@@ -62,7 +62,10 @@ WLAN_CHIP_ID=$(word 1, $(MTK_COMBO_CHIP))
 endif
 
 ccflags-y += -DCFG_SUPPORT_DEBUG_FS=0
+ifneq ($(CONFIG_MTK_ENABLE_GMO),y)
 ccflags-y += -DWLAN_INCLUDE_PROC
+GL_PROC_OBJ := $(OS_DIR)gl_proc.o
+endif
 ccflags-y += -DCFG_SUPPORT_AGPS_ASSIST=0
 ccflags-y += -DCFG_SUPPORT_TSF_USING_BOOTTIME=1
 ccflags-y += -DARP_MONITER_ENABLE=1
@@ -500,7 +503,7 @@ OS_OBJS := 	$(OS_DIR)gl_init.o \
 		$(OS_DIR)gl_hook_api.o \
 		$(OS_DIR)gl_rst.o \
 		$(OS_DIR)gl_cfg80211.o \
-		$(OS_DIR)gl_proc.o \
+		$(GL_PROC_OBJ) \
 		$(OS_DIR)gl_sys.o \
 		$(OS_DIR)gl_vendor.o \
 		$(OS_DIR)platform.o
