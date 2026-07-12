@@ -3263,6 +3263,12 @@ void __init mnt_init(void)
 	mnt_cache = kmem_cache_create("mnt_cache", sizeof(struct mount),
 			0, SLAB_HWCACHE_ALIGN | SLAB_PANIC, NULL);
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (!mhash_entries)
+		mhash_entries = 1024;
+	if (!mphash_entries)
+		mphash_entries = 1024;
+#endif
 	mount_hashtable = alloc_large_system_hash("Mount-cache",
 				sizeof(struct hlist_head),
 				mhash_entries, 19,
