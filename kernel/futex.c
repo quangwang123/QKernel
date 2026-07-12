@@ -3968,6 +3968,9 @@ static int __init futex_init(void)
 
 #if CONFIG_BASE_SMALL
 	futex_hashsize = 16;
+#elif defined(CONFIG_MTK_ENABLE_GMO)
+	/* Keep ample lock parallelism without overallocating on low-RAM phones. */
+	futex_hashsize = 1024;
 #else
 	futex_hashsize = roundup_pow_of_two(256 * num_possible_cpus());
 #endif
