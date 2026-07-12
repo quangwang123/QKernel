@@ -739,7 +739,11 @@ int pr_detect_count;
 #define ENABLE_KEEP_ION_HANDLE
 
 #ifdef ENABLE_KEEP_ION_HANDLE
-#define _ion_keep_max_   (64)/*32*/
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define _ion_keep_max_   (32)
+#else
+#define _ion_keep_max_   (64)
+#endif
 #include "ion_drv.h" /*g_ion_device*/
 static struct ion_client *pIon_client;
 static signed int G_WRDMA_IonCt[2][_dma_max_wr_*_ion_keep_max_] = { {0}, {0} };
