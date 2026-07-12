@@ -58,6 +58,42 @@ static FUNCTION_STATUS sys_check_function_status;
 /* INT32                g_block_tx = 0; */
 static mtkstp_context_struct stp_core_ctx = { 0 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#ifdef CONFIG_MTK_FMRADIO
+#define STP_UNUSED_FM_QUEUE 0
+#else
+#define STP_UNUSED_FM_QUEUE 1
+#endif
+#ifdef CONFIG_MTK_COMBO_ANT
+#define STP_UNUSED_ANT_QUEUE 0
+#else
+#define STP_UNUSED_ANT_QUEUE 1
+#endif
+#define STP_RX_QUEUE_COUNT (MTKSTP_MAX_TASK_NUM - 1 - \
+	STP_UNUSED_FM_QUEUE - STP_UNUSED_ANT_QUEUE)
+static UINT8 stp_rx_queues[STP_RX_QUEUE_COUNT][MTKSTP_BUFFER_SIZE];
+
+static void stp_init_rx_queue_buffers(void)
+{
+	int queue = 0;
+	int type;
+
+	for (type = 0; type < MTKSTP_MAX_TASK_NUM; type++) {
+		if (type == STP_TASK_INDX)
+			continue;
+#ifndef CONFIG_MTK_FMRADIO
+		if (type == FM_TASK_INDX)
+			continue;
+#endif
+#ifndef CONFIG_MTK_COMBO_ANT
+		if (type == ANT_TASK_INDX)
+			continue;
+#endif
+		stp_core_ctx.ring[type].buffer = stp_rx_queues[queue++];
+	}
+}
+#endif
+
 #define STP_PSM_CORE(x)           ((x).psm)
 #define STP_SET_PSM_CORE(x, v)     ((x).psm = (v))
 
@@ -961,6 +997,10 @@ static INT32 stp_add_to_rx_queue(UINT8 *buffer, UINT32 length, UINT8 type)
 {
 	UINT32 roomLeft, last_len;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (unlikely(!stp_core_ctx.ring[type].buffer))
+		return -1;
+#endif
 	osal_lock_unsleepable_lock(&stp_core_ctx.ring[type].mtx);
 
 	if (stp_core_ctx.ring[type].read_p <= stp_core_ctx.ring[type].write_p)
@@ -1499,6 +1539,9 @@ INT32 mtk_wcn_stp_init(const mtkstp_callback * const cb_func)
 	INT32 ret = 0;
 	INT32 i = 0;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	stp_init_rx_queue_buffers();
+#endif
 	/* Function pointer to point to the currently used transmission interface
 	 */
 	sys_if_tx = cb_func->cb_if_tx;
@@ -2843,6 +2886,10 @@ INT32 mtk_wcn_stp_receive_data(PUINT8 buffer, UINT32 length, UINT8 type)
 	UINT16 copyLen = 0;
 	UINT16 tailLen = 0;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (unlikely(!stp_core_ctx.ring[type].buffer))
+		return 0;
+#endif
 	osal_ftrace_print("%s|S|T|%d|L|%d\n", __func__, type, length);
 	osal_lock_unsleepable_lock(&stp_core_ctx.ring[type].mtx);
 	while (stp_core_ctx.ring[type].read_p != stp_core_ctx.ring[type].write_p) {
@@ -2917,6 +2964,10 @@ INT32 mtk_wcn_stp_is_rxqueue_empty(UINT8 type)
 {
 	INT32 ret;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (unlikely(!stp_core_ctx.ring[type].buffer))
+		return 1;
+#endif
 	osal_lock_unsleepable_lock(&stp_core_ctx.ring[type].mtx);
 
 	if (stp_core_ctx.ring[type].read_p == stp_core_ctx.ring[type].write_p)
