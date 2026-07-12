@@ -21,6 +21,71 @@
 #include <linux/rtc.h>
 #include "ccci_util_log.h"
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+
+int ccci_log_write(const char *fmt, ...)
+{
+	return 0;
+}
+
+int ccci_log_write_raw(unsigned int set_flags, const char *fmt, ...)
+{
+	return 0;
+}
+
+int ccci_dump_write(int md_id, int buf_type,
+	unsigned int flag, const char *fmt, ...)
+{
+	return 0;
+}
+EXPORT_SYMBOL(ccci_dump_write);
+
+int get_dump_buf_usage(char buf[], int size)
+{
+	return 0;
+}
+
+void ccci_util_mem_dump(int md_id, int buf_type, void *start_addr, int len)
+{
+}
+EXPORT_SYMBOL(ccci_util_mem_dump);
+
+void ccci_util_cmpt_mem_dump(int md_id, int buf_type,
+	void *start_addr, int len)
+{
+}
+
+int ccci_event_log(const char *fmt, ...)
+{
+	return 0;
+}
+EXPORT_SYMBOL(ccci_event_log);
+
+int ccci_event_log_cpy(char buf[], int size)
+{
+	return 0;
+}
+
+void ccci_log_init(void)
+{
+}
+
+void get_ccci_aee_buffer(unsigned long *vaddr, unsigned long *size)
+{
+	*vaddr = 0;
+	*size = 0;
+}
+EXPORT_SYMBOL(get_ccci_aee_buffer);
+
+void get_md_aee_buffer(unsigned long *vaddr, unsigned long *size)
+{
+	*vaddr = 0;
+	*size = 0;
+}
+EXPORT_SYMBOL(get_md_aee_buffer);
+
+#else
+
 /******************************************************************************/
 /* Ring buffer part, this type log is block read, used for temp debug purpose */
 /******************************************************************************/
@@ -1210,3 +1275,5 @@ void get_md_aee_buffer(unsigned long *vaddr, unsigned long *size)
 
 }
 EXPORT_SYMBOL(get_md_aee_buffer);
+
+#endif /* CONFIG_MTK_ENABLE_GMO */
