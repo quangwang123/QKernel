@@ -102,7 +102,11 @@ static inline struct hlist_bl_head *d_hash(unsigned int hash)
 	return dentry_hashtable + (hash >> d_hash_shift);
 }
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define IN_LOOKUP_SHIFT 9
+#else
 #define IN_LOOKUP_SHIFT 10
+#endif
 static struct hlist_bl_head in_lookup_hashtable[1 << IN_LOOKUP_SHIFT];
 
 static inline struct hlist_bl_head *in_lookup_hash(const struct dentry *parent,
