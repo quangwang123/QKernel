@@ -173,10 +173,12 @@ static void delay_init_timerhandler(struct timer_list *t);
 static struct timer_list micbias_timer;
 static void dis_micbias_timerhandler(struct timer_list *t);
 static bool dis_micbias_done;
+#ifndef CONFIG_MTK_ENABLE_GMO
 static char accdet_log_buf[1280];
 static bool debug_thread_en;
 static bool dump_reg;
 static struct task_struct *thread;
+#endif
 
 static u32 button_press_debounce = 0x400;
 
@@ -235,6 +237,7 @@ inline void accdet_clear_bit(u32 addr, u32 shift)
 	regmap_update_bits(accdet->regmap, addr, BIT(mask), 0);
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static void dump_register(void)
 {
 	int addr = 0, st_addr = 0, end_addr = 0, idx = 0;
@@ -452,6 +455,7 @@ static ssize_t dump_reg_store(struct device_driver *ddri,
 
 	return count;
 }
+#endif
 
 static ssize_t set_headset_mode_store(struct device_driver *ddri,
 	const char *buf, size_t count)
@@ -510,16 +514,20 @@ static ssize_t state_show(struct device_driver *ddri, char *buf)
 	return strlen(buf);
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static DRIVER_ATTR_WO(start_debug);
 static DRIVER_ATTR_WO(set_reg);
 static DRIVER_ATTR_RW(dump_reg);
+#endif
 static DRIVER_ATTR_WO(set_headset_mode);
 static DRIVER_ATTR_RO(state);
 
 static struct driver_attribute *accdet_attr_list[] = {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	&driver_attr_start_debug,
 	&driver_attr_set_reg,
 	&driver_attr_dump_reg,
+#endif
 	&driver_attr_set_headset_mode,
 	&driver_attr_state,
 };
