@@ -310,7 +310,7 @@ static _osal_inline_ INT32 stp_dbg_soc_paged_dump(INT32 dump_sink)
 		if (dump_len < 0)
 			dump_len = 0;
 		if (dump_len > STP_DBG_PAGED_DUMP_BUFFER_SIZE) {
-			STP_DBG_pr_info("dump len is over than 32K(%d)\n",
+			STP_DBG_pr_no_info("dump len is over than 32K(%d)\n",
 					dump_len);
 			ret = -EOVERFLOW;
 			abort = 1;
