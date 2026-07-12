@@ -219,8 +219,6 @@ static void mcdi_idle_state_setting(unsigned long idx, unsigned long enable)
 }
 
 /* debugfs */
-static char cmd_buf[512] = { 0 };
-
 /* mcdi_state */
 static ssize_t mcdi_state_read(struct file *filp,
 		char __user *userbuf, size_t count, loff_t *f_pos)
@@ -294,6 +292,7 @@ static ssize_t mcdi_state_write(struct file *filp,
 {
 	int ret = 0;
 	unsigned long param = 0;
+	char cmd_buf[512];
 	char *cmd_ptr = cmd_buf;
 	char *cmd_str = NULL;
 	char *param_str = NULL;
@@ -436,6 +435,7 @@ static ssize_t mcdi_info_write(struct file *filp,
 	unsigned long param_1 = 0;
 	unsigned long param_2 = 0;
 	unsigned long param_cnt = 1;
+	char cmd_buf[512];
 	char *cmd_ptr = cmd_buf;
 	char *cmd_str = NULL;
 	char *param_0_str = NULL;
