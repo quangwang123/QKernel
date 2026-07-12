@@ -9,7 +9,9 @@
 typedef int (*conn_md_dev_dbg_func) (int par1, int par2, int par3);
 
 extern int conn_md_dbg_init(void);
+#ifndef CONFIG_MTK_ENABLE_GMO
 extern int conn_md_test(void);
+#endif
 ssize_t conn_md_dbg_read(struct file *filp, char __user *buf,
 			size_t count, loff_t *f_pos);
 ssize_t conn_md_dbg_write(struct file *filp, const char __user *buf,
