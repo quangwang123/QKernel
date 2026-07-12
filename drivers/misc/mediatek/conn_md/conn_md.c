@@ -565,11 +565,13 @@ static int __init conn_md_init(void)
 	p_user_list->counter = 0;
 	CONN_MD_INFO_FUNC("init user information list succeed\n");
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	g_conn_md.p_msg_dmp_sys = conn_md_dmp_init();
 	if (g_conn_md.p_msg_dmp_sys == NULL)
 		CONN_MD_WARN_FUNC("conn_md_dmp_init failed\n");
 	else
 		CONN_MD_INFO_FUNC("conn_md_dmp_init succeed\n");
+#endif
 	/*init proc interface */
 	conn_md_dbg_init();
 
