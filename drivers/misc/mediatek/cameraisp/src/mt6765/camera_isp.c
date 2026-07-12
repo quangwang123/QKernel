@@ -860,12 +860,14 @@ struct ISP_IRQ_INFO_STRUCT {
 	/* flag for indicating that user do mark for a interrupt or not */
 	unsigned int    MarkedFlag[ISP_IRQ_TYPE_AMOUNT][ISP_IRQ_ST_AMOUNT]
 				[IRQ_USER_NUM_MAX];
+#ifndef CONFIG_MTK_ENABLE_GMO
 	/* time for marking a specific interrupt */
 	unsigned int    MarkedTime_sec[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
 	/* time for marking a specific interrupt */
 	unsigned int    MarkedTime_usec[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
+#endif
 	/* number of a specific signal that passed by */
 	signed int     PassedBySigCnt[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
@@ -6367,8 +6369,10 @@ static signed int ISP_MARK_IRQ(struct ISP_WAIT_IRQ_STRUCT *irqinfo)
 	unsigned long flags;
 	unsigned int idx = my_get_pow_idx(irqinfo->EventInfo.Status);
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	unsigned long long  sec = 0;
 	unsigned long       usec = 0;
+#endif
 
 	if (irqinfo->Type >= ISP_IRQ_TYPE_AMOUNT ||
 	    irqinfo->Type < 0) {
@@ -6399,7 +6403,8 @@ static signed int ISP_MARK_IRQ(struct ISP_WAIT_IRQ_STRUCT *irqinfo)
 		spin_unlock_irqrestore(
 			&(IspInfo.SpinLockIrq[irqinfo->Type]), flags);
 
-		/* 2. record mark time */
+		/* 2. record mark time for the legacy timing query */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		sec = cpu_clock(0);     /* ns */
 		do_div(sec, 1000);    /* usec */
 		usec = do_div(sec, 1000000);    /* sec and usec */
@@ -6411,6 +6416,7 @@ static signed int ISP_MARK_IRQ(struct ISP_WAIT_IRQ_STRUCT *irqinfo)
 			[irqinfo->EventInfo.UserKey] = (unsigned int)sec;
 		spin_unlock_irqrestore(
 			&(IspInfo.SpinLockIrq[irqinfo->Type]), flags);
+#endif
 
 		/* 3. clear passed by signal count */
 		spin_lock_irqsave(&(IspInfo.SpinLockIrq[irqinfo->Type]), flags);
@@ -6419,9 +6425,11 @@ static signed int ISP_MARK_IRQ(struct ISP_WAIT_IRQ_STRUCT *irqinfo)
 		spin_unlock_irqrestore(&(IspInfo.SpinLockIrq[irqinfo->Type]),
 					flags);
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 		pr_debug("[MARK]  key/type/sts/idx (%d/%d/0x%x/%d), t(%d/%d)\n",
 		irqinfo->EventInfo.UserKey, irqinfo->Type,
 		irqinfo->EventInfo.Status, idx, (int)sec, (int)usec);
+#endif
 
 	} else {
 		pr_err("Not support DMA interrupt type(%d), Only support signal interrupt!!!",
@@ -6944,10 +6952,12 @@ EXIT:
 					  [WaitIrq->EventInfo.St_type]
 					  [WaitIrq->EventInfo.UserKey] &=
 						(~WaitIrq->EventInfo.Status);
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.MarkedTime_usec[WaitIrq->Type][idx]
 					      [WaitIrq->EventInfo.UserKey] = 0;
 		IspInfo.IrqInfo.MarkedTime_sec[WaitIrq->Type][idx]
 					      [WaitIrq->EventInfo.UserKey] = 0;
+#endif
 		IspInfo.IrqInfo.PassedBySigCnt[WaitIrq->Type][idx]
 					      [WaitIrq->EventInfo.UserKey] = 0;
 	}
@@ -9500,10 +9510,12 @@ pr_info("- E. register IRQ: done\n");
 				IspInfo.IrqInfo.Status[i][j][q] = 0;
 				IspInfo.IrqInfo.MarkedFlag[i][j][q] = 0;
 				for (p = 0; p < 32; p++) {
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.
 					    MarkedTime_sec[i][p][q] = 0;
 					IspInfo.IrqInfo.
 					    MarkedTime_usec[i][p][q] = 0;
+#endif
 					IspInfo.IrqInfo.
 					    PassedBySigCnt[i][p][q] = 0;
 					IspInfo.IrqInfo.
