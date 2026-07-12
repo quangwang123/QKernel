@@ -22,7 +22,11 @@ module_param(slmk_minfree, short, 0644);
 #define MIN_FREE_PAGES (slmk_minfree * SZ_1M / PAGE_SIZE)
 
 /* Kill up to this many victims per reclaim */
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define MAX_VICTIMS 256
+#else
 #define MAX_VICTIMS 1024
+#endif
 
 /* Timeout in jiffies for each reclaim */
 static unsigned short slmk_timeout __read_mostly = CONFIG_ANDROID_SIMPLE_LMK_TIMEOUT_MSEC;
