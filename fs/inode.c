@@ -1950,6 +1950,10 @@ void __init inode_init_early(void)
 	if (hashdist)
 		return;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (!ihash_entries)
+		ihash_entries = 32 * 1024;
+#endif
 	inode_hashtable =
 		alloc_large_system_hash("Inode-cache",
 					sizeof(struct hlist_head),
@@ -1976,6 +1980,10 @@ void __init inode_init(void)
 	if (!hashdist)
 		return;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	if (!ihash_entries)
+		ihash_entries = 32 * 1024;
+#endif
 	inode_hashtable =
 		alloc_large_system_hash("Inode-cache",
 					sizeof(struct hlist_head),
