@@ -1021,7 +1021,11 @@ static struct SV_LOG_STR gSvLog[ISP_IRQ_TYPE_AMOUNT];
 	usec = do_div(sec, 1000000);\
 }
 
-#if 1
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define IRQ_LOG_KEEPER(irq, ppb, logT, fmt, args...) do { } while (0)
+#define IRQ_LOG_KEEPER_PR_ERR(irq, ppb, logT, fmt, args...) \
+	pr_err_ratelimited(fmt, ##args)
+#elif 1
 #define IRQ_LOG_KEEPER(irq_in, ppb_in, logT_in, fmt, ...) do {\
 	char *ptr; \
 	char *pDes;\
@@ -1188,7 +1192,10 @@ static struct SV_LOG_STR gSvLog[ISP_IRQ_TYPE_AMOUNT];
 		pr_err(IRQTag fmt,  ##args)
 #endif
 
-#if 1
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define IRQ_LOG_PRINTER(irq, ppb, logT) do { } while (0)
+#define IRQ_LOG_PRINTER_PR_ERR(irq, ppb, logT) do { } while (0)
+#elif 1
 #define IRQ_LOG_PRINTER(irq, ppb_in, logT_in) do {\
 	struct SV_LOG_STR *pSrc = &gSvLog[irq];\
 	char *ptr;\
@@ -11429,6 +11436,7 @@ static signed int __init ISP_Init(void)
 
 
 	/* isr log */
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (PAGE_SIZE < ((ISP_IRQ_TYPE_AMOUNT * NORMAL_STR_LEN *
 	   ((DBG_PAGE + INF_PAGE + ERR_PAGE) + 1))*LOG_PPNUM)) {
 		i = 0;
@@ -11461,6 +11469,7 @@ static signed int __init ISP_Init(void)
 		/* log buffer ,in case of overflow */
 		tmp = (void *)((char *)tmp + NORMAL_STR_LEN);
 	}
+#endif
 	/* mark the pages reserved , FOR MMAP*/
 	for (j = 0; j < ISP_IRQ_TYPE_AMOUNT; j++) {
 		if (pTbl_RTBuf[j] != NULL) {
