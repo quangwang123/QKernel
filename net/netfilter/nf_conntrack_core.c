@@ -2291,6 +2291,10 @@ int nf_conntrack_init_start(void)
 			nf_conntrack_htable_size = 65536;
 		else if (totalram_pages > (1024 * 1024 * 1024 / PAGE_SIZE))
 			nf_conntrack_htable_size = 16384;
+#ifdef CONFIG_MTK_ENABLE_GMO
+		/* Bound permanent and worst-case conntrack memory on low-RAM SoCs. */
+		nf_conntrack_htable_size = min(nf_conntrack_htable_size, 8192U);
+#endif
 		if (nf_conntrack_htable_size < 32)
 			nf_conntrack_htable_size = 32;
 
