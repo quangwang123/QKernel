@@ -229,7 +229,11 @@ static struct rb_root *root_unstable_tree = one_unstable_tree;
 static LIST_HEAD(migrate_nodes);
 #define STABLE_NODE_DUP_HEAD ((struct list_head *)&migrate_nodes.prev)
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define MM_SLOTS_HASH_BITS 8
+#else
 #define MM_SLOTS_HASH_BITS 10
+#endif
 static DEFINE_HASHTABLE(mm_slots_hash, MM_SLOTS_HASH_BITS);
 
 static struct mm_slot ksm_mm_head = {
