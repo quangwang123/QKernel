@@ -2921,6 +2921,11 @@ void __init udp_table_init(struct udp_table *table, const char *name)
 {
 	unsigned int i;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	/* Keep the automatic UDP hashes proportional to phone workloads. */
+	if (!uhash_entries)
+		uhash_entries = 512;
+#endif
 	table->hash = alloc_large_system_hash(name,
 					      2 * sizeof(struct udp_hslot),
 					      uhash_entries,
