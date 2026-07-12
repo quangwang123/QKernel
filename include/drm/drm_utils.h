@@ -10,6 +10,13 @@
 #ifndef __DRM_UTILS_H__
 #define __DRM_UTILS_H__
 
+#if IS_ENABLED(CONFIG_DRM_PANEL_ORIENTATION_QUIRKS)
 int drm_get_panel_orientation_quirk(int width, int height);
+#else
+static inline int drm_get_panel_orientation_quirk(int width, int height)
+{
+	return 0;
+}
+#endif
 
 #endif
