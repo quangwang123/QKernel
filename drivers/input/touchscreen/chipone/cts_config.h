@@ -55,7 +55,7 @@
     #define CFG_CTS_FIRMWARE_FILEPATH       "/vendor/firmware/chipone-tddi-truly.bin"
 #endif /* CFG_CTS_FIRMWARE_IN_FS */
 
-#ifdef CONFIG_PROC_FS
+#if defined(CONFIG_PROC_FS) && !defined(CONFIG_MTK_ENABLE_GMO)
     /* Proc FS for backward compatibility for APK tool com.ICN85xx */
     #define CONFIG_CTS_LEGACY_TOOL
 #endif /* CONFIG_PROC_FS */
@@ -146,4 +146,3 @@
 #include "cts_plat_mtk_config.h"
 
 #endif /* CTS_CONFIG_H */
-
