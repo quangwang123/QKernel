@@ -1093,7 +1093,11 @@
  */
 #define CFG_SUPPORT_SNIFFER                 1
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define WLAN_INCLUDE_PROC                   0
+#else
 #define WLAN_INCLUDE_PROC                   1
+#endif
 
 #if CFG_TC10_FEATURE
 #define WLAN_INCLUDE_SYS                   1
