@@ -296,7 +296,11 @@ static int ksm_nr_node_ids = 1;
 #define KSM_RUN_MERGE	1
 #define KSM_RUN_UNMERGE	2
 #define KSM_RUN_OFFLINE	4
+#ifdef CONFIG_MTK_ENABLE_GMO
+static unsigned long ksm_run = KSM_RUN_MERGE;
+#else
 static unsigned long ksm_run = KSM_RUN_STOP;
+#endif
 static void wait_while_offlining(void);
 
 static DECLARE_WAIT_QUEUE_HEAD(ksm_thread_wait);
@@ -3152,8 +3156,8 @@ static int __init ksm_init(void)
 
 	/* The correct value depends on page size and endianness */
 	zero_checksum = calc_checksum(ZERO_PAGE(0));
-	/* Default to false for backwards compatibility */
-	ksm_use_zero_pages = false;
+	/* Share empty mergeable pages directly on memory-constrained systems. */
+	ksm_use_zero_pages = IS_ENABLED(CONFIG_MTK_ENABLE_GMO);
 
 	err = ksm_slab_init();
 	if (err)
