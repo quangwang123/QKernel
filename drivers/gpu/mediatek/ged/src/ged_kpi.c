@@ -204,7 +204,11 @@ struct GED_KPI_GPU_TS {
 	struct dma_fence *psSyncFence;
 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define GED_KPI_TOTAL_ITEMS 32
+#else
 #define GED_KPI_TOTAL_ITEMS 64
+#endif
 #define GED_KPI_UID(pid, wnd) (pid | ((unsigned long)wnd))
 #define SCREEN_IDLE_PERIOD 500000000
 
