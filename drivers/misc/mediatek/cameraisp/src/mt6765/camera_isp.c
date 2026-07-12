@@ -868,9 +868,11 @@ struct ISP_IRQ_INFO_STRUCT {
 	unsigned int    MarkedTime_usec[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 	/* number of a specific signal that passed by */
 	signed int     PassedBySigCnt[ISP_IRQ_TYPE_AMOUNT][32]
 				[IRQ_USER_NUM_MAX];
+#endif
 	/* */
 	unsigned int    LastestSigTime_sec[ISP_IRQ_TYPE_AMOUNT][32];
 	/* latest time for each interrupt */
@@ -6419,11 +6421,13 @@ static signed int ISP_MARK_IRQ(struct ISP_WAIT_IRQ_STRUCT *irqinfo)
 #endif
 
 		/* 3. clear passed by signal count */
+#ifndef CONFIG_MTK_ENABLE_GMO
 		spin_lock_irqsave(&(IspInfo.SpinLockIrq[irqinfo->Type]), flags);
 		IspInfo.IrqInfo.PassedBySigCnt[irqinfo->Type][idx]
 					      [irqinfo->EventInfo.UserKey] = 0;
 		spin_unlock_irqrestore(&(IspInfo.SpinLockIrq[irqinfo->Type]),
 					flags);
+#endif
 
 #ifndef CONFIG_MTK_ENABLE_GMO
 		pr_debug("[MARK]  key/type/sts/idx (%d/%d/0x%x/%d), t(%d/%d)\n",
@@ -6958,8 +6962,10 @@ EXIT:
 		IspInfo.IrqInfo.MarkedTime_sec[WaitIrq->Type][idx]
 					      [WaitIrq->EventInfo.UserKey] = 0;
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 		IspInfo.IrqInfo.PassedBySigCnt[WaitIrq->Type][idx]
 					      [WaitIrq->EventInfo.UserKey] = 0;
+#endif
 	}
 	spin_unlock_irqrestore(&(IspInfo.SpinLockIrq[WaitIrq->Type]), flags);
 
@@ -9516,8 +9522,10 @@ pr_info("- E. register IRQ: done\n");
 					IspInfo.IrqInfo.
 					    MarkedTime_usec[i][p][q] = 0;
 #endif
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.
 					    PassedBySigCnt[i][p][q] = 0;
+#endif
 					IspInfo.IrqInfo.
 					    LastestSigTime_sec[i][p] = 0;
 					IspInfo.IrqInfo.
@@ -13001,8 +13009,10 @@ irqreturn_t ISP_Irq_CAMSV_0(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -13226,8 +13236,10 @@ irqreturn_t ISP_Irq_CAMSV_1(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -13452,8 +13464,10 @@ irqreturn_t ISP_Irq_CAMSV_2(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -13676,8 +13690,10 @@ irqreturn_t ISP_Irq_CAMSV_3(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -13900,8 +13916,10 @@ irqreturn_t ISP_Irq_CAMSV_4(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -14125,8 +14143,10 @@ irqreturn_t ISP_Irq_CAMSV_5(signed int  Irq, void *DeviceId)
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -14731,8 +14751,10 @@ LB_CAMA_SOF_IGNORE:
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
 						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
@@ -15354,9 +15376,11 @@ LB_CAMB_SOF_IGNORE:
 					    (unsigned int) time_frmb.tv_usec;
 					IspInfo.IrqInfo.LastestSigTime_sec
 					    [module][cnt] =
-					    (unsigned int) time_frmb.tv_sec;
+						(unsigned int) time_frmb.tv_sec;
+#ifndef CONFIG_MTK_ENABLE_GMO
 					IspInfo.IrqInfo.PassedBySigCnt
 					    [module][cnt][i]++;
+#endif
 				}
 				tmp = tmp >> 1;
 				cnt++;
