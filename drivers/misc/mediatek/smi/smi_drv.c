@@ -88,6 +88,7 @@ struct smi_driver_t {
 	s32			table[SMI_BWC_SCEN_CNT];
 };
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 struct smi_record_t {
 	/* clk from api */
 	char user[NAME_MAX];
@@ -98,6 +99,7 @@ struct smi_record_t {
 	u64 sec;
 	u32 nsec;
 };
+#endif
 
 struct smi_dram_t {
 	u8		dump;
@@ -108,7 +110,9 @@ struct smi_dram_t {
 };
 
 static struct smi_driver_t	smi_drv;
+#ifndef CONFIG_MTK_ENABLE_GMO
 static struct smi_record_t	smi_record[SMI_LARB_NUM][2];
+#endif
 static struct smi_dram_t	smi_dram;
 
 static struct mtk_smi_dev	*smi_dev[SMI_DEV_NUM];
@@ -122,6 +126,7 @@ bool smi_mm_first_get(void)
 }
 EXPORT_SYMBOL_GPL(smi_mm_first_get);
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static void smi_clk_record(const u32 id, const bool en, const char *user)
 {
 	struct smi_record_t *record;
@@ -145,6 +150,12 @@ static void smi_clk_record(const u32 id, const bool en, const char *user)
 		atomic_set(&(smi_record[id][en ? 0 : 1].on), en ? 1 : 0);
 	}
 }
+#else
+static inline void smi_clk_record(const u32 id, const bool en,
+				  const char *user)
+{
+}
+#endif
 
 static inline s32 smi_unit_prepare_enable(const u32 id)
 {
@@ -451,7 +462,7 @@ static s32 smi_debug_dumper(const bool gce, const bool off, const u32 id)
 
 static void smi_debug_dump_status(const bool gce)
 {
-	s32 on, i;
+	s32 i;
 
 	for (i = 0; i <= SMI_DEV_NUM; i++)
 		smi_debug_dumper(gce, false, i);
@@ -460,7 +471,10 @@ static void smi_debug_dump_status(const bool gce)
 		smi_bwc_scen_name_get(smi_drv.scen),
 		smi_drv.scen, smi_scen_map[smi_drv.scen]);
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	for (i = 0; i < SMI_LARB_NUM; i++) {
+		s32 on;
+
 		on = atomic_read(&(smi_record[i][0].on));
 		SMIWRN(gce,
 			"LARB%u:[%cON][%5llu.%6u][%16s]/[%cOFF][%5llu.%6u][%16s]\n",
@@ -469,6 +483,7 @@ static void smi_debug_dump_status(const bool gce)
 			on ? ' ' : '*', smi_record[i][0].sec,
 			smi_record[i][0].nsec, smi_record[i][0].user);
 	}
+#endif
 }
 
 s32 smi_debug_bus_hang_detect(const bool gce, const char *user)
@@ -1089,7 +1104,9 @@ s32 smi_register(void)
 	spin_lock_init(&(smi_drv.lock));
 	smi_drv.scen = SMI_BWC_SCEN_NORMAL;
 	memset(&smi_drv.table, 0, sizeof(smi_drv.table));
+#ifndef CONFIG_MTK_ENABLE_GMO
 	memset(&smi_record, 0, sizeof(smi_record));
+#endif
 	smi_drv.table[smi_drv.scen] += 1;
 
 	/* mmsys */
