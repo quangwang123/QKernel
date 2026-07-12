@@ -17,7 +17,7 @@ static struct sspm_reserve_mblock mt6765_sspm_reserve_mblock[NUMS_MEM_ID] = {
 	{
 		.num = SSPM_MEM_ID,
 		.size = 0x400 + SSPM_PLT_LOGGER_BUF_LEN,
-		/* logger header + 1M log buffer */
+		/* logger header + platform-sized log buffer */
 	},
 	{
 		.num = PWRAP_MEM_ID,
@@ -39,8 +39,7 @@ static struct sspm_reserve_mblock mt6765_sspm_reserve_mblock[NUMS_MEM_ID] = {
 		.num = SWPM_MEM_ID,
 		.size = 0xC00,  /* 3K */
 	},
-	/* TO align 64K, total is 1M+64K. The remaining size = 0xB900. */
+	/* Total allocation is rounded up to 64K in the device tree. */
 };
 #endif
 #endif
-

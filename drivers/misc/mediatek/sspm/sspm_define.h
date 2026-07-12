@@ -26,7 +26,11 @@
 #define PLT_INIT            0x504C5401
 #define PLT_LOG_ENABLE      0x504C5402
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define SSPM_PLT_LOGGER_BUF_LEN    0x4000
+#else
 #define SSPM_PLT_LOGGER_BUF_LEN    0x100000
+#endif
 
 struct plt_ipi_data_s {
 	unsigned int cmd;

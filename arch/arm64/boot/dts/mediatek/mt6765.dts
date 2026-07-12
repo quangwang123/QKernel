@@ -499,7 +499,11 @@ firmware_class.path=/vendor/firmware";
 			compatible = "mediatek,reserve-memory-sspm_share";
 			no-map;
 			status = "okay";
+		#ifdef CONFIG_MTK_ENABLE_GMO
+			size = <0 0x10000>;
+		#else
 			size = <0 0x110000>; /* 1M + 64K */
+		#endif
 			alignment = <0 0x10000>;
 			alloc-ranges = <0 0x40000000 0 0x60000000>;
 		};
