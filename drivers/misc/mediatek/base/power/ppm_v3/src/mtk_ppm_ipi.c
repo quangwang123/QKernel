@@ -14,14 +14,18 @@ static int ppm_ipi_to_sspm_command(unsigned char cmd,
 	struct ppm_ipi_data *data)
 {
 	int ack_data = 0, ret = 0, i, opt;
+#ifndef CONFIG_MTK_ENABLE_GMO
 	ktime_t now;
 	unsigned long long delta;
+#endif
 
 	BUILD_BUG_ON(sizeof(struct ppm_ipi_data) != PPM_D_LEN * sizeof(int));
 
 	ppm_dbg(IPI, "@%s: cmd=0x%x\n", __func__, cmd);
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	now = ktime_get();
+#endif
 
 	opt = IPI_OPT_POLLING;
 
@@ -105,8 +109,10 @@ static int ppm_ipi_to_sspm_command(unsigned char cmd,
 		return -1;
 	}
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	delta = ktime_to_us(ktime_sub(ktime_get(), now));
 	ppm_profile_update_ipi_exec_time(cmd, delta);
+#endif
 
 	return ret;
 }
@@ -160,4 +166,3 @@ void ppm_ipi_ptpod_test(unsigned int activate)
 	ppm_ipi_to_sspm_command(PPM_IPI_PTPOD_TEST, &data);
 }
 #endif
-

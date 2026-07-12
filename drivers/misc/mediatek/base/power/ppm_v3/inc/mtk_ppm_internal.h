@@ -295,12 +295,23 @@ extern int ppm_main_register_policy(struct ppm_policy_data *policy);
 extern void ppm_main_unregister_policy(struct ppm_policy_data *policy);
 
 /* profiling */
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline int ppm_profile_init(void) { return 0; }
+static inline void ppm_profile_exit(void) { }
+static inline void ppm_profile_update_client_exec_time(
+	enum ppm_client client, unsigned long long time) { }
+#ifdef PPM_SSPM_SUPPORT
+static inline void ppm_profile_update_ipi_exec_time(
+	int id, unsigned long long time) { }
+#endif
+#else
 extern int ppm_profile_init(void);
 extern void ppm_profile_exit(void);
 extern void ppm_profile_update_client_exec_time(
 	enum ppm_client client, unsigned long long time);
 #ifdef PPM_SSPM_SUPPORT
 extern void ppm_profile_update_ipi_exec_time(int id, unsigned long long time);
+#endif
 #endif
 
 /* SRAM debugging */
@@ -358,4 +369,3 @@ static inline int arch_get_nr_clusters(void)
 #endif
 
 #endif
-
