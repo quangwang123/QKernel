@@ -529,6 +529,10 @@ static void scp_prepare_aed_dump(char *aed_str,
 
 	/*prepare scp A db file*/
 	memory_dump_size = 0;
+#ifdef CONFIG_MTK_ENABLE_GMO
+	/* The low-RAM build reuses the published buffer as dump workspace. */
+	mutex_lock(&scp_A_excep_dump_mutex);
+#endif
 	scp_dump_ptr = scp_A_dump_buffer_last;
 	if (!scp_dump_ptr) {
 		pr_err("[SCP AEE]MemoryDump buf is null, size=0x%x\n",
@@ -541,7 +545,9 @@ static void scp_prepare_aed_dump(char *aed_str,
 		memory_dump_size = scp_crash_dump(pMemoryDump, SCP_A_ID);
 	}
 	/* scp_dump_buffer_set */
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mutex_lock(&scp_A_excep_dump_mutex);
+#endif
 	scp_A_dump_buffer_last = scp_A_dump_buffer;
 	scp_A_dump_buffer = scp_dump_ptr;
 	scp_A_dump_length = memory_dump_size;
@@ -750,10 +756,14 @@ int scp_excep_init(void)
 	if (!scp_A_dump_buffer)
 		goto _err;
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+	scp_A_dump_buffer_last = scp_A_dump_buffer;
+#else
 	scp_A_dump_buffer_last = vmalloc(sizeof(struct MemoryDump) +
 		roundup(dram_size, 4));
 	if (!scp_A_dump_buffer_last)
 		goto _err1;
+#endif
 
 	/* init global values */
 	scp_A_dump_length = 0;
@@ -762,8 +772,10 @@ int scp_excep_init(void)
 
 	return 0;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 _err1:
 	vfree(scp_A_dump_buffer);
+#endif
 _err:
 	vfree(scp_A_detail_buffer);
 
@@ -792,11 +804,12 @@ void scp_ram_dump_init(void)
 void scp_excep_cleanup(void)
 {
 	vfree(scp_A_detail_buffer);
+#ifndef CONFIG_MTK_ENABLE_GMO
 	vfree(scp_A_dump_buffer_last);
+#endif
 	vfree(scp_A_dump_buffer);
 
 	scp_A_task_context_addr = 0;
 
 	pr_debug("[SCP] %s ends\n", __func__);
 }
-
