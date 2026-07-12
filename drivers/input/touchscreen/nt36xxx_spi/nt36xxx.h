@@ -92,7 +92,11 @@ extern const uint16_t touch_key_array[TOUCH_KEY_NUM];
 
 //---Customerized func.---
 #define NVT_TOUCH_PROC 1
+#if defined(CONFIG_MTK_ENABLE_GMO)
+#define NVT_TOUCH_EXT_PROC 0
+#else
 #define NVT_TOUCH_EXT_PROC 1
+#endif
 #if defined(CONFIG_MTK_ENABLE_GMO)
 #define NVT_TOUCH_MP 0
 #else
