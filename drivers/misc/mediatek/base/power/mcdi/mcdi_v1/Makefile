@@ -22,5 +22,7 @@ ccflags-y += -I$(srctree)/drivers/misc/mediatek/base/power/mcdi/$(CONFIG_MTK_PLA
 
 obj-y += mtk_mcdi_main.o
 obj-y += mtk_mcdi_util.o
+ifneq ($(CONFIG_MTK_ENABLE_GMO),y)
 obj-y += mtk_mcdi_profile.o
+endif
 obj-y += mtk_mcdi_cpc.o
