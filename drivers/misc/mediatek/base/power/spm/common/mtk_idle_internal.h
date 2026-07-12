@@ -190,6 +190,14 @@ enum {
 	NR_PIDX
 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+static inline void mtk_idle_latency_profile_enable(bool enable) { }
+static inline bool mtk_idle_latency_profile_is_on(void) { return false; }
+static inline void mtk_idle_latency_profile_result(unsigned int idle_type) { }
+
+#define __profile_idle_start(idle_type, idx) do { } while (0)
+#define __profile_idle_stop(idle_type, idx) do { } while (0)
+#else
 void mtk_idle_latency_profile_enable(bool enable);
 bool mtk_idle_latency_profile_is_on(void);
 void mtk_idle_latency_profile(unsigned int idle_type, int idx);
@@ -200,6 +208,7 @@ void mtk_idle_latency_profile_result(unsigned int idle_type);
 
 #define __profile_idle_stop(idle_type, idx) \
 	mtk_idle_latency_profile(idle_type, 2*idx+1)
+#endif
 
 
 /********************************************************************

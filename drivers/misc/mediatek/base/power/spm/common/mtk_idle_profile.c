@@ -515,6 +515,7 @@ void mtk_idle_recent_ratio_get(
 
 
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static bool profile_latency_enabled;
 void mtk_idle_latency_profile_enable(bool enable)
 {
@@ -596,3 +597,4 @@ void mtk_idle_latency_profile_result(unsigned int idle_type)
 
 	printk_deferred("[name:spm&]Power/latency_profile %s\n", plog);
 }
+#endif
