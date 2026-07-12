@@ -19,7 +19,11 @@
 #define MIN_FREE_PAGES (CONFIG_ANDROID_SIMPLE_LMK_MINFREE * SZ_1M / PAGE_SIZE)
 
 /* Kill up to this many victims per reclaim */
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define MAX_VICTIMS 256
+#else
 #define MAX_VICTIMS 1024
+#endif
 
 /* Timeout in jiffies for each reclaim */
 #define RECLAIM_EXPIRES msecs_to_jiffies(CONFIG_ANDROID_SIMPLE_LMK_TIMEOUT_MSEC)
