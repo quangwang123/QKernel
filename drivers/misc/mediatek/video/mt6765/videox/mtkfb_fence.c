@@ -35,7 +35,14 @@ static LIST_HEAD(info_pool_head);
 static DEFINE_MUTEX(_disp_fence_mutex);
 static DEFINE_MUTEX(fence_buffer_mutex);
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+static struct disp_session_sync_info
+	*_disp_fence_context[MAX_SESSION_COUNT];
+#define DISP_FENCE_CONTEXT(i) (_disp_fence_context[i])
+#else
 struct disp_session_sync_info _disp_fence_context[MAX_SESSION_COUNT];
+#define DISP_FENCE_CONTEXT(i) (&_disp_fence_context[i])
+#endif
 
 static struct disp_session_sync_info *_get_session_sync_info(unsigned int session_id)
 {
@@ -54,18 +61,27 @@ static struct disp_session_sync_info *_get_session_sync_info(unsigned int sessio
 
 	mutex_lock(&_disp_fence_mutex);
 	for (i = 0; i < ARRAY_SIZE(_disp_fence_context); i++) {
-		if (session_id == _disp_fence_context[i].session_id) {
-			session_info = &(_disp_fence_context[i]);
+		session_info = DISP_FENCE_CONTEXT(i);
+		if (session_info && session_id == session_info->session_id) {
 			goto done;
 		}
 	}
 
 	for (i = 0; i < ARRAY_SIZE(_disp_fence_context); i++) {
-		if (_disp_fence_context[i].session_id != 0xffffffff)
+		session_info = DISP_FENCE_CONTEXT(i);
+#ifdef CONFIG_MTK_ENABLE_GMO
+		if (session_info)
 			continue;
+		session_info = kzalloc(sizeof(*session_info), GFP_KERNEL);
+		if (!session_info)
+			goto done;
+		_disp_fence_context[i] = session_info;
+#else
+		if (session_info->session_id != 0xffffffff)
+			continue;
+#endif
 
-		_disp_fence_context[i].session_id = session_id;
-		session_info = &(_disp_fence_context[i]);
+		session_info->session_id = session_id;
 
 		for (j = 0; j < ARRAY_SIZE(session_info->session_layer_info); j++) {
 			if (DISP_SESSION_TYPE(session_id) == DISP_SESSION_PRIMARY)
@@ -88,6 +104,7 @@ static struct disp_session_sync_info *_get_session_sync_info(unsigned int sessio
 		}
 		goto done;
 	}
+	session_info = NULL;
 
 done:
 	mutex_unlock(&_disp_fence_mutex);
@@ -418,15 +435,17 @@ unsigned int mtkfb_query_frm_seq_by_addr(unsigned int session_id, unsigned int l
 
 int disp_sync_init(void)
 {
+#ifndef CONFIG_MTK_ENABLE_GMO
 	int i;
 	struct disp_session_sync_info *session_info;
 
 	memset((void *)&_disp_fence_context, 0, sizeof(_disp_fence_context));
 
 	for (i = 0; i < ARRAY_SIZE(_disp_fence_context) ; i++) {
-		session_info = &_disp_fence_context[i];
+		session_info = DISP_FENCE_CONTEXT(i);
 		session_info->session_id = 0xffffffff;
 	}
+#endif
 
 #ifdef MTK_FB_ION_SUPPORT
 	mtkfb_ion_init();
