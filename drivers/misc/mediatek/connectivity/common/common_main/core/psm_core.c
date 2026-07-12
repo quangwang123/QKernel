@@ -25,11 +25,13 @@ INT32 gPsmDbgLevel = STP_PSM_LOG_INFO;
 MTKSTP_PSM_T stp_psm_i;
 MTKSTP_PSM_T *stp_psm = &stp_psm_i;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 STP_PSM_RECORD_T *g_stp_psm_dbg;
 static UINT32 g_record_num;
 
 P_STP_PSM_OPID_RECORD g_stp_psm_opid_dbg;
 static UINT32 g_opid_record_num;
+#endif
 
 static UINT32 stp_traffic_start;
 static UINT32 stp_traffic_current;
@@ -45,10 +47,19 @@ static UINT32 stp_traffic_current;
 static inline INT32 _stp_psm_notify_wmt(MTKSTP_PSM_T *stp_psm, const MTKSTP_PSM_ACTION_T action);
 static INT32 _stp_psm_thread_lock_aquire(MTKSTP_PSM_T *stp_psm);
 static INT32 _stp_psm_thread_lock_release(MTKSTP_PSM_T *stp_psm);
-static INT32 _stp_psm_dbg_dmp_in(STP_PSM_RECORD_T *stp_psm_dbg, UINT32 flag, UINT32 line_num);
+#ifndef CONFIG_MTK_ENABLE_GMO
+static INT32 _stp_psm_dbg_dmp_in(STP_PSM_RECORD_T *stp_psm_dbg,
+		UINT32 flag, UINT32 line_num);
 static INT32 _stp_psm_dbg_out_printk(STP_PSM_RECORD_T *stp_psm_dbg);
-static INT32 _stp_psm_opid_dbg_dmp_in(P_STP_PSM_OPID_RECORD p_opid_dbg, UINT32 opid, UINT32 line_num);
+static INT32 _stp_psm_opid_dbg_dmp_in(P_STP_PSM_OPID_RECORD p_opid_dbg,
+		UINT32 opid, UINT32 line_num);
 static INT32 _stp_psm_opid_dbg_out_printk(P_STP_PSM_OPID_RECORD p_opid_dbg);
+#else
+#define _stp_psm_dbg_dmp_in(...) ((void)0)
+#define _stp_psm_dbg_out_printk(...) ((void)0)
+#define _stp_psm_opid_dbg_dmp_in(...) ((void)0)
+#define _stp_psm_opid_dbg_out_printk(...) ((void)0)
+#endif
 
 
 static const PINT8 g_psm_state[STP_PSM_MAX_STATE] = {
@@ -1768,6 +1779,7 @@ INT32 stp_psm_check_sleep_enable(MTKSTP_PSM_T *stp_psm)
 	return ret;
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static INT32 _stp_psm_dbg_dmp_in(STP_PSM_RECORD_T *stp_psm_dbg, UINT32 flag, UINT32 line_num)
 {
 	INT32 index = 0;
@@ -1916,6 +1928,7 @@ static INT32 _stp_psm_opid_dbg_out_printk(P_STP_PSM_OPID_RECORD p_opid_dbg)
 	return 0;
 
 }
+#endif
 
 VOID stp_psm_print_op_history(VOID)
 {
@@ -1994,6 +2007,7 @@ MTKSTP_PSM_T *stp_psm_init(VOID)
 		goto ERR_EXIT6;
 	}
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	g_stp_psm_dbg = (STP_PSM_RECORD_T *) osal_malloc(osal_sizeof(STP_PSM_RECORD_T));
 	if (!g_stp_psm_dbg) {
 		STP_PSM_pr_no_info("stp psm dbg allocate memory fail!\n");
@@ -2009,6 +2023,7 @@ MTKSTP_PSM_T *stp_psm_init(VOID)
 	}
 	osal_memset(g_stp_psm_opid_dbg, 0, osal_sizeof(STP_PSM_OPID_RECORD));
 	osal_unsleepable_lock_init(&g_stp_psm_opid_dbg->lock);
+#endif
 
 	return stp_psm;
 
@@ -2031,11 +2046,18 @@ INT32 stp_psm_deinit(MTKSTP_PSM_T *stp_psm)
 	INT32 ret = -1;
 
 	STP_PSM_pr_no_info("psm deinit\n");
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (g_stp_psm_dbg) {
 		osal_unsleepable_lock_deinit(&g_stp_psm_dbg->lock);
 		osal_free(g_stp_psm_dbg);
 		g_stp_psm_dbg = NULL;
 	}
+	if (g_stp_psm_opid_dbg) {
+		osal_unsleepable_lock_deinit(&g_stp_psm_opid_dbg->lock);
+		osal_free(g_stp_psm_opid_dbg);
+		g_stp_psm_opid_dbg = NULL;
+	}
+#endif
 
 	if (!stp_psm)
 		return STP_PSM_OPERATION_FAIL;
