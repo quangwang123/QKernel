@@ -18,6 +18,32 @@ enum conn_md_msg_type {
 	MSG_EN_DE_QUEUE = 3,
 };
 
+#ifdef CONFIG_MTK_ENABLE_GMO
+struct conn_md_dmp_msg_log;
+
+static inline struct conn_md_dmp_msg_log *conn_md_dmp_init(void)
+{
+	return NULL;
+}
+
+static inline int conn_md_dmp_deinit(struct conn_md_dmp_msg_log *p_log)
+{
+	return 0;
+}
+
+static inline int conn_md_dmp_in(struct ipc_ilm *p_ilm,
+		enum conn_md_msg_type msg_type,
+		struct conn_md_dmp_msg_log *p_msg_log)
+{
+	return 0;
+}
+
+static inline int conn_md_dmp_out(struct conn_md_dmp_msg_log *p_msg_log,
+		uint32 src_id, uint32 dst_id)
+{
+	return 0;
+}
+#else
 struct conn_md_dmp_msg_str {
 	unsigned int sec;
 	unsigned int usec;
@@ -43,5 +69,6 @@ extern int conn_md_dmp_in(struct ipc_ilm *p_ilm,
 			struct conn_md_dmp_msg_log *p_msg_log);
 extern int conn_md_dmp_out(struct conn_md_dmp_msg_log *p_msg_log,
 			uint32 src_id, uint32 dst_id);
+#endif
 
 #endif
