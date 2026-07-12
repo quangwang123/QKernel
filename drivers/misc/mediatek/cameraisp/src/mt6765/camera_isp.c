@@ -640,7 +640,11 @@ static /*volatile*/ wait_queue_head_t P2WaitQueueHead_WaitDeque;
 static /*volatile*/ wait_queue_head_t P2WaitQueueHead_WaitFrame;
 static /*volatile*/ wait_queue_head_t P2WaitQueueHead_WaitFrameEQDforDQ;
 static spinlock_t      SpinLock_P2FrameList;
+#ifdef CONFIG_MTK_ENABLE_GMO
+#define _MAX_SUPPORT_P2_FRAME_NUM_ 256
+#else
 #define _MAX_SUPPORT_P2_FRAME_NUM_ 512
+#endif
 #define _MAX_SUPPORT_P2_BURSTQ_NUM_ 8
 #define _MAX_SUPPORT_P2_PACKAGE_NUM_ \
 	(_MAX_SUPPORT_P2_FRAME_NUM_/_MAX_SUPPORT_P2_BURSTQ_NUM_)
