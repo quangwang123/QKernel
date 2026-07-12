@@ -53,7 +53,9 @@
 
 #if IS_ENABLED(CONFIG_DEBUG_FS)
 // file: /d/dispsys
+#ifndef CONFIG_MTK_ENABLE_GMO
 static struct dentry *debugfs;
+#endif
 //dir: /d/disp/
 static struct dentry *debugDir;
 //file: /d/disp/dump
@@ -63,7 +65,9 @@ static int debug_init;
 
 #if IS_ENABLED(CONFIG_PROC_FS)
 //file: /proc/dispsys
+#ifndef CONFIG_MTK_ENABLE_GMO
 static struct proc_dir_entry *dispsys_procfs;
+#endif
 //dir: /proc/disp/
 static struct proc_dir_entry *disp_dir_procfs;
 //file: /proc/disp/dump
@@ -781,8 +785,10 @@ void ddp_debug_init(void)
 		return;
 
 	debug_init = 1;
+#ifndef CONFIG_MTK_ENABLE_GMO
 	debugfs = debugfs_create_file("dispsys",
 		S_IFREG | 0444, NULL, (void *)0, &debug_fops);
+#endif
 
 
 	debugDir = debugfs_create_dir("disp", NULL);
@@ -800,6 +806,7 @@ void ddp_debug_init(void)
 		return;
 	debug_procfs_init = 1;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	dispsys_procfs = proc_create("dispsys",
 				S_IFREG | 0444,
 				NULL,
@@ -809,6 +816,7 @@ void ddp_debug_init(void)
 			__func__, __LINE__);
 		goto out;
 	}
+#endif
 
 	disp_dir_procfs = proc_mkdir("disp", NULL);
 	if (!disp_dir_procfs) {
@@ -891,16 +899,20 @@ int ddp_debug_force_roi_h(void)
 void ddp_debug_exit(void)
 {
 #if IS_ENABLED(CONFIG_DEBUG_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 	debugfs_remove(debugfs);
+#endif
 	debugfs_remove(debugDir);
 	debug_init = 0;
 #endif
 
 #if IS_ENABLED(CONFIG_PROC_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (dispsys_procfs) {
 		proc_remove(dispsys_procfs);
 		dispsys_procfs = NULL;
 	}
+#endif
 	if (disp_dir_procfs) {
 		proc_remove(disp_dir_procfs);
 		disp_dir_procfs = NULL;
