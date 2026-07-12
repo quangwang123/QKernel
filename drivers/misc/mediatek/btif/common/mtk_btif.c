@@ -2906,6 +2906,7 @@ int btif_rx_notify_reg(struct _mtk_btif_ *p_btif, MTK_BTIF_RX_NOTIFY rx_notify)
 	return 0;
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 int btif_dump_data(const char *p_buf, int len)
 {
 	unsigned int idx = 0;
@@ -3188,6 +3189,7 @@ int btif_log_buf_init(struct _mtk_btif_ *p_btif)
 
 	return 0;
 }
+#endif
 
 int btif_tx_dma_mode_set(int en)
 {
@@ -3218,8 +3220,10 @@ static int BTIF_init(void)
 	struct _mtk_btif_dma_ *p_tx_dma = NULL;
 	struct _mtk_btif_dma_ *p_rx_dma = NULL;
 	unsigned char *p_btif_buffer = NULL;
+#ifndef CONFIG_MTK_ENABLE_GMO
 	unsigned char *p_tx_queue = NULL;
 	unsigned char *p_rx_queue = NULL;
+#endif
 
 	BTIF_DBG_FUNC("++\n");
 
@@ -3244,6 +3248,7 @@ static int BTIF_init(void)
 		}
 		BTIF_INFO_FUNC("p_btif_buffer get memory 0x%p\n",
 				p_btif_buffer);
+#ifndef CONFIG_MTK_ENABLE_GMO
 		p_tx_queue = kmalloc_array(BTIF_LOG_ENTRY_NUM,
 					   sizeof(struct _btif_log_buf_t_),
 					   GFP_ATOMIC);
@@ -3263,6 +3268,7 @@ static int BTIF_init(void)
 			return -1;
 		}
 		BTIF_INFO_FUNC("p_rx_queue get memory 0x%p\n", p_rx_queue);
+#endif
 
 		INIT_LIST_HEAD(&(g_btif[index].user_list));
 		BBS_INIT(&(g_btif[index].btif_buf));
@@ -3278,11 +3284,13 @@ static int BTIF_init(void)
 		g_btif[index].rx_cb = NULL;
 		g_btif[index].rx_notify = NULL;
 		g_btif[index].btif_buf.p_buf = p_btif_buffer;
+#ifndef CONFIG_MTK_ENABLE_GMO
 		g_btif[index].tx_log.p_queue =
 				(struct _btif_log_buf_t_ *) p_tx_queue;
 		g_btif[index].rx_log.p_queue =
 				(struct _btif_log_buf_t_ *) p_rx_queue;
 		btif_log_buf_init(&g_btif[index]);
+#endif
 
 #if !(MTK_BTIF_ENABLE_CLK_REF_COUNTER)
 /*enable BTIF clock gating by default*/
