@@ -498,7 +498,9 @@ static int dvfs_to_spm2_command(u32 cmd, struct cdvfs_data *cdvfs_d)
 #define OFFS_SCHED_S		0x03a4	/* 233 */
 #define OFFS_SCHED_E		0x03c8	/* 242 */
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static u32 g_dbg_repo_bak[DBG_REPO_NUM];
+#endif
 static int _mt_dvfsp_pdrv_probe(struct platform_device *pdev)
 {
 	/* cspm_base = of_iomap(pdev->dev.of_node, 0); */
@@ -995,6 +997,7 @@ static int dbg_repo_proc_show(struct seq_file *m, void *v)
 	return 0;
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 static int dbg_repo_bak_proc_show(struct seq_file *m, void *v)
 {
 	int i;
@@ -1014,9 +1017,12 @@ static int dbg_repo_bak_proc_show(struct seq_file *m, void *v)
 
 	return 0;
 }
+#endif
 
 PROC_FOPS_RO(dbg_repo);
+#ifndef CONFIG_MTK_ENABLE_GMO
 PROC_FOPS_RO(dbg_repo_bak);
+#endif
 
 static int create_cpuhvfs_debug_fs(void)
 {
@@ -1031,7 +1037,9 @@ static int create_cpuhvfs_debug_fs(void)
 
 	const struct pentry entries[] = {
 		PROC_ENTRY_DATA(dbg_repo),
+#ifndef CONFIG_MTK_ENABLE_GMO
 		PROC_ENTRY_DATA(dbg_repo_bak),
+#endif
 	};
 
 	/* create /proc/cpuhvfs */
@@ -1099,8 +1107,10 @@ static void __init init_cpuhvfs_debug_repo(void)
 	u32 __iomem *dbg_repo = csram_base;
 	int c, repo_i;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	/* backup debug repo for later analysis */
 	memcpy_fromio(g_dbg_repo_bak, dbg_repo, DBG_REPO_SIZE);
+#endif
 
 	dbg_repo[0] = REPO_GUARD0;
 	dbg_repo[1] = REPO_GUARD1;
