@@ -70,7 +70,9 @@ static struct dentry *mtkfb_dbgfs;
 #endif
 
 #if IS_ENABLED(CONFIG_PROC_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 static struct proc_dir_entry *mtkfb_procfs;
+#endif
 static struct proc_dir_entry *disp_lowpower_proc;
 #endif
 
@@ -1647,8 +1649,10 @@ void DBG_Init(void)
 	struct dentry *d_folder;
 	struct dentry *d_file;
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mtkfb_dbgfs = debugfs_create_file("mtkfb",
 		S_IFREG | 0444, NULL, (void *)0, &debug_fops);
+#endif
 
 	d_folder = debugfs_create_dir("displowpower", NULL);
 	if (d_folder) {
@@ -1664,6 +1668,7 @@ void DBG_Init(void)
 #endif
 
 #if IS_ENABLED(CONFIG_PROC_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 	mtkfb_procfs = proc_create("mtkfb", S_IFREG | 0444,
 				NULL,
 				&debug_fops);
@@ -1672,6 +1677,7 @@ void DBG_Init(void)
 			__func__, __LINE__);
 		goto out;
 	}
+#endif
 
 	disp_lowpower_proc = proc_mkdir("displowpower", NULL);
 	if (!disp_lowpower_proc) {
@@ -1716,14 +1722,18 @@ out:
 void DBG_Deinit(void)
 {
 #if IS_ENABLED(CONFIG_DEBUG_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 	debugfs_remove(mtkfb_dbgfs);
+#endif
 #endif
 
 #if IS_ENABLED(CONFIG_PROC_FS)
+#ifndef CONFIG_MTK_ENABLE_GMO
 	if (mtkfb_procfs) {
 		proc_remove(mtkfb_procfs);
 		mtkfb_procfs = NULL;
 	}
+#endif
 	if (disp_lowpower_proc) {
 		proc_remove(disp_lowpower_proc);
 		disp_lowpower_proc = NULL;
