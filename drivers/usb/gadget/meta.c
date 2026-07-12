@@ -851,6 +851,7 @@ out:
 	return sprintf(buf, "%s\n", state);
 }
 
+#ifndef CONFIG_MTK_ENABLE_GMO
 #define LOG_BUG_SZ 2048
 static char log_buf[LOG_BUG_SZ];
 static int log_buf_idx;
@@ -890,6 +891,7 @@ log_store(struct device *pdev, struct device_attribute *attr,
 	mutex_unlock(&dev->mutex);
 	return size;
 }
+#endif
 
 #define DESCRIPTOR_ATTR(field, format_string)				\
 static ssize_t								\
@@ -942,7 +944,9 @@ DESCRIPTOR_STRING_ATTR(iSerial, serial_str);
 static DEVICE_ATTR_RW(functions);
 static DEVICE_ATTR_RW(enable);
 static DEVICE_ATTR_RO(state);
+#ifndef CONFIG_MTK_ENABLE_GMO
 static DEVICE_ATTR_RW(log);
+#endif
 
 static struct device_attribute *android_usb_attributes[] = {
 	&dev_attr_idVendor,
@@ -957,7 +961,9 @@ static struct device_attribute *android_usb_attributes[] = {
 	&dev_attr_functions,
 	&dev_attr_enable,
 	&dev_attr_state,
+#ifndef CONFIG_MTK_ENABLE_GMO
 	&dev_attr_log,
+#endif
 	NULL
 };
 
@@ -1359,4 +1365,3 @@ static void __exit cleanup(void)
 	_android_dev = NULL;
 }
 module_exit(cleanup);
-
