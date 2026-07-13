@@ -16,22 +16,7 @@ static int fsm_get_no_response_assert_type(struct ccci_fsm_poller *poller_ctl)
 	u64 latest_isr_time = per_md_data->latest_isr_time;
 	u64 latest_q0_isr_time = per_md_data->latest_q0_isr_time;
 	u64 latest_q0_rx_time = per_md_data->latest_q0_rx_time;
-	int md_id = poller_ctl->md_id;
-	unsigned long rem_nsec0, rem_nsec1, rem_nsec2, rem_nsec3;
 
-	rem_nsec0 = (poller_ctl->latest_poll_start_time == 0 ?
-			0
-			:
-			do_div(poller_ctl->latest_poll_start_time,
-				1000000000));
-	rem_nsec1 =
-	(latest_isr_time == 0 ? 0 : do_div(latest_isr_time, 1000000000));
-	rem_nsec2 =
-	(latest_q0_isr_time == 0 ? 0 : do_div(latest_q0_isr_time, 1000000000));
-	rem_nsec3 =
-	(latest_q0_rx_time == 0 ? 0 : do_div(latest_q0_rx_time, 1000000000));
-
-	((void)0);
 	/* Check whether ap received polling queue irq, after polling start */
 	if (poller_ctl->latest_poll_start_time > latest_q0_isr_time) {
 		if (poller_ctl->latest_poll_start_time < latest_isr_time)
