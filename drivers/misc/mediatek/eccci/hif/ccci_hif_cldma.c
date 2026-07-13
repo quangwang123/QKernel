@@ -116,40 +116,44 @@ static void cldma_dump_register(struct md_cd_ctrl *md_ctrl)
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA Tx pdn register, active=%x\n",
 		md_ctrl->txq_active);
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		md_ctrl->cldma_ap_pdn_base + CLDMA_AP_UL_START_ADDR_0,
-		CLDMA_AP_UL_DEBUG_3 - CLDMA_AP_UL_START_ADDR_0 + 4);
+		CLDMA_AP_UL_DEBUG_3 - CLDMA_AP_UL_START_ADDR_0 + 4, false);
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA Tx ao register, active=%x\n",
 		md_ctrl->txq_active);
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
-		md_ctrl->cldma_ap_ao_base + CLDMA_AP_UL_START_ADDR_BK_0,
-		CLDMA_AP_UL_CURRENT_ADDR_BK_4MSB -
-		CLDMA_AP_UL_START_ADDR_BK_0 + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     md_ctrl->cldma_ap_ao_base +
+				     CLDMA_AP_UL_START_ADDR_BK_0,
+			     CLDMA_AP_UL_CURRENT_ADDR_BK_4MSB -
+				     CLDMA_AP_UL_START_ADDR_BK_0 + 4,
+			     false);
 
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA Rx pdn register, active=%x\n",
 		md_ctrl->rxq_active);
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
-		md_ctrl->cldma_ap_pdn_base + CLDMA_AP_SO_ERROR,
-		CLDMA_AP_DL_DEBUG_3 - CLDMA_AP_SO_ERROR + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     md_ctrl->cldma_ap_pdn_base + CLDMA_AP_SO_ERROR,
+			     CLDMA_AP_DL_DEBUG_3 - CLDMA_AP_SO_ERROR + 4,
+			     false);
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA Rx ao register, active=%x\n",
 		md_ctrl->rxq_active);
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
-		md_ctrl->cldma_ap_ao_base + CLDMA_AP_SO_CFG,
-		CLDMA_AP_DL_MTU_SIZE - CLDMA_AP_SO_CFG + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     md_ctrl->cldma_ap_ao_base + CLDMA_AP_SO_CFG,
+			     CLDMA_AP_DL_MTU_SIZE - CLDMA_AP_SO_CFG + 4, false);
 
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA MISC pdn register\n");
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
-		md_ctrl->cldma_ap_pdn_base + CLDMA_AP_L2TISAR0,
-		CLDMA_AP_DEBUG0 - CLDMA_AP_L2TISAR0 + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     md_ctrl->cldma_ap_pdn_base + CLDMA_AP_L2TISAR0,
+			     CLDMA_AP_DEBUG0 - CLDMA_AP_L2TISAR0 + 4, false);
 	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 		"dump AP CLDMA MISC ao register\n");
-	ccci_util_mem_dump(md_ctrl->md_id, CCCI_DUMP_MEM_DUMP,
-		md_ctrl->cldma_ap_ao_base + CLDMA_AP_L2RIMR0,
-		CLDMA_AP_L2RIMSR0 - CLDMA_AP_L2RIMR0 + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     md_ctrl->cldma_ap_ao_base + CLDMA_AP_L2RIMR0,
+			     CLDMA_AP_L2RIMSR0 - CLDMA_AP_L2RIMR0 + 4, false);
 }
 
 /*for mt6763 ao_misc_cfg RW type set/clear register issue*/
@@ -1970,14 +1974,14 @@ static int cldma_stop_for_ee(unsigned char hif_id)
 			CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
 				"Dump MD EX log\n");
 			if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
-				ccci_util_mem_dump(md_ctrl->md_id,
-					CCCI_DUMP_MEM_DUMP,
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdccci_dbg->base_ap_view_vir,
-					mdccci_dbg->size);
-				ccci_util_mem_dump(md_ctrl->md_id,
-					CCCI_DUMP_MEM_DUMP,
+					mdccci_dbg->size, false);
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdss_dbg->base_ap_view_vir,
-					mdss_dbg->size);
+					mdss_dbg->size, false);
 			}
 			/* md_cd_dump_debug_register(md_ctrl); */
 			cldma_dump_register(md_ctrl);

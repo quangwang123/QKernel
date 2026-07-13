@@ -123,50 +123,58 @@ static void dpmaif_dump_register(struct hif_dpmaif_ctrl *hif_ctrl, int buf_type)
 
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF Tx pdn register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		hif_ctrl->dpmaif_pd_ul_base + DPMAIF_PD_UL_ADD_DESC,
-		DPMAIF_PD_UL_ADD_DESC_CH - DPMAIF_PD_UL_ADD_DESC + 4);
+		DPMAIF_PD_UL_ADD_DESC_CH - DPMAIF_PD_UL_ADD_DESC + 4, false);
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF Tx ao register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		hif_ctrl->dpmaif_ao_ul_base + DPMAIF_AO_UL_CHNL0_STA,
-		DPMAIF_AO_UL_CHNL3_STA - DPMAIF_AO_UL_CHNL0_STA + 4);
+		DPMAIF_AO_UL_CHNL3_STA - DPMAIF_AO_UL_CHNL0_STA + 4, false);
 
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF Rx pdn register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		hif_ctrl->dpmaif_pd_dl_base + DPMAIF_PD_DL_BAT_INIT,
-		DPMAIF_PD_DL_MISC_CON0 - DPMAIF_PD_DL_BAT_INIT + 4);
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
-		hif_ctrl->dpmaif_pd_dl_base + DPMAIF_PD_DL_STA0,
-		DPMAIF_PD_DL_DBG_STA14 - DPMAIF_PD_DL_STA0 + 4);
+		DPMAIF_PD_DL_MISC_CON0 - DPMAIF_PD_DL_BAT_INIT + 4, false);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     hif_ctrl->dpmaif_pd_dl_base + DPMAIF_PD_DL_STA0,
+			     DPMAIF_PD_DL_DBG_STA14 - DPMAIF_PD_DL_STA0 + 4,
+			     false);
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF dma_rd config register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
-		hif_ctrl->dpmaif_pd_dl_base + 0x100, 0xC8);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     hif_ctrl->dpmaif_pd_dl_base + 0x100, 0xC8, false);
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF dma_wr config register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
-		hif_ctrl->dpmaif_pd_dl_base + 0x200, 0x58 + 4);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     hif_ctrl->dpmaif_pd_dl_base + 0x200, 0x58 + 4,
+			     false);
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF Rx ao register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		hif_ctrl->dpmaif_ao_dl_base + DPMAIF_AO_DL_PKTINFO_CONO,
-		DPMAIF_AO_DL_FRGBAT_STA2 - DPMAIF_AO_DL_PKTINFO_CONO + 4);
+		DPMAIF_AO_DL_FRGBAT_STA2 - DPMAIF_AO_DL_PKTINFO_CONO + 4,
+		false);
 
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF MISC pdn register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
+	print_hex_dump_debug(
+		"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		hif_ctrl->dpmaif_pd_misc_base + DPMAIF_PD_AP_UL_L2TISAR0,
-		DPMAIF_PD_AP_CODA_VER - DPMAIF_PD_AP_UL_L2TISAR0 + 4);
+		DPMAIF_PD_AP_CODA_VER - DPMAIF_PD_AP_UL_L2TISAR0 + 4, false);
 
 	/* open sram clock for debug sram needs sram clock. */
 	DPMA_WRITE_PD_MISC(DPMAIF_PD_AP_CG_EN, 0x36);
 	CCCI_BUF_LOG_TAG(hif_ctrl->md_id, buf_type, TAG,
 		"dump AP DPMAIF SRAM pdn register\n");
-	ccci_util_mem_dump(hif_ctrl->md_id, buf_type,
-		hif_ctrl->dpmaif_pd_sram_base + 0x00,
-		0x184);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     hif_ctrl->dpmaif_pd_sram_base + 0x00, 0x184,
+			     false);
 }
 
 void dpmaif_dump_reg(void)
@@ -227,8 +235,10 @@ static void dpmaif_dump_rxq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
 		/* rxq struct dump */
 		CCCI_MEM_LOG_TAG(md_id, TAG, "dpmaif:dump rxq(%d): 0x%p\n",
 			i, rxq);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP, (void *)rxq,
-			(int)sizeof(struct dpmaif_rx_queue));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (void *)rxq,
+				     (int)sizeof(struct dpmaif_rx_queue),
+				     false);
 		/* PIT mem dump */
 		CCCI_MEM_LOG(md_id, TAG,
 			"dpmaif:pit request base: 0x%p(%d*%d)\n",
@@ -238,9 +248,10 @@ static void dpmaif_dump_rxq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
 		CCCI_MEM_LOG(md_id, TAG,
 			"Current rxq%d pit pos: w/r/rel=%x, %x, %x\n", i,
 		       rxq->pit_wr_idx, rxq->pit_rd_idx, rxq->pit_rel_rd_idx);
-		ccci_util_mem_dump(-1, CCCI_DUMP_MEM_DUMP, rxq->pit_base,
-			(rxq->pit_size_cnt *
-			sizeof(struct dpmaifq_normal_pit)));
+		print_hex_dump_debug(
+			"ccci: ", DUMP_PREFIX_OFFSET, 16, 4, rxq->pit_base,
+			(rxq->pit_size_cnt * sizeof(struct dpmaifq_normal_pit)),
+			false);
 		/* BAT mem dump */
 		CCCI_MEM_LOG(md_id, TAG,
 			"dpmaif:bat request base: 0x%p(%d*%d)\n",
@@ -256,10 +267,11 @@ static void dpmaif_dump_rxq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
 			rxq->bat_req.bat_skb_ptr,
 			(int)sizeof(struct dpmaif_bat_skb_t),
 			rxq->bat_req.bat_size_cnt);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			rxq->bat_req.bat_skb_ptr,
-			(rxq->bat_req.skb_pkt_cnt *
-			sizeof(struct dpmaif_bat_skb_t)));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     rxq->bat_req.bat_skb_ptr,
+				     (rxq->bat_req.skb_pkt_cnt *
+				      sizeof(struct dpmaif_bat_skb_t)),
+				     false);
 #ifdef HW_FRG_FEATURE_ENABLE
 		/* BAT frg mem dump */
 		CCCI_MEM_LOG(md_id, TAG,
@@ -276,10 +288,11 @@ static void dpmaif_dump_rxq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
 			rxq->bat_frag.bat_skb_ptr,
 			(int)sizeof(struct dpmaif_bat_page_t),
 			rxq->bat_frag.bat_size_cnt);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			rxq->bat_frag.bat_skb_ptr,
-			(rxq->bat_frag.skb_pkt_cnt *
-			sizeof(struct dpmaif_bat_page_t)));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     rxq->bat_frag.bat_skb_ptr,
+				     (rxq->bat_frag.skb_pkt_cnt *
+				      sizeof(struct dpmaif_bat_page_t)),
+				     false);
 #endif
 
 	}
@@ -309,17 +322,19 @@ static void dpmaif_dump_txq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
 		txq = &hif_ctrl->txq[i];
 		CCCI_MEM_LOG_TAG(md_id, TAG, "dpmaif:dump txq(%d): 0x%p\n",
 			i, txq);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP, (void *)txq,
-			sizeof(struct dpmaif_tx_queue));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (void *)txq,
+				     sizeof(struct dpmaif_tx_queue), false);
 		CCCI_MEM_LOG(md_id, TAG, "dpmaif: drb(%d) base: 0x%p(%d*%d)\n",
 			txq->index, txq->drb_base,
 			(int)sizeof(struct dpmaif_drb_pd), txq->drb_size_cnt);
 		CCCI_MEM_LOG(md_id, TAG,
 			"Current txq%d pos: w/r/rel=%x, %x, %x\n", i,
 		       txq->drb_wr_idx, txq->drb_rd_idx, txq->drb_rel_rd_idx);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP, txq->drb_base,
-			(txq->drb_size_cnt * sizeof(struct dpmaif_drb_pd)));
-
+		print_hex_dump_debug(
+			"ccci: ", DUMP_PREFIX_OFFSET, 16, 4, txq->drb_base,
+			(txq->drb_size_cnt * sizeof(struct dpmaif_drb_pd)),
+			false);
 	}
 }
 

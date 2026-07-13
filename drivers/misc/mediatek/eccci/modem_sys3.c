@@ -56,7 +56,7 @@ static irqreturn_t md_cd_wdt_isr(int irq, void *data)
 		"WDT IRQ disabled for debug, state=%X\n", state);
 #endif
 	CCCI_NORMAL_LOG(md->index, TAG, "MD WDT IRQ\n");
-	ccci_event_log("md%d: MD WDT IRQ\n", md->index);
+	pr_err("ccci%d: modem watchdog interrupt\n", md->index + 1);
 
 	ccci_fsm_recv_md_interrupt(md->index, MD_IRQ_WDT);
 	return IRQ_HANDLED;

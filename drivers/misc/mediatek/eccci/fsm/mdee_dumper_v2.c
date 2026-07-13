@@ -330,7 +330,7 @@ static void mdee_info_dump_v2(struct ccci_fsm_ee *mdee)
 			"exception type(%d):%s\n", debug_info->type,
 			debug_info->name ? : "Unknown");
 		mdee_output_debug_info_to_buf(mdee, debug_info, ex_info);
-		ccci_event_log("md%d %s\n", md_id+1, ex_info);
+		pr_err("ccci%d: %s\n", md_id + 1, ex_info);
 	}
 	if (dumper->ex_core_num > 1) {
 		CCCI_NORMAL_LOG(md_id, FSM,
@@ -424,8 +424,9 @@ static void mdee_info_dump_v2(struct ccci_fsm_ee *mdee)
 		(unsigned int)md_state);
 	if (dumper->more_info == MD_EE_CASE_NORMAL
 		&& md_state == BOOT_WAITING_FOR_HS1) {
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			dumper->ex_pl_info, MD_HS1_FAIL_DUMP_SIZE);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dumper->ex_pl_info, MD_HS1_FAIL_DUMP_SIZE,
+				     false);
 		/* MD will not fill in share memory
 		 * before we send runtime data
 		 */
@@ -433,14 +434,16 @@ static void mdee_info_dump_v2(struct ccci_fsm_ee *mdee)
 	} else if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
 		CCCI_MEM_LOG_TAG(md_id, FSM,
 			"Dump MD exp smem_mdccci_debug_log\n");
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			mdccci_dbg->base_ap_view_vir, mdccci_dbg->size);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdccci_dbg->base_ap_view_vir,
+				     mdccci_dbg->size, false);
 		CCCI_MEM_LOG_TAG(md_id, FSM,
 			"Dump MD exp smem_mdss_debug_log\n");
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			mdss_dbg->base_ap_view_vir, 512);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			(mdss_dbg->base_ap_view_vir + 6 * 1024), 2048);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdss_dbg->base_ap_view_vir, 512, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (mdss_dbg->base_ap_view_vir + 6 * 1024),
+				     2048, false);
 		/*
 		 * otherwise always dump whole share memory,
 		 * as MD will fill debug log into
@@ -961,12 +964,14 @@ static void mdee_dumper_v2_dump_ee_info(struct ccci_fsm_ee *mdee,
 			/* Handshake 2 fail */
 			CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD EX log\n");
 			if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
-				ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdccci_dbg->base_ap_view_vir,
-					mdccci_dbg->size);
-				ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
+					mdccci_dbg->size, false);
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdss_dbg->base_ap_view_vir,
-					mdss_dbg->size);
+					mdss_dbg->size, false);
 			}
 
 			ccci_aed_v2(mdee,
@@ -982,14 +987,18 @@ static void mdee_dumper_v2_dump_ee_info(struct ccci_fsm_ee *mdee,
 		if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
 			CCCI_MEM_LOG_TAG(md_id, FSM,
 				"Dump MD exp smem_mdccci_debug_log\n");
-			ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-				mdccci_dbg->base_ap_view_vir, mdccci_dbg->size);
+			print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16,
+					     4, mdccci_dbg->base_ap_view_vir,
+					     mdccci_dbg->size, false);
 			CCCI_MEM_LOG_TAG(md_id, FSM,
 				"Dump MD exp smem_mdss_debug_log\n");
-			ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-				mdss_dbg->base_ap_view_vir, 512);
-			ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-				(mdss_dbg->base_ap_view_vir + 6 * 1024), 2048);
+			print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16,
+					     4, mdss_dbg->base_ap_view_vir, 512,
+					     false);
+			print_hex_dump_debug(
+				"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				(mdss_dbg->base_ap_view_vir + 6 * 1024), 2048,
+				false);
 		}
 	} else if (level == MDEE_DUMP_LEVEL_STAGE2) {
 		mdee_info_prepare_v2(mdee);
@@ -1017,4 +1026,3 @@ int mdee_dumper_v2_alloc(struct ccci_fsm_ee *mdee)
 	mdee->ops = &mdee_ops_v2;
 	return 0;
 }
-

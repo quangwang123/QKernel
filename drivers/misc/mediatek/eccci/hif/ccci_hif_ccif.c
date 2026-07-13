@@ -446,8 +446,8 @@ static int ccif_debug_dump_data(unsigned int hif_id, int *buff, int length)
 	}
 	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG,
 		"Dump CCIF SRAM (last %d bytes)\n", length);
-	ccci_util_mem_dump(ccif_ctrl->md_id,
-		CCCI_DUMP_MEM_DUMP, dest_buff, length);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4, dest_buff,
+			     length, false);
 
 	return 0;
 }

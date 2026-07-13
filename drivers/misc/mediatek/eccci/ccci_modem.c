@@ -1864,8 +1864,9 @@ int ccci_md_prepare_runtime_data(unsigned char md_id, unsigned char *data,
 
 	total_len = rt_data - (char *)rt_data_region->base_ap_view_vir;
 	CCCI_BOOTUP_DUMP_LOG(md->index, TAG, "AP runtime data\n");
-	ccci_util_mem_dump(md->index, CCCI_DUMP_BOOTUP,
-		rt_data_region->base_ap_view_vir, total_len);
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			     rt_data_region->base_ap_view_vir, total_len,
+			     false);
 
 	return 0;
 }

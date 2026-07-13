@@ -160,13 +160,15 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 
 		/* Dump MD image memory */
 		CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD image memory\n");
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
+		print_hex_dump_debug(
+			"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			(void *)mem_layout->md_bank0.base_ap_view_vir,
-			MD_IMG_DUMP_SIZE);
+			MD_IMG_DUMP_SIZE, false);
 		/* Dump MD memory layout */
 		CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD layout struct\n");
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP, mem_layout,
-			sizeof(struct ccci_mem_layout));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mem_layout, sizeof(struct ccci_mem_layout),
+				     false);
 
 		/* Dump CCB memory */
 		ccci_md_dump_info(md_id,

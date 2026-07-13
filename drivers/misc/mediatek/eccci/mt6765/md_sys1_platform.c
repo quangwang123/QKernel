@@ -472,21 +472,21 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		dump_reg0 =
 		 ioremap_nocache(MD_PC_MONITOR_BASE, MD_PC_MONITOR_LEN);
 		ccci_write32(dump_reg0, 0x800, 0x22); /* stop MD PCMon */
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x800), 0x100);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0 + 0x900, 0x60);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xA00), 0x60);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x800), 0x100, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0 + 0x900, 0x60, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xA00), 0x60, false);
 		/* core0 */
 		CCCI_MEM_LOG_TAG(md->index, TAG, "core0/1: [0]0x%X, [1]0x%X\n",
 				MD_PC_MONITOR_BASE,
 				(MD_PC_MONITOR_BASE + 0x400));
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0x400);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0x400, false);
 		/* core1 */
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x400), 0x400);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x400), 0x400, false);
 		/* Resume PCMon */
 		ccci_write32(dump_reg0, 0x800, 0x11);
 		ccci_read32(dump_reg0, 0x800);
@@ -502,12 +502,12 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			MD_CLKSW_BASE, (MD_CLKSW_BASE + 0x100),
 			(MD_CLKSW_BASE + 0xF00));
 		dump_reg0 = ioremap_nocache(MD_CLKSW_BASE, MD_CLKSW_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0xD4);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x100), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xF00), 0x8);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0xD4, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x100), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xF00), 0x8, false);
 		iounmap(dump_reg0);
 		/* MD PLLMIXED */
 		CCCI_MEM_LOG_TAG(md->index, TAG,
@@ -524,35 +524,35 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			(MD_PLL_MIXED_BASE + 0xF00));
 		dump_reg0 =
 		 ioremap_nocache(MD_PLL_MIXED_BASE, MD_PLL_MIXED_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0x68);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x100), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x8);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x300), 0x1C);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x400), 0x5C);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x500), 0xD0);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x600), 0x10);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xC00), 0x48);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xD00), 0x8);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xF00), 0x14);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0x68, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x100), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x8, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x300), 0x1C, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x400), 0x5C, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x500), 0xD0, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x600), 0x10, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xC00), 0x48, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xD00), 0x8, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xF00), 0x14, false);
 		iounmap(dump_reg0);
 		/* MD CLKCTL */
 		CCCI_MEM_LOG_TAG(md->index, TAG, "CLKCTL: [0]0x%X, [1]0x%X\n",
 			MD_CLKCTL_BASE, (MD_CLKCTL_BASE + 0x100));
 		dump_reg0 = ioremap_nocache(MD_CLKCTL_BASE, MD_CLKCTL_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0x1C);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x100), 0x20);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0x1C, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x100), 0x20, false);
 		iounmap(dump_reg0);
 		/* MD GLOBAL CON */
 		CCCI_MEM_LOG_TAG(md->index, TAG,
@@ -568,24 +568,24 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			(MD_GLOBALCON_BASE + 0xF00));
 		dump_reg0 =
 		 ioremap_nocache(MD_GLOBALCON_BASE, MD_GLOBALCON_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0xA0);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x100), 0x10);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x98);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x300), 0x24);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x800), 0x8);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x900), 0x8);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xC00), 0x1C);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xD00), 4);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0xF00), 8);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0xA0, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x100), 0x10, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x98, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x300), 0x24, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x800), 0x8, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x900), 0x8, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xC00), 0x1C, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xD00), 4, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0xF00), 8, false);
 		iounmap(dump_reg0);
 	}
 
@@ -597,8 +597,8 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			MD_BUS_REG_BASE0, MD_BUS_REG_BASE1,
 			MD_BUS_REG_BASE2, MD_BUS_REG_BASE3);
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE0, MD_BUS_REG_LEN0);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_BUS_REG_LEN0);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_BUS_REG_LEN0, false);
 		iounmap(dump_reg0);
 #elif defined(CONFIG_MACH_MT6761)
 		CCCI_MEM_LOG_TAG(md->index, TAG,
@@ -607,16 +607,16 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			MD_BUS_REG_BASE3);
 #endif
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE1, MD_BUS_REG_LEN1);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_BUS_REG_LEN1);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_BUS_REG_LEN1, false);
 		iounmap(dump_reg0);
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE2, MD_BUS_REG_LEN2);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_BUS_REG_LEN2);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_BUS_REG_LEN2, false);
 		iounmap(dump_reg0);
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE3, MD_BUS_REG_LEN3);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_BUS_REG_LEN3);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_BUS_REG_LEN3, false);
 		iounmap(dump_reg0);
 	}
 
@@ -635,42 +635,42 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		dump_reg0 =
 		 ioremap_nocache(MD_MCU_MO_BUSREC_BASE, MD_MCU_MO_BUSREC_LEN);
 		ccci_write32(dump_reg0, 0x10, 0x0); /* stop */
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x0), 0x104);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x300), 0x30);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x400), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x500), 0x30);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x700), 0x51C);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x0), 0x104, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x300), 0x30, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x400), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x500), 0x30, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x700), 0x51C, false);
 		ccci_write32(dump_reg0, 0x10, 0x1); /* re-start */
 		iounmap(dump_reg0);
 		dump_reg0 =
 		 ioremap_nocache(MD_INFRA_BUSREC_BASE, MD_INFRA_BUSREC_LEN);
 		ccci_write32(dump_reg0, 0x10, 0x0); /* stop */
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x0), 0x104);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x300), 0x30);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x400), 0x18);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x500), 0x30);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x700), 0x51C);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x0), 0x104, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x300), 0x30, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x400), 0x18, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x500), 0x30, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x700), 0x51C, false);
 		ccci_write32(dump_reg0, 0x10, 0x1);/* re-start */
 		iounmap(dump_reg0);
 #if defined(CONFIG_ARCH_MT6765)
 		dump_reg0 =
 		 ioremap_nocache(MD_BUSREC_LAY_BASE, MD_BUSREC_LAY_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0x8);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0x8, false);
 		iounmap(dump_reg0);
 #endif
 	}
@@ -683,20 +683,20 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			(MD_ECT_REG_BASE2 + 0x14), (MD_ECT_REG_BASE2 + 0x0C));
 		dump_reg0 =
 		 ioremap_nocache(MD_ECT_REG_BASE0, MD_ECT_REG_LEN0);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_ECT_REG_LEN0);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_ECT_REG_LEN0, false);
 		iounmap(dump_reg0);
 		dump_reg0 =
 		 ioremap_nocache(MD_ECT_REG_BASE1, MD_ECT_REG_LEN1);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_ECT_REG_LEN1);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_ECT_REG_LEN1, false);
 		iounmap(dump_reg0);
 		dump_reg0 =
 		 ioremap_nocache(MD_ECT_REG_BASE2, MD_ECT_REG_LEN2);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x14), 0x4);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x0C), 0x4);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x14), 0x4, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x0C), 0x4, false);
 		iounmap(dump_reg0);
 	}
 
@@ -747,8 +747,8 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			"Dump MD TOPSM status: 0x%X\n", MD_TOPSM_REG_BASE);
 		dump_reg0 =
 		 ioremap_nocache(MD_TOPSM_REG_BASE, MD_TOPSM_REG_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_TOPSM_REG_LEN);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_TOPSM_REG_LEN, false);
 		iounmap(dump_reg0);
 	}
 
@@ -759,10 +759,10 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			MD_RGU_REG_BASE, (MD_RGU_REG_BASE + 0x200));
 		dump_reg0 =
 		 ioremap_nocache(MD_RGU_REG_BASE, MD_RGU_REG_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0xCC);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x5C);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0xCC, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x5C, false);
 		iounmap(dump_reg0);
 	}
 
@@ -773,26 +773,26 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			MD_OST_STATUS_BASE, (MD_OST_STATUS_BASE + 0x200));
 		dump_reg0 =
 		 ioremap_nocache(MD_OST_STATUS_BASE, 0x300);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0xF0);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, (dump_reg0 + 0x200), 0x8);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0xF0, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (dump_reg0 + 0x200), 0x8, false);
 		iounmap(dump_reg0);
 		/* 9 CSC */
 		CCCI_MEM_LOG_TAG(md->index, TAG,
 			"Dump MD CSC: 0x%X\n", MD_CSC_REG_BASE);
 		dump_reg0 =
 		 ioremap_nocache(MD_CSC_REG_BASE, MD_CSC_REG_LEN);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, MD_CSC_REG_LEN);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, MD_CSC_REG_LEN, false);
 		iounmap(dump_reg0);
 		/* 10 ELM */
 		CCCI_MEM_LOG_TAG(md->index, TAG,
 			"Dump MD ELM: 0x%X\n", MD_ELM_REG_BASE);
 		dump_reg0 =
 		 ioremap_nocache(MD_ELM_REG_BASE, 0x480);
-		ccci_util_mem_dump(md->index,
-			CCCI_DUMP_MEM_DUMP, dump_reg0, 0x480);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     dump_reg0, 0x480, false);
 		iounmap(dump_reg0);
 	}
 

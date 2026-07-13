@@ -124,7 +124,7 @@ int port_dev_close(struct inode *inode, struct file *file)
 		port->name, port->rx_skb_list.qlen,
 		skb_queue_empty(&port->rx_skb_list),
 		clear_cnt, port->rx_drop_cnt);
-	ccci_event_log(
+	pr_debug(
 		"md%d: port %s close rx_len=%d empty=%d, clear_cnt=%d, drop=%d\n",
 		md_id, port->name,
 		port->rx_skb_list.qlen,
@@ -791,7 +791,7 @@ int port_user_unregister(struct port_t *port)
 
 	CCCI_NORMAL_LOG(md_id, TAG, "critical user check: 0x%x\n",
 		proxy_p->critical_user_active);
-	ccci_event_log("md%d: critical user check: 0x%x\n",
+	pr_debug("md%d: critical user check: 0x%x\n",
 		md_id, proxy_p->critical_user_active);
 	return 0;
 }

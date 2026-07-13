@@ -5,4 +5,3 @@
 
 
 extern int curr_ubin_id;
-int get_dump_buf_usage(char buf[], int size);
