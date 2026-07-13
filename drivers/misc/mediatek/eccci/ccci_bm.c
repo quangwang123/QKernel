@@ -134,16 +134,16 @@ void ccci_magic_checker(void)
 	if (skb_pool_16.magic_header != SKB_MAGIC_HEADER ||
 		skb_pool_16.magic_footer != SKB_MAGIC_FOOTER) {
 		((void)0);
-		ccci_mem_dump(-1, &skb_pool_16,
-			sizeof(struct ccci_skb_queue));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			&skb_pool_16, sizeof(struct ccci_skb_queue), false);
 		dump_stack();
 	}
 
 	if (skb_pool_4K.magic_header != SKB_MAGIC_HEADER ||
 		skb_pool_4K.magic_footer != SKB_MAGIC_FOOTER) {
 		((void)0);
-		ccci_mem_dump(-1, &skb_pool_4K,
-			sizeof(struct ccci_skb_queue));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			&skb_pool_4K, sizeof(struct ccci_skb_queue), false);
 		dump_stack();
 	}
 }
@@ -438,88 +438,6 @@ static void __16_reload_work(struct work_struct *work)
  * then used again, the poor guy who is waiting for it may never see
  * the state transition (FLYING->IDLE/COMPLETE->FLYING) and wait forever.
  */
-
-void ccci_mem_dump(int md_id, void *start_addr, int len)
-{
-	unsigned int *curr_p = (unsigned int *)start_addr;
-	unsigned char *curr_ch_p;
-	int _16_fix_num = len / 16;
-	int tail_num = len % 16;
-	char buf[16];
-	int i, j;
-
-	if (curr_p == NULL) {
-		((void)0);
-		return;
-	}
-	if (len == 0) {
-		((void)0);
-		return;
-	}
-
-	((void)0);
-	/* Fix section */
-	for (i = 0; i < _16_fix_num; i++) {
-		((void)0);
-		curr_p += 4;
-	}
-
-	/* Tail section */
-	if (tail_num > 0) {
-		curr_ch_p = (unsigned char *)curr_p;
-		for (j = 0; j < tail_num; j++) {
-			buf[j] = *curr_ch_p;
-			curr_ch_p++;
-		}
-		for (; j < 16; j++)
-			buf[j] = 0;
-		curr_p = (unsigned int *)buf;
-		((void)0);
-	}
-}
-
-void ccci_cmpt_mem_dump(int md_id, void *start_addr, int len)
-{
-	unsigned int *curr_p = (unsigned int *)start_addr;
-	unsigned char *curr_ch_p;
-	int _64_fix_num = len / 64;
-	int tail_num = len % 64;
-	char buf[64];
-	int i, j;
-
-	if (curr_p == NULL) {
-		((void)0);
-		return;
-	}
-	if (len == 0) {
-		((void)0);
-		return;
-	}
-
-	/* Fix section */
-	for (i = 0; i < _64_fix_num; i++) {
-		((void)0);
-		curr_p += 64/4;
-	}
-
-	/* Tail section */
-	if (tail_num > 0) {
-		curr_ch_p = (unsigned char *)curr_p;
-		for (j = 0; j < tail_num; j++) {
-			buf[j] = *curr_ch_p;
-			curr_ch_p++;
-		}
-		for (; j < 64; j++)
-			buf[j] = 0;
-		curr_p = (unsigned int *)buf;
-		((void)0);
-	}
-}
-
-void ccci_dump_skb(struct sk_buff *skb)
-{
-	ccci_mem_dump(-1, skb->data, skb->len > 32 ? 32 : skb->len);
-}
 
 int ccci_subsys_bm_init(void)
 {

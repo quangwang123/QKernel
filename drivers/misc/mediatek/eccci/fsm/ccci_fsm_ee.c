@@ -46,12 +46,12 @@ void fsm_md_bootup_timeout_handler(struct ccci_fsm_ee *ee_ctl)
 		return;
 	}
 	((void)0);
-	ccci_mem_dump(ee_ctl->md_id,
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 		(void *)mem_layout->md_bank0.base_ap_view_vir,
-		MD_IMG_DUMP_SIZE);
+		MD_IMG_DUMP_SIZE, false);
 	((void)0);
-	ccci_mem_dump(ee_ctl->md_id, mem_layout,
-		sizeof(struct ccci_mem_layout));
+	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+		mem_layout, sizeof(struct ccci_mem_layout), false);
 	((void)0);
 	ccci_md_dump_info(ee_ctl->md_id,
 		(DUMP_FLAG_QUEUE_0_1 | DUMP_MD_BOOTUP_STATUS
@@ -367,4 +367,3 @@ int fsm_ee_init(struct ccci_fsm_ee *ee_ctl)
 	}
 	return ret;
 }
-

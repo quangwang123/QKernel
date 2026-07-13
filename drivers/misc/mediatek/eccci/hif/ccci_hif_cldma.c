@@ -360,9 +360,7 @@ static void cldma_dump_packet_history(struct md_cd_ctrl *md_ctrl)
 	for (i = 0; i < QUEUE_LEN(md_ctrl->rxq); i++) {
 		((void)0);
 	}
-	ccci_md_dump_log_history(md_ctrl->md_id,
-		&md_ctrl->traffic_info, 1, QUEUE_LEN(md_ctrl->txq),
-		QUEUE_LEN(md_ctrl->rxq));
+	((void)0);
 }
 
 static void cldma_dump_queue_history(struct md_cd_ctrl *md_ctrl,
@@ -376,8 +374,7 @@ static void cldma_dump_queue_history(struct md_cd_ctrl *md_ctrl,
 	}
 
 	((void)0);
-	ccci_md_dump_log_history(md_ctrl->md_id,
-		&md_ctrl->traffic_info, 0, qno, qno);
+	((void)0);
 }
 
 /*actrually, length is dump flag's private argument*/
@@ -655,9 +652,7 @@ again:
 				cldma_ring_step_forward(queue->tr_ring, req);
 			/* update log */
 			rxbytes += skb_bytes;
-			ccci_md_add_log_history(&md_ctrl->traffic_info, IN,
-				(int)queue->index, &ccci_h,
-				(ret >= 0 ? 0 : 1));
+			((void)0);
 			/* refill */
 			req = queue->rx_refill;
 			rgpd = (struct cldma_rgpd *)req->gpd;
@@ -1931,9 +1926,6 @@ static int md_cd_clear_all_queue(unsigned char hif_id, enum DIRECTION dir)
 			md_ctrl->txq[i].tx_xmit = req;
 			md_ctrl->txq[i].budget =
 				md_ctrl->txq[i].tr_ring->length;
-#if PACKET_HISTORY_DEPTH
-			md_ctrl->traffic_info.tx_history_ptr[i] = 0;
-#endif
 			list_for_each_entry(req,
 				&md_ctrl->txq[i].tr_ring->gpd_ring,
 				entry) {
@@ -1964,9 +1956,6 @@ static int md_cd_clear_all_queue(unsigned char hif_id, enum DIRECTION dir)
 				struct cldma_request, entry);
 			md_ctrl->rxq[i].tr_done = req;
 			md_ctrl->rxq[i].rx_refill = req;
-#if PACKET_HISTORY_DEPTH
-			md_ctrl->traffic_info.rx_history_ptr[i] = 0;
-#endif
 			list_for_each_entry(req,
 				&md_ctrl->rxq[i].tr_ring->gpd_ring,
 				entry) {
@@ -2073,9 +2062,6 @@ static int md_cd_start_queue(unsigned char hif_id, unsigned char qno,
 			struct cldma_request, entry);
 		md_ctrl->rxq[qno].tr_done = req;
 		md_ctrl->rxq[qno].rx_refill = req;
-#if PACKET_HISTORY_DEPTH
-		md_ctrl->traffic_info.rx_history_ptr[qno] = 0;
-#endif
 		list_for_each_entry(req, &md_ctrl->txq[qno].tr_ring->gpd_ring,
 			entry) {
 			rgpd = (struct cldma_rgpd *)req->gpd;
@@ -2402,8 +2388,7 @@ static int md_cd_send_skb(unsigned char hif_id, int qno,
 			cldma_ring_step_forward(queue->tr_ring, tx_req);
 		spin_unlock_irqrestore(&queue->ring_lock, flags);
 		/* update log */
-		ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
-			(int)queue->index, &ccci_h, 0);
+		((void)0);
 		/*
 		 * make sure TGPD is ready by here,
 		 * otherwise there is race conditon between
