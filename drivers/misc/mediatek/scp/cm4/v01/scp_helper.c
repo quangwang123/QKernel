@@ -38,7 +38,9 @@
 #include "mtk_spm_resource_req.h"
 
 #ifdef CONFIG_OF_RESERVED_MEM
+#include <linux/memblock.h>
 #include <linux/of_reserved_mem.h>
+#include <linux/sizes.h>
 #include "scp_reservedmem_define.h"
 #endif
 
@@ -1067,6 +1069,37 @@ phys_addr_t scp_get_reserve_mem_size(enum scp_reserve_mem_id_t id)
 }
 EXPORT_SYMBOL_GPL(scp_get_reserve_mem_size);
 
+#if SCP_RESERVED_MEM && defined(CONFIG_OF_RESERVED_MEM) && \
+	defined(CONFIG_MTK_ENABLE_GMO)
+static int __init scp_reserve_mem_of_init(struct reserved_mem *rmem)
+{
+	const phys_addr_t keep = SZ_1M;
+	phys_addr_t tail_base;
+	phys_addr_t tail_size;
+	int ret;
+
+	if (rmem->size <= keep)
+		return 0;
+
+	tail_base = rmem->base + keep;
+	tail_size = rmem->size - keep;
+	if (memblock_is_region_memory(tail_base, tail_size))
+		ret = memblock_free(tail_base, tail_size);
+	else
+		ret = memblock_add(tail_base, tail_size);
+	if (ret)
+		return ret;
+
+	rmem->size = keep;
+	pr_info("[SCP] reclaimed %pa-byte logger tail at %pa\n",
+		&tail_size, &tail_base);
+	return 0;
+}
+
+RESERVEDMEM_OF_DECLARE(scp_reservedmem,
+	"mediatek,reserve-memory-scp_share", scp_reserve_mem_of_init);
+#endif
+
 #if SCP_RESERVED_MEM && defined(CONFIG_OF)
 
 static int scp_reserve_memory_ioremap(struct platform_device *pdev)
@@ -1163,6 +1196,13 @@ static int scp_reserve_memory_ioremap(struct platform_device *pdev)
 			pr_notice("[SCP] skip unexpected index, %d\n", m_idx);
 			continue;
 		}
+
+#ifdef CONFIG_MTK_ENABLE_GMO
+		if (m_idx == SCP_A_LOGGER_MEM_ID) {
+			pr_info("[SCP] skip reserved logger memory\n");
+			continue;
+		}
+#endif
 
 		scp_reserve_mblock[m_idx].size = m_size;
 		pr_err("@@@@ reserved: <%d  %d>\n", m_idx, m_size);
@@ -2125,5 +2165,4 @@ late_initcall(scp_late_init);
 MODULE_DESCRIPTION("MEDIATEK Module SCP driver");
 MODULE_AUTHOR("McInnis Yu<mcinnis.yu@mediatek.com>");
 MODULE_LICENSE("GPL");
-
 
