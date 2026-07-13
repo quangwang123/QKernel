@@ -187,22 +187,6 @@ static ssize_t ccci_md1_post_fix_show(char *buf)
 
 CCCI_ATTR(md1_postfix, 0444, &ccci_md1_post_fix_show, NULL);
 
-/* Sys -- dump buff usage */
-static ssize_t ccci_dump_buff_usage_show(char *buf)
-{
-	return get_dump_buf_usage(buf, 4095);
-}
-
-CCCI_ATTR(dump_max, 0660, &ccci_dump_buff_usage_show, NULL);
-
-/* Sys -- ccci stage change(chn) log  */
-static ssize_t ccci_dump_event_show(char *buf)
-{
-	return (ssize_t)ccci_event_log_cpy(buf, 4095);
-}
-
-CCCI_ATTR(md_chn, 0444, &ccci_dump_event_show, NULL);
-
 /* Sys -- Versin */
 static unsigned int ccci_port_ver = 6; /* ECCCI_FSM */
 static ssize_t ccci_version_show(char *buf)
@@ -217,26 +201,6 @@ void update_ccci_port_ver(unsigned int new_ver)
 
 CCCI_ATTR(version, 0644, &ccci_version_show, NULL);
 
-static ssize_t debug_enable_show(char *buf)
-{
-	int curr = 0;
-
-	curr = snprintf(buf, 16, "%d\n", 2);/* ccci_debug_enable); */
-	if (curr < 0 || curr >= 16) {
-		CCCI_UTIL_INF_MSG(
-			"%s-%d:snprintf fail,curr=%d\n", __func__, __LINE__, curr);
-		return -1;
-	}
-	return curr;
-}
-
-static ssize_t debug_enable_store(const char *buf, size_t count)
-{
-	/* ccci_debug_enable = buf[0] - '0'; */
-	return count;
-}
-
-CCCI_ATTR(debug, 0660, &debug_enable_show, &debug_enable_store);
 /* Sys -- dump lk load md info */
 static ssize_t ccci_lk_load_md_show(char *buf)
 {
@@ -401,11 +365,8 @@ static struct attribute *ccci_default_attrs[] = {
 	&ccci_attr_boot.attr,
 	&ccci_attr_version.attr,
 	&ccci_attr_md_en.attr,
-	&ccci_attr_debug.attr,
 	&ccci_attr_kcfg_setting.attr,
-	&ccci_attr_dump_max.attr,
 	&ccci_attr_lk_md.attr,
-	&ccci_attr_md_chn.attr,
 	&ccci_attr_ft_info.attr,
 	&ccci_attr_md1_postfix.attr,
 	NULL

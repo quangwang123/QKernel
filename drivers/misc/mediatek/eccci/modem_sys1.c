@@ -104,7 +104,7 @@ static irqreturn_t md_cd_wdt_isr(int irq, void *data)
 	ccif_disable_irq(md);
 	wdt_disable_irq(md);
 
-	ccci_event_log("md%d: MD WDT IRQ\n", md->index);
+	pr_err("ccci%d: modem watchdog interrupt\n", md->index + 1);
 #ifndef DISABLE_MD_WDT_PROCESS
 	/* 1. disable MD WDT */
 #ifdef ENABLE_MD_WDT_DBG
@@ -156,7 +156,8 @@ static void md_cd_exception(struct ccci_modem *md, enum HIF_EX_STAGE stage)
 			SMEM_USER_RAW_MDCCCI_DBG);
 
 	CCCI_ERROR_LOG(md->index, TAG, "MD exception HIF %d\n", stage);
-	ccci_event_log("md%d:MD exception HIF %d\n", md->index, stage);
+	pr_err("ccci%d: modem exception at HIF stage %d\n",
+		md->index + 1, stage);
 	/* in exception mode, MD won't sleep, so we do not
 	 * need to request MD resource first
 	 */
@@ -508,14 +509,14 @@ static int md_cd_pre_stop(struct ccci_modem *md, unsigned int stop_type)
 			CCCI_NORMAL_LOG(md->index, TAG, "WDT IRQ occur.");
 			CCCI_MEM_LOG_TAG(md->index, TAG, "Dump MD EX log\n");
 			if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
-				ccci_util_mem_dump(md->index,
-					CCCI_DUMP_MEM_DUMP,
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdccci_dbg->base_ap_view_vir,
-					mdccci_dbg->size);
-				ccci_util_mem_dump(md->index,
-					CCCI_DUMP_MEM_DUMP,
+					mdccci_dbg->size, false);
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdss_dbg->base_ap_view_vir,
-					mdss_dbg->size);
+					mdss_dbg->size, false);
 			}
 			if (md->hw_info->plat_ptr->debug_reg)
 				md->hw_info->plat_ptr->debug_reg(md);
@@ -558,14 +559,16 @@ static void debug_in_flight_mode(struct ccci_modem *md)
 				"Dump MD EX log\n");
 				if (md_dbg_dump_flag &
 					(1 << MD_DBG_DUMP_SMEM)) {
-					ccci_util_mem_dump(md->index,
-					CCCI_DUMP_MEM_DUMP,
-					mdccci_dbg->base_ap_view_vir,
-					mdccci_dbg->size);
-					ccci_util_mem_dump(md->index,
-					CCCI_DUMP_MEM_DUMP,
-					mdss_dbg->base_ap_view_vir,
-					mdss_dbg->size);
+					print_hex_dump_debug(
+						"ccci: ", DUMP_PREFIX_OFFSET,
+						16, 4,
+						mdccci_dbg->base_ap_view_vir,
+						mdccci_dbg->size, false);
+					print_hex_dump_debug(
+						"ccci: ", DUMP_PREFIX_OFFSET,
+						16, 4,
+						mdss_dbg->base_ap_view_vir,
+						mdss_dbg->size, false);
 				}
 				if (md->hw_info->plat_ptr->debug_reg)
 					md->hw_info->plat_ptr->debug_reg(md);
@@ -933,10 +936,12 @@ static int md_cd_dump_info(struct ccci_modem *md,
 
 		CCCI_MEM_LOG_TAG(md->index, TAG,
 			"Dump exception share memory\n");
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			mdccci_dbg->base_ap_view_vir, mdccci_dbg->size);
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			mdss_dbg->base_ap_view_vir, mdss_dbg->size);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdccci_dbg->base_ap_view_vir,
+				     mdccci_dbg->size, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdss_dbg->base_ap_view_vir, mdss_dbg->size,
+				     false);
 	}
 	if (flag & DUMP_FLAG_SMEM_CCISM) {
 		struct ccci_smem_region *scp =
@@ -945,8 +950,8 @@ static int md_cd_dump_info(struct ccci_modem *md,
 
 		CCCI_MEM_LOG_TAG(md->index, TAG,
 			"Dump CCISM share memory\n");
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			scp->base_ap_view_vir, scp->size);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     scp->base_ap_view_vir, scp->size, false);
 	}
 	if (flag & DUMP_FLAG_SMEM_CCB_CTRL) {
 		struct ccci_smem_region *ccb_ctl =
@@ -956,9 +961,9 @@ static int md_cd_dump_info(struct ccci_modem *md,
 		if (ccb_ctl) {
 			CCCI_MEM_LOG_TAG(md->index, TAG,
 				"Dump CCB CTRL share memory\n");
-			ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-				ccb_ctl->base_ap_view_vir,
-				32 * ccb_configs_len * 2);
+			print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16,
+					     4, ccb_ctl->base_ap_view_vir,
+					     32 * ccb_configs_len * 2, false);
 		}
 	}
 	if (flag & DUMP_FLAG_SMEM_CCB_DATA) {
@@ -981,8 +986,7 @@ static int md_cd_dump_info(struct ccci_modem *md,
 				/* dump dl buffer */
 				for (j = 0; j < ccb_configs[i].dl_buff_size /
 					ccb_configs[i].dl_page_size;  j++) {
-					ccci_dump_write(md->index,
-						CCCI_DUMP_MEM_DUMP, 0,
+					pr_debug(
 						"ul_buf%2d-page%2d %p: %08X %08X %08X %08X\n",
 						i, j, curr_p,
 						*curr_p, *(curr_p + 1),
@@ -996,8 +1000,7 @@ static int md_cd_dump_info(struct ccci_modem *md,
 				/* dump ul buffer */
 				for (j = 0; j < ccb_configs[i].ul_buff_size /
 					ccb_configs[i].ul_page_size; j++) {
-					ccci_dump_write(md->index,
-						CCCI_DUMP_MEM_DUMP, 0,
+					pr_debug(
 						"dl_buf%2d-page%2d %p: %08X %08X %08X %08X\n",
 						i, j, curr_p,
 						*curr_p, *(curr_p + 1),
@@ -1014,8 +1017,7 @@ static int md_cd_dump_info(struct ccci_modem *md,
 				"Dump DHL RAW share memory\n");
 			curr_ch_p = dhl_raw->base_ap_view_vir;
 			curr_p = (unsigned int *)curr_ch_p;
-			ccci_dump_write(md->index,
-				CCCI_DUMP_MEM_DUMP, 0,
+			pr_debug(
 					"%p: %08X %08X %08X %08X\n",
 					curr_p, *curr_p, *(curr_p + 1),
 					*(curr_p + 2), *(curr_p + 3));
@@ -1023,14 +1025,16 @@ static int md_cd_dump_info(struct ccci_modem *md,
 	}
 	if (flag & DUMP_FLAG_IMAGE) {
 		CCCI_MEM_LOG_TAG(md->index, TAG, "Dump MD image memory\n");
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
+		print_hex_dump_debug(
+			"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			(void *)md->mem_layout.md_bank0.base_ap_view_vir,
-			MD_IMG_DUMP_SIZE);
+			MD_IMG_DUMP_SIZE, false);
 	}
 	if (flag & DUMP_FLAG_LAYOUT) {
 		CCCI_MEM_LOG_TAG(md->index, TAG, "Dump MD layout struct\n");
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			&md->mem_layout, sizeof(struct ccci_mem_layout));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     &md->mem_layout,
+				     sizeof(struct ccci_mem_layout), false);
 	}
 
 	if (flag & DUMP_FLAG_SMEM_MDSLP) {
@@ -1047,13 +1051,14 @@ static int md_cd_dump_info(struct ccci_modem *md,
 		if (md->hw_info->plat_ptr->lock_modem_clock_src)
 			md->hw_info->plat_ptr->lock_modem_clock_src(1);
 #ifdef BASE_ADDR_MDRSTCTL
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			md_info->md_rgu_base, 0x88);
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			(md_info->md_rgu_base + 0x200), 0x5c);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     md_info->md_rgu_base, 0x88, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     (md_info->md_rgu_base + 0x200), 0x5c,
+				     false);
 #else
-		ccci_util_mem_dump(md->index, CCCI_DUMP_MEM_DUMP,
-			md_info->md_rgu_base, 0x30);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     md_info->md_rgu_base, 0x30, false);
 #endif
 		if (md->hw_info->plat_ptr->lock_modem_clock_src)
 			md->hw_info->plat_ptr->lock_modem_clock_src(0);
@@ -1486,4 +1491,3 @@ int Is_MD_EMI_voilation(void)
 {
 	return 1;
 }
-

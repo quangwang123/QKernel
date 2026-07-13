@@ -380,13 +380,16 @@ err_exit:
 	if ((md_id == MD_SYS3)
 		|| (dumper->more_info == MD_EE_CASE_NORMAL
 		&& md_state == BOOT_WAITING_FOR_HS1)) {
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			&dumper->ex_info, sizeof(struct ex_log_t));
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     &dumper->ex_info, sizeof(struct ex_log_t),
+				     false);
 	} else if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			mdccci_dbg->base_ap_view_vir, mdccci_dbg->size);
-		ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-			mdss_dbg->base_ap_view_vir, mdss_dbg->size);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdccci_dbg->base_ap_view_vir,
+				     mdccci_dbg->size, false);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+				     mdss_dbg->base_ap_view_vir, mdss_dbg->size,
+				     false);
 	}
 
 	if (dumper->more_info == MD_EE_CASE_NORMAL
@@ -720,12 +723,14 @@ static void mdee_dumper_v1_dump_ee_info(struct ccci_fsm_ee *mdee,
 			/* Handshake 2 fail */
 			CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD EX log\n");
 			if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
-				ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdccci_dbg->base_ap_view_vir,
-					mdccci_dbg->size);
-				ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
+					mdccci_dbg->size, false);
+				print_hex_dump_debug(
+					"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 					mdss_dbg->base_ap_view_vir,
-					mdss_dbg->size);
+					mdss_dbg->size, false);
 			}
 
 			ccci_aed_v1(mdee,
@@ -740,10 +745,12 @@ static void mdee_dumper_v1_dump_ee_info(struct ccci_fsm_ee *mdee,
 	} else if (level == MDEE_DUMP_LEVEL_STAGE1) {
 		if (md_dbg_dump_flag & (1 << MD_DBG_DUMP_SMEM)) {
 			CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD exp smem_log\n");
-			ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-				mdccci_dbg->base_ap_view_vir, mdccci_dbg->size);
-			ccci_util_mem_dump(md_id, CCCI_DUMP_MEM_DUMP,
-				mdss_dbg->base_ap_view_vir, mdss_dbg->size);
+			print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16,
+					     4, mdccci_dbg->base_ap_view_vir,
+					     mdccci_dbg->size, false);
+			print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16,
+					     4, mdss_dbg->base_ap_view_vir,
+					     mdss_dbg->size, false);
 		}
 	} else if (level == MDEE_DUMP_LEVEL_STAGE2) {
 		mdee_dumper_info_prepare_v1(mdee);
