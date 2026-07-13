@@ -293,7 +293,7 @@ int ccmni_send_pkt(int md_id, int ccmni_idx, void *data, int is_ack)
 			(unsigned int)(total_time));
 	} else {
 		trace_port_net_error(port->md_id, -1, tx_ch,
-			port->tx_busy_count, __LINE__);
+			0, __LINE__);
 	}
 #endif
 	return ret;

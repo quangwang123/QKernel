@@ -17,10 +17,6 @@
 #define PORT_F_RX_EXCLUSIVE	(1<<3)
 /* Check whether need remove ccci header while recv skb*/
 #define PORT_F_ADJUST_HEADER	(1<<4)
-/* Enable port channel traffic*/
-#define PORT_F_CH_TRAFFIC	(1<<5)
-/* Dump raw data if CH_TRAFFIC set*/
-#define PORT_F_DUMP_RAW_DATA	(1<<6)
 /* Need export char dev node for userspace*/
 #define PORT_F_WITH_CHAR_NODE	(1<<7)
 
@@ -31,11 +27,6 @@
 /*Can be clean when MD is invalid*/
 #define PORT_F_CLEAN            (1<<9)
 
-enum {
-	PORT_DBG_DUMP_RILD = 0,
-	PORT_DBG_DUMP_AUDIO,
-	PORT_DBG_DUMP_IMS,
-};
 struct port_t;
 struct port_ops {
 	/* must-have */
@@ -102,12 +93,7 @@ struct port_t {
 	int rx_length;
 	int rx_length_th;
 	struct wakeup_source *rx_wakelock;
-	unsigned int tx_busy_count;
-	unsigned int rx_busy_count;
 	int interception;
-	unsigned int rx_pkg_cnt;
-	unsigned int rx_drop_cnt;
-	unsigned int tx_pkg_cnt;
 	port_skb_handler skb_handler;
 };
 /****************************************************************************/
@@ -128,7 +114,6 @@ int port_user_register(struct port_t *port);
 int port_user_unregister(struct port_t *port);
 int port_ask_more_req_to_md(struct port_t *port);
 int port_write_room_to_md(struct port_t *port);
-void port_ch_dump(struct port_t *port, int dir, void *msg_buf, int len);
 int port_get_capability(int md_id);
 struct port_t *port_get_by_node(int major, int minor);
 struct port_t *port_get_by_minor(int md_id, int minor);

@@ -24,7 +24,6 @@ struct port_proxy {
 	unsigned int major;
 	unsigned int minor_base;
 	unsigned int critical_user_active;
-	unsigned int traffic_dump_flag;
 	/*do NOT use this manner, otherwise spinlock inside
 	 * private_data will trigger alignment exception
 	 */
