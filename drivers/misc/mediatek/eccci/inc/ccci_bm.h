@@ -78,8 +78,4 @@ struct sk_buff *ccci_skb_dequeue(struct ccci_skb_queue *queue);
 void ccci_skb_enqueue(struct ccci_skb_queue *queue, struct sk_buff *newsk);
 void ccci_skb_queue_init(struct ccci_skb_queue *queue,
 	unsigned int skb_size, unsigned int max_len, char fill_now);
-void ccci_error_dump(int md_id, void *start_addr, int len);
-void ccci_mem_dump(int md_id, void *start_addr, int len);
-void ccci_cmpt_mem_dump(int md_id, void *start_addr, int len);
-
 #endif /* __CCCI_BM_H__ */

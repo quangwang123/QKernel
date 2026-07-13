@@ -175,8 +175,7 @@ static void dpmaif_dump_rxq_history(struct hif_dpmaif_ctrl *hif_ctrl,
 		((void)0);
 		return;
 	}
-	ccci_md_dump_log_history(md_id, &hif_ctrl->traffic_info,
-			dump_multi,	-1, qno);
+	((void)0);
 }
 
 static void dpmaif_dump_txq_history(struct hif_dpmaif_ctrl *hif_ctrl,
@@ -188,8 +187,7 @@ static void dpmaif_dump_txq_history(struct hif_dpmaif_ctrl *hif_ctrl,
 		((void)0);
 		return;
 	}
-	ccci_md_dump_log_history(md_id, &hif_ctrl->traffic_info,
-			dump_multi, qno, -1);
+	((void)0);
 }
 
 static void dpmaif_dump_rxq_remain(struct hif_dpmaif_ctrl *hif_ctrl,
@@ -924,8 +922,7 @@ static int dpmaif_send_skb_to_net(struct dpmaif_rx_queue *rxq,
 #ifdef DPMAIF_DEBUG_LOG
 	((void)0);
 #endif
-	ccci_md_add_log_history(&dpmaif_ctrl->traffic_info, IN,
-		(int)rxq->index, &ccci_h, 0);
+	((void)0);
 
 	/* Add data to rx thread SKB list */
 	ret = ccci_skb_to_list(&rxq->skb_list, new_skb);
@@ -1687,8 +1684,7 @@ retry:
 	 * iph = (struct iphdr *)skb->data;
 	 * ccci_h.reserved = iph->id;
 	 */
-	ccci_md_add_log_history(&dpmaif_ctrl->traffic_info, OUT,
-			(int)txq->index, &ccci_h, 0);
+	((void)0);
 	/* get next index. */
 	cur_idx = ringbuf_get_next_idx(txq->drb_size_cnt, cur_idx, 1);
 

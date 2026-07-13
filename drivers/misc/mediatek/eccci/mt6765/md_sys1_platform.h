@@ -255,7 +255,6 @@ void md_cd_dump_pccif_reg(struct ccci_modem *md);
 
 //extern unsigned long infra_ao_base;
 extern unsigned int devapc_check_flag;
-extern void ccci_mem_dump(int md_id, void *start_addr, int len);
 extern int ccci_modem_init_common(struct platform_device *plat_dev,
 	struct ccci_dev_cfg *dev_cfg, struct md_hw_info *md_hw);
 

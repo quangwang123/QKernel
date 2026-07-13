@@ -85,7 +85,6 @@ void ccci_modem_sysresume(void);
 void md_dump_register_6779(unsigned int md_index);
 
 extern unsigned int devapc_check_flag;
-extern void ccci_mem_dump(int md_id, void *start_addr, int len);
 extern void dump_emi_outstanding(void);
 extern int ccci_modem_init_common(struct platform_device *plat_dev,
 	struct ccci_dev_cfg *dev_cfg, struct md_hw_info *md_hw);

@@ -960,8 +960,8 @@ static int md_cd_dump_info(struct ccci_modem *md,
 				SMEM_USER_RAW_DBM);
 
 		((void)0);
-		ccci_cmpt_mem_dump(md->index, low_pwr->base_ap_view_vir,
-			low_pwr->size);
+		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
+			low_pwr->base_ap_view_vir, low_pwr->size, false);
 	}
 	if (flag & DUMP_FLAG_MD_WDT) {
 		((void)0);
@@ -1166,24 +1166,7 @@ static ssize_t md_cd_control_store(struct ccci_modem *md,
 
 static ssize_t md_cd_parameter_show(struct ccci_modem *md, char *buf)
 {
-	int count = 0;
-	int ret = 0;
-
-	ret = snprintf(buf + count, 128,
-		"PACKET_HISTORY_DEPTH=%d\n", PACKET_HISTORY_DEPTH);
-	if (ret < 0 || ret >= 128) {
-		((void)0);
-		return -1;
-	}
-	count += ret;
-	ret = snprintf(buf + count, 128, "BD_NUM=%ld\n", MAX_BD_NUM);
-	if (ret < 0 || ret >= 128) {
-		((void)0);
-		return -1;
-	}
-	count += ret;
-
-	return count;
+	return scnprintf(buf, 128, "BD_NUM=%ld\n", MAX_BD_NUM);
 }
 
 static ssize_t md_cd_parameter_store(struct ccci_modem *md,

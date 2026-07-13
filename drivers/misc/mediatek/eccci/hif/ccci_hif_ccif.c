@@ -614,9 +614,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 			ccci_md_check_rx_seq_num(md_ctrl->md_id,
 				&md_ctrl->traffic_info,
 				&ccci_hdr, queue->index);
-			ccci_md_add_log_history(&md_ctrl->traffic_info, IN,
-				(int)queue->index, &ccci_hdr,
-				(ret >= 0 ? 0 : 1));
+			((void)0);
 			if (queue->debug_id) {
 				((void)0);
 				queue->debug_id = 0;
@@ -1047,8 +1045,7 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 				queue->ringbuf, skb->data, skb->len);
 		if (ret != skb->len)
 			((void)0);
-		ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
-			(int)queue->index, ccci_h, 0);
+		((void)0);
 		/* free request */
 		ccci_free_skb(skb);
 
@@ -1536,8 +1533,7 @@ static void *ccif_hif_fill_rt_header(unsigned char hif_id, int packet_size,
 	ccci_h_bk.data[1] = ccif_read32(&ccci_h->data[1], 0);
 	*((u32 *)&ccci_h_bk + 2) = ccif_read32((u32 *) ccci_h + 2, 0);
 	ccci_h_bk.reserved = ccif_read32(&ccci_h->reserved, 0);
-	ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
-		(int)txqno, &ccci_h_bk, 0);
+	((void)0);
 
 	return (void *)&md_ctrl->ccif_sram_layout->ap_rt_data;
 }
