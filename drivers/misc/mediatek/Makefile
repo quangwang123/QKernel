@@ -100,6 +100,9 @@ obj-$(CONFIG_RT_FLASHLIGHT)     += flashlight/richtek/
 obj-$(CONFIG_USB) += usb_boost/
 obj-$(CONFIG_USB_MTK_HDRC) += usb20/
 obj-$(CONFIG_EXTCON_MTK_USB) += extcon/
+ifeq ($(CONFIG_MTK_DRAM_LOG_STORE),)
+obj-$(CONFIG_MTK_ENABLE_GMO) += log_store_reclaim.o
+endif
 obj-$(CONFIG_MTK_DRAM_LOG_STORE) += log_store/
 obj-$(CONFIG_MTK_ECCCI_C2K) += c2k_usb/
 obj-$(CONFIG_MTK_USB_TYPEC) += typec/
