@@ -18,8 +18,7 @@ void fsm_sys_mdee_info_notify(char *buf)
 	memset(mdee_collect.mdee_info, 0x0, AED_STR_LEN);
 	ret = snprintf(mdee_collect.mdee_info, AED_STR_LEN, "%s", buf);
 	if (ret < 0 || ret >= AED_STR_LEN)
-		CCCI_ERROR_LOG(-1, FSM,
-			"%s-%d:snprintf fail,ret = %d\n", __func__, __LINE__, ret);
+		((void)0);
 	spin_unlock(&mdee_collect.mdee_info_lock);
 }
 
@@ -40,7 +39,7 @@ static struct ccci_attribute ccci_attr_##_name = {		\
 
 static void fsm_obj_release(struct kobject *kobj)
 {
-	CCCI_NORMAL_LOG(-1, FSM, "release fsm kobject\n");
+	((void)0);
 }
 
 static ssize_t ccci_attr_show(struct kobject *kobj,
@@ -83,8 +82,7 @@ static ssize_t ccci_mdee_info_show(char *buf)
 	spin_lock(&mdee_collect.mdee_info_lock);
 	curr = snprintf(buf, AED_STR_LEN, "%s\n", mdee_collect.mdee_info);
 	if (curr < 0 || curr >= AED_STR_LEN) {
-		CCCI_ERROR_LOG(-1, FSM,
-			"%s-%d:snprintf fail,curr = %d\n", __func__, __LINE__, curr);
+		((void)0);
 		spin_unlock(&mdee_collect.mdee_info_lock);
 		return -1;
 	}
@@ -117,7 +115,7 @@ int fsm_sys_init(void)
 			kernel_kobj, CCCI_KOBJ_NAME);
 	if (ret < 0) {
 		kobject_put(&fsm_kobj);
-		CCCI_ERROR_LOG(-1, FSM, "fail to add fsm kobject\n");
+		((void)0);
 		return ret;
 	}
 

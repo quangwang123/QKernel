@@ -69,22 +69,20 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 			md_gen);
 		if (copy_to_user((void __user *)arg,
 			ap_platform, sizeof(ap_platform))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_GET_MD_PROTOCOL_TYPE: copy_from_user fail\n");
+			((void)0);
 			return -EFAULT;
 		}
 		break;
 	case CCCI_IOC_SEND_BATTERY_INFO:
 		data = (int)battery_get_bat_voltage();
-		CCCI_NORMAL_LOG(md_id, FSM, "get bat voltage %d\n", data);
+		((void)0);
 		ret = ccci_port_send_msg_to_md(md_id, CCCI_SYSTEM_TX,
 				MD_GET_BATTERY_INFO, data, 1);
 		break;
 	case CCCI_IOC_GET_EXT_MD_POST_FIX:
 		if (copy_to_user((void __user *)arg,
 				per_md_data->img_post_fix, IMG_POSTFIX_LEN)) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_GET_EXT_MD_POST_FIX: copy_to_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		}
 		break;
@@ -92,8 +90,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_DL_TRAFFIC_CONTROL:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int)))
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_DL_TRAFFIC_CONTROL: copy_from_user fail\n");
+			((void)0);
 		if (data == 1)
 			;/* turn off downlink queue */
 		else if (data == 0)
@@ -107,11 +104,9 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_SIM_LOCK_RANDOM_PATTERN: /* Fix me */
 		if (copy_from_user(&val, (void __user *)arg,
 				sizeof(unsigned int)))
-			CCCI_ERROR_LOG(md_id, FSM,
-			"CCCI_IOC_SIM_LOCK_RANDOM_PATTERN: copy_from_user fail\n");
+			((void)0);
 
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"get SIM lock random pattern %x\n", data);
+		((void)0);
 
 		snprintf(buffer, sizeof(buffer), "%x", data);
 		set_env("sml_sync", buffer);
@@ -121,12 +116,10 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_SET_MD_BOOT_MODE:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_SET_MD_BOOT_MODE: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"set MD boot mode to %d\n", data);
+			((void)0);
 			per_md_data->md_boot_mode = data;
 			if (other_per_md_data)
 				other_per_md_data->md_boot_mode = data;
@@ -145,8 +138,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&per_md_data->md_boot_data,
 			(void __user *)arg,
 			sizeof(per_md_data->md_boot_data))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_SET_BOOT_DATA: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
 			if (per_md_data->md_boot_data[MD_CFG_DUMP_FLAG]
@@ -166,9 +158,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 					per_md_data->md_boot_data,
 					ARRAY_SIZE(per_md_data->md_boot_data));
 			if (ret < 0) {
-				CCCI_ERROR_LOG(md_id, FSM,
-					"ccci_set_md_boot_data return fail %d\n",
-					ret);
+				((void)0);
 				ret = -EFAULT;
 			}
 		}
@@ -176,42 +166,33 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_SIM_SWITCH:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"CCCI_IOC_SIM_SWITCH: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
 			switch_sim_mode(md_id, (char *)&data, sizeof(data));
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"CCCI_IOC_SIM_SWITCH(%x): %d\n", data, ret);
+			((void)0);
 		}
 		break;
 	case CCCI_IOC_SIM_SWITCH_TYPE:
 		data = get_sim_switch_type();
-		CCCI_BOOTUP_LOG(md_id, FSM,
-			"CCCI_IOC_SIM_SWITCH_TYPE: 0x%x\n", data);
+		((void)0);
 		ret = put_user(data, (unsigned int __user *)arg);
 		break;
 	case CCCI_IOC_GET_SIM_TYPE:
 		if (per_md_data->sim_type == 0xEEEEEEEE)
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"md has not send sim type yet(0x%x)",
-				per_md_data->sim_type);
+			((void)0);
 		else
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"md has send sim type(0x%x)",
-				per_md_data->sim_type);
+			((void)0);
 		ret = put_user(per_md_data->sim_type,
 				(unsigned int __user *)arg);
 		break;
 	case CCCI_IOC_ENABLE_GET_SIM_TYPE:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_ENABLE_GET_SIM_TYPE: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_ENABLE_GET_SIM_TYPE: 0x%x\n", data);
+			((void)0);
 			ret = ccci_port_send_msg_to_md(md_id,
 					CCCI_SYSTEM_TX, MD_SIM_TYPE, data, 1);
 		}
@@ -220,12 +201,10 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		data = 0;
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_RELOAD_MD_TYPE: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_RELOAD_MD_TYPE: 0x%x\n", data);
+			((void)0);
 			/* add md type check to
 			 * avoid it being changed to illegal value
 			 */
@@ -233,8 +212,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 				if (set_modem_support_cap(md_id, data) == 0)
 					per_md_data->config.load_type = data;
 			} else {
-				CCCI_ERROR_LOG(md_id, FSM,
-				"invalid MD TYPE: 0x%x\n", data);
+				((void)0);
 			}
 		}
 		break;
@@ -242,13 +220,11 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		if (copy_from_user(&per_md_data->md_img_exist,
 				(void __user *)arg,
 				sizeof(per_md_data->md_img_exist))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_SET_MD_IMG_EXIST: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		}
 		per_md_data->md_img_type_is_set = 1;
-		CCCI_BOOTUP_LOG(md_id, FSM,
-			"CCCI_IOC_SET_MD_IMG_EXIST: set done!\n");
+		((void)0);
 		break;
 	case CCCI_IOC_GET_MD_IMG_EXIST:
 		data = get_md_type_from_lk(md_id);
@@ -256,21 +232,17 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 			memset(&per_md_data->md_img_exist, 0,
 				sizeof(per_md_data->md_img_exist));
 			per_md_data->md_img_exist[0] = data;
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"LK md_type: %d, image num:1\n", data);
+			((void)0);
 		} else {
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"CCCI_IOC_GET_MD_IMG_EXIST: waiting set\n");
+			((void)0);
 			while (per_md_data->md_img_type_is_set == 0)
 				msleep(200);
 		}
-		CCCI_BOOTUP_LOG(md_id, FSM,
-			"CCCI_IOC_GET_MD_IMG_EXIST: waiting set done!\n");
+		((void)0);
 		if (copy_to_user((void __user *)arg,
 			&per_md_data->md_img_exist,
 			sizeof(per_md_data->md_img_exist))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-			"CCCI_IOC_GET_MD_IMG_EXIST: copy_to_user fail!\n");
+			((void)0);
 			ret = -EFAULT;
 		}
 		break;
@@ -283,37 +255,28 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 			msleep(500);
 			retry--;
 		} while (retry);
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"CCCI_IOC_GET_MD_TYPE: %d!\n", data);
+		((void)0);
 		ret = put_user((unsigned int)data,
 			(unsigned int __user *)arg);
 		break;
 	case CCCI_IOC_STORE_MD_TYPE:
 		if (copy_from_user(&data, (void __user *)arg,
 			sizeof(unsigned int))) {
-			CCCI_BOOTUP_LOG(md_id, FSM,
-			"CCCI_IOC_STORE_MD_TYPE: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 			break;
 		}
 		per_md_data->config.load_type_saving = data;
 
-		CCCI_BOOTUP_LOG(md_id, FSM,
-			"storing md type(%d) in kernel space!\n",
-			per_md_data->config.load_type_saving);
+		((void)0);
 		if (per_md_data->config.load_type_saving >= 1
 			&& per_md_data->config.load_type_saving
 			<= MAX_IMG_NUM) {
 			if (per_md_data->config.load_type_saving
 				!= per_md_data->config.load_type)
-				CCCI_BOOTUP_LOG(md_id, FSM,
-					"Maybe Wrong: md type storing not equal with current setting!(%d %d)\n",
-					per_md_data->config.load_type_saving,
-					per_md_data->config.load_type);
+				((void)0);
 		} else {
-			CCCI_BOOTUP_LOG(md_id, FSM,
-				"store md type fail: invalid md type(0x%x)\n",
-				per_md_data->config.load_type_saving);
+			((void)0);
 			ret = -EFAULT;
 		}
 		if (ret == 0)
@@ -327,8 +290,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_SEND_ICUSB_NOTIFY:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_SEND_ICUSB_NOTIFY: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
 			ret = ccci_port_send_msg_to_md(md_id,
@@ -338,17 +300,13 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_UPDATE_SIM_SLOT_CFG:
 		if (copy_from_user(&sim_slot_cfg, (void __user *)arg,
 				sizeof(sim_slot_cfg))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_UPDATE_SIM_SLOT_CFG: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
 			int need_update;
 
 			data = get_sim_switch_type();
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"CCCI_IOC_UPDATE_SIM_SLOT_CFG get s0:%d s1:%d s2:%d s3:%d\n",
-				sim_slot_cfg[0], sim_slot_cfg[1],
-				sim_slot_cfg[2], sim_slot_cfg[3]);
+			((void)0);
 			need_update = sim_slot_cfg[0];
 			per_md_data->sim_setting.sim_mode = sim_slot_cfg[1];
 			per_md_data->sim_setting.slot1_mode = sim_slot_cfg[2];
@@ -364,25 +322,21 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_STORE_SIM_MODE:
 		if (copy_from_user(&data, (void __user *)arg,
 			sizeof(unsigned int))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-			"CCCI_IOC_STORE_SIM_MODE: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 			break;
 		}
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"store sim mode(%x) in kernel space!\n", data);
+		((void)0);
 		if (per_md_data->sim_setting.sim_mode != data) {
 			per_md_data->sim_setting.sim_mode = data;
 			fsm_monitor_send_message(md_id,
 			CCCI_MD_MSG_CFG_UPDATE, 1);
 		} else {
-			CCCI_ERROR_LOG(md_id, FSM,
-			"same sim mode as last time(0x%x)\n", data);
+			((void)0);
 		}
 		break;
 	case CCCI_IOC_GET_SIM_MODE:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"get sim mode ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = put_user(per_md_data->sim_setting.sim_mode,
 		(unsigned int __user *)arg);
 		break;
@@ -390,8 +344,7 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		if (copy_to_user((void __user *)arg,
 			&per_md_data->sim_setting,
 			sizeof(struct ccci_sim_setting))) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-			"CCCI_IOC_GET_CFG_SETTING: copy_to_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		}
 		break;
@@ -406,11 +359,9 @@ static int fsm_md_data_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 				ret = ccci_md_parse_rt_feature(md_id,
 				rt_feature, &at_ch_num, sizeof(at_ch_num));
 			else
-				CCCI_ERROR_LOG(md_id, FSM,
-					"get AT_CHANNEL_NUM fail\n");
+				((void)0);
 
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"get at_ch_num = %u\n", at_ch_num);
+			((void)0);
 			ret = put_user(at_ch_num,
 					(unsigned int __user *)arg);
 			break;
@@ -441,8 +392,7 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 			ret = put_user((unsigned int)state_for_user,
 					(unsigned int __user *)arg);
 		} else {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"Get MD state fail: %d\n", state_for_user);
+			((void)0);
 			ret = state_for_user;
 		}
 		break;
@@ -453,15 +403,12 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 			ret = put_user((unsigned int)state_for_user,
 					(unsigned int __user *)arg);
 		} else {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"Get other MD state fail: %d\n",
-				state_for_user);
+			((void)0);
 			ret = state_for_user;
 		}
 		break;
 	case CCCI_IOC_MD_RESET:
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"MD reset ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = fsm_monitor_send_message(ctl->md_id,
 			CCCI_MD_MSG_RESET_REQUEST, 0);
 		fsm_monitor_send_message(GET_OTHER_MD_ID(ctl->md_id),
@@ -470,16 +417,14 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 					current->comm);
 		break;
 	case CCCI_IOC_FORCE_MD_ASSERT:
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"MD force assert ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = ccci_md_force_assert(md_id,
 			MD_FORCE_ASSERT_BY_USER_TRIGGER, NULL, 0);
 		inject_md_status_event(md_id, MD_STA_EV_F_ASSERT_REQUEST,
 					current->comm);
 		break;
 	case CCCI_IOC_SEND_STOP_MD_REQUEST:
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"MD stop request ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = fsm_monitor_send_message(ctl->md_id,
 			CCCI_MD_MSG_FORCE_STOP_REQUEST, 0);
 		fsm_monitor_send_message(GET_OTHER_MD_ID(ctl->md_id),
@@ -488,8 +433,7 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 					current->comm);
 		break;
 	case CCCI_IOC_SEND_START_MD_REQUEST:
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"MD start request ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = fsm_monitor_send_message(ctl->md_id,
 			CCCI_MD_MSG_FORCE_START_REQUEST, 0);
 		fsm_monitor_send_message(GET_OTHER_MD_ID(ctl->md_id),
@@ -501,25 +445,19 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		/* add check whether the user call md start ioctl is valid */
 		if (strncmp(current->comm,
 			VALID_USER, strlen(VALID_USER)) == 0) {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"MD start ioctl called by %s\n", current->comm);
+			((void)0);
 			ret = fsm_append_command(ctl, CCCI_COMMAND_START, 0);
 		} else {
-			CCCI_ERROR_LOG(md_id, FSM,
-			"drop invalid user:%s call MD start ioctl\n",
-			current->comm);
+			((void)0);
 		}
 		break;
 	case CCCI_IOC_DO_STOP_MD:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"CCCI_IOC_DO_STOP_MD: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 		} else {
-			CCCI_NORMAL_LOG(md_id, FSM,
-				"MD stop ioctl called by %s %d\n",
-				current->comm, data);
+			((void)0);
 			ret = fsm_append_command(ctl, CCCI_COMMAND_STOP,
 					(data ? MD_FLIGHT_MODE_ENTER
 					: MD_FLIGHT_MODE_NONE)
@@ -528,16 +466,14 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 		}
 		break;
 	case CCCI_IOC_ENTER_DEEP_FLIGHT:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"MD enter flight mode ioctl called by %s\n", current->comm);
+		((void)0);
 		ret = fsm_monitor_send_message(ctl->md_id,
 				CCCI_MD_MSG_FLIGHT_STOP_REQUEST, 0);
 		inject_md_status_event(md_id, MD_STA_EV_ENTER_FLIGHT_REQUEST,
 					current->comm);
 		break;
 	case CCCI_IOC_LEAVE_DEEP_FLIGHT:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"MD leave flight mode ioctl called by %s\n", current->comm);
+		((void)0);
 		__pm_wakeup_event(ctl->wakelock, jiffies_to_msecs(10 * HZ));
 		ret = fsm_monitor_send_message(ctl->md_id,
 				CCCI_MD_MSG_FLIGHT_START_REQUEST, 0);
@@ -545,9 +481,7 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 					current->comm);
 		break;
 	case CCCI_IOC_ENTER_DEEP_FLIGHT_ENHANCED:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"MD enter flight mode enhanced ioctl called by %s\n",
-		current->comm);
+		((void)0);
 		ret = fsm_monitor_send_message(ctl->md_id,
 				CCCI_MD_MSG_FLIGHT_STOP_REQUEST, 0);
 		fsm_monitor_send_message(GET_OTHER_MD_ID(ctl->md_id),
@@ -556,9 +490,7 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 					current->comm);
 		break;
 	case CCCI_IOC_LEAVE_DEEP_FLIGHT_ENHANCED:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"MD leave flight mode enhanced ioctl called by %s\n",
-		current->comm);
+		((void)0);
 		__pm_wakeup_event(ctl->wakelock, jiffies_to_msecs(10 * HZ));
 		ret = fsm_monitor_send_message(ctl->md_id,
 				CCCI_MD_MSG_FLIGHT_START_REQUEST, 0);
@@ -570,20 +502,18 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_SET_EFUN:
 		if (copy_from_user(&data, (void __user *)arg,
 				sizeof(unsigned int))) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"set efun fail: copy_from_user fail\n");
+			((void)0);
 			ret = -EFAULT;
 			break;
 		}
-		CCCI_NORMAL_LOG(md_id, FSM, "EFUN set to %d\n", data);
+		((void)0);
 		if (data == 0)
 			ccci_md_soft_stop(md_id, data);
 		else if (data != 0)
 			ccci_md_soft_start(md_id, data);
 		break;
 	case CCCI_IOC_MDLOG_DUMP_DONE:
-		CCCI_NORMAL_LOG(md_id, FSM,
-		"MD logger dump done ioctl called by %s\n", current->comm);
+		((void)0);
 		ctl->ee_ctl.mdlog_dump_done = 1;
 		break;
 	case CCCI_IOC_RESET_MD1_MD3_PCCIF:
@@ -592,9 +522,7 @@ long ccci_fsm_ioctl(int md_id, unsigned int cmd, unsigned long arg)
 	case CCCI_IOC_GET_MD_EX_TYPE:
 		ret = put_user((unsigned int)ctl->ee_ctl.ex_type,
 				(unsigned int __user *)arg);
-		CCCI_NORMAL_LOG(md_id, FSM,
-			"get modem exception type=%d ret=%d\n",
-			ctl->ee_ctl.ex_type, ret);
+		((void)0);
 		break;
 	default:
 		ret = fsm_md_data_ioctl(md_id, cmd, arg);

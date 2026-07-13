@@ -54,7 +54,7 @@ int ccci_hif_init(unsigned char md_id, unsigned int hif_flag)
 {
 	int ret = 0;
 
-	CCCI_INIT_LOG(-1, TAG, "%s flag = 0x%x\n", __func__, hif_flag);
+	((void)0);
 
 	if (hif_flag & (1 << CLDMA_HIF_ID)) {
 		if (ccci_hif[CLDMA_HIF_ID] && ccci_hif_op[CLDMA_HIF_ID]->init)
@@ -69,7 +69,7 @@ int ccci_hif_late_init(unsigned char md_id, unsigned int hif_flag)
 {
 	int ret = 0;
 
-	CCCI_INIT_LOG(-1, TAG, "ccci_hif_init flag = 0x%x\n", hif_flag);
+	((void)0);
 
 	if (hif_flag & (1 << CLDMA_HIF_ID)) {
 		if (ccci_hif[CLDMA_HIF_ID] &&
@@ -84,8 +84,7 @@ int ccci_hif_clear_all_queue(unsigned int hif_flag, enum DIRECTION dir)
 {
 	int ret = 0;
 
-	CCCI_INIT_LOG(-1, TAG,
-		"[%s] flag = 0x%x\n", __func__, hif_flag);
+	((void)0);
 
 	if (hif_flag & (1 << CLDMA_HIF_ID)) {
 		if (ccci_hif[CLDMA_HIF_ID] &&
@@ -101,8 +100,7 @@ int ccci_hif_all_q_reset(unsigned int hif_flag)
 {
 	int ret = 0;
 
-	CCCI_INIT_LOG(-1, TAG,
-		"[%s] flag = 0x%x\n", __func__, hif_flag);
+	((void)0);
 
 	if (hif_flag & (1 << CLDMA_HIF_ID)) {
 		if (ccci_hif[CLDMA_HIF_ID] &&
@@ -117,8 +115,7 @@ int ccci_hif_stop_for_ee(unsigned int hif_flag)
 {
 	int ret = 0;
 
-	CCCI_INIT_LOG(-1, TAG,
-		"[%s] flag = 0x%x\n", __func__, hif_flag);
+	((void)0);
 
 	if (hif_flag & (1 << CLDMA_HIF_ID)) {
 		if (ccci_hif[CLDMA_HIF_ID] &&
@@ -163,7 +160,7 @@ void *ccci_hif_fill_rt_header(unsigned char hif_id,
 	if (ccci_hif[hif_id] && ccci_hif_op[hif_id]->fill_rt_header)
 		return ccci_hif_op[hif_id]->fill_rt_header(hif_id,
 			packet_size, tx_ch, txqno);
-	CCCI_ERROR_LOG(-1, CORE, "rt header : %d\n", hif_id);
+	((void)0);
 	return NULL;
 }
 
@@ -203,9 +200,7 @@ int ccci_hif_send_skb(unsigned char hif_id, int tx_qno, struct sk_buff *skb,
 		if (ccci_hif[hif_id] && ccci_hif_op[hif_id]->send_skb)
 			ret = ccci_hif_op[hif_id]->send_skb(hif_id,
 				tx_qno, skb, from_pool, blocking);
-		CCCI_HISTORY_TAG_LOG(-1, TAG,
-			"%s: %d (%p, %p)\n", __func__,
-			hif_id, ccci_hif[hif_id], ccci_hif_op[hif_id]);
+		((void)0);
 		break;
 	default:
 		break;
@@ -282,17 +277,9 @@ static void ccci_md_dump_log_rec(unsigned char md_id, struct ccci_log *log)
 		return;
 	rem_nsec = do_div(ts_nsec, 1000000000);
 	if (!log->droped) {
-		CCCI_MEM_LOG(md_id, CORE,
-		"%08X %08X %08X %08X  %5lu.%06lu\n",
-		log->msg.data[0], log->msg.data[1],
-		*(((u32 *)&log->msg) + 2),
-		log->msg.reserved, (unsigned long)ts_nsec, rem_nsec / 1000);
+		((void)0);
 	} else {
-		CCCI_MEM_LOG(md_id, CORE, "%08X %08X %08X %08X  %5lu.%06lu -\n",
-			log->msg.data[0], log->msg.data[1],
-			*(((u32 *)&log->msg) + 2),
-			log->msg.reserved, (unsigned long)ts_nsec,
-			rem_nsec / 1000);
+		((void)0);
 	}
 }
 
@@ -305,8 +292,7 @@ void ccci_md_add_log_history(struct ccci_hif_traffic *tinfo,
 		|| tinfo->rx_history_ptr[queue_index] >= PACKET_HISTORY_DEPTH
 		|| tinfo->tx_history_ptr[queue_index] < 0
 		|| tinfo->tx_history_ptr[queue_index] >= PACKET_HISTORY_DEPTH) {
-		CCCI_MEM_LOG(-1, CORE,
-			"invalid queue_index=%d\n", queue_index);
+		((void)0);
 		return;
 	}
 	if (dir == OUT) {
@@ -365,18 +351,14 @@ void ccci_md_dump_log_history(unsigned char md_id,
 
 	if (rx_queue_num > 0)
 		for (; i_rx < rx_qno; i_rx++) {
-			CCCI_MEM_LOG_TAG(md_id, CORE,
-				"dump rxq%d packet history, ptr=%d\n", i_rx,
-			       tinfo->rx_history_ptr[i_rx]);
+			((void)0);
 			for (j = 0; j < PACKET_HISTORY_DEPTH; j++)
 				ccci_md_dump_log_rec(md_id,
 				&tinfo->rx_history[i_rx][j]);
 		}
 	if (tx_queue_num > 0)
 		for (; i_tx < tx_qno; i_tx++) {
-			CCCI_MEM_LOG_TAG(md_id, CORE,
-				"dump txq%d packet history, ptr=%d\n", i_tx,
-			       tinfo->tx_history_ptr[i_tx]);
+			((void)0);
 			for (j = 0; j < PACKET_HISTORY_DEPTH; j++)
 				ccci_md_dump_log_rec(md_id,
 				&tinfo->tx_history[i_tx][j]);
@@ -488,9 +470,8 @@ void ccci_hif_suspend(unsigned char md_id, unsigned int hif_flag)
 void ccci_hif_register(unsigned char hif_id, void *hif_per_data,
 	struct ccci_hif_ops *ops)
 {
-	CCCI_NORMAL_LOG(0, CORE, "hif register: %d\n", hif_id);
-	CCCI_HISTORY_TAG_LOG(0, CORE,
-			"hif register: %d\n", hif_id);
+	((void)0);
+	((void)0);
 
 	if (hif_id < CCCI_HIF_NUM) {
 		ccci_hif[hif_id] = hif_per_data;
@@ -503,8 +484,7 @@ EXPORT_SYMBOL(ccci_hif_register);
 void *ccci_hif_get_by_id(unsigned char hif_id)
 {
 	if (hif_id >= CCCI_HIF_NUM) {
-		CCCI_ERROR_LOG(-1, CORE,
-		"%s  hif_id = %u\n", __func__, hif_id);
+		((void)0);
 		return NULL;
 	} else
 		return ccci_hif[hif_id];

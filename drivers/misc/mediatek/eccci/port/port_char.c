@@ -31,7 +31,7 @@ unsigned int port_char_dev_poll(struct file *fp,
 	int md_id = port->md_id;
 	int md_state = ccci_fsm_get_md_state(md_id);
 
-	CCCI_DEBUG_LOG(md_id, CHAR, "poll on %s\n", port->name);
+	((void)0);
 	poll_wait(fp, &port->rx_wq, poll);
 	/* TODO: lack of poll wait for Tx */
 	if (!skb_queue_empty(&port->rx_skb_list))
@@ -45,9 +45,7 @@ unsigned int port_char_dev_poll(struct file *fp,
 		 * before md_init kills it
 		 */
 		mask |= POLLERR;
-		CCCI_NORMAL_LOG(md_id, CHAR,
-			"poll error for MD logger at state %d,mask=%d\n",
-			md_state, mask);
+		((void)0);
 	}
 
 	return mask;
@@ -71,16 +69,14 @@ static int port_char_init(struct port_t *port)
 	int ret = 0;
 	int md_id = port->md_id;
 
-	CCCI_DEBUG_LOG(md_id, CHAR,
-		"char port %s is initializing\n", port->name);
+	((void)0);
 	port->rx_length_th = MAX_QUEUE_LENGTH;
 	port->skb_from_pool = 1;
 	port->interception = 0;
 	if (port->flags & PORT_F_WITH_CHAR_NODE) {
 		dev = kmalloc(sizeof(struct cdev), GFP_KERNEL);
 		if (unlikely(!dev)) {
-			CCCI_ERROR_LOG(port->md_id, CHAR,
-				"alloc char dev fail!!\n");
+			((void)0);
 			return -1;
 		}
 		cdev_init(dev, &char_dev_fops);
@@ -123,8 +119,7 @@ static int c2k_req_push_to_usb(struct port_t *port, struct sk_buff *skb)
 		c2k_ch_id = MDLOG_CH_C2K-2;
 	else {
 		ret = -ENODEV;
-		CCCI_ERROR_LOG(md_id, CHAR,
-			"Err: wrong ch_id(%d) from usb bypass\n", port->rx_ch);
+		((void)0);
 		return ret;
 	}
 
@@ -138,9 +133,7 @@ retry_push:
 	/* push to usb */
 	read_count = rawbulk_push_upstream_buffer(c2k_ch_id,
 		skb->data, read_len);
-	CCCI_DEBUG_LOG(md_id, CHAR,
-		"data push to usb bypass (ch%d)(%d)\n",
-		port->rx_ch, read_count);
+	((void)0);
 
 	if (read_count > 0) {
 		skb_pull(skb, read_count);
@@ -150,10 +143,9 @@ retry_push:
 		else if (read_len == 0)
 			ccci_free_skb(skb);
 		else if (read_len < 0)
-			CCCI_ERROR_LOG(md_id, CHAR,
-				"read_len error, check why come here\n");
+			((void)0);
 	} else {
-		CCCI_NORMAL_LOG(md_id, CHAR, "usb buf full\n");
+		((void)0);
 		msleep(20);
 		goto retry_push;
 	}
@@ -186,26 +178,20 @@ static int port_char_recv_skb(struct port_t *port, struct sk_buff *skb)
 	}
 #endif
 
-	CCCI_DEBUG_LOG(md_id, CHAR, "recv on %s, len=%d\n",
-		port->name, port->rx_skb_list.qlen);
+	((void)0);
 	return port_recv_skb(port, skb);
 }
 
 void port_char_dump_info(struct port_t *port, unsigned int flag)
 {
 	if (port == NULL) {
-		CCCI_ERROR_LOG(0, CHAR, "%s: port==NULL\n", __func__);
+		((void)0);
 		return;
 	}
 	if (atomic_read(&port->usage_cnt) == 0)
 		return;
 	if (port->flags & PORT_F_CH_TRAFFIC)
-		CCCI_REPEAT_LOG(port->md_id, CHAR,
-			"CHR:(%d):%dR(%d,%d,%d):%dT(%d)\n",
-			port->flags, port->rx_ch,
-			port->rx_skb_list.qlen,
-			port->rx_pkg_cnt, port->rx_drop_cnt,
-			port->tx_ch, port->tx_pkg_cnt);
+		((void)0);
 }
 struct port_ops char_port_ops = {
 	.init = &port_char_init,

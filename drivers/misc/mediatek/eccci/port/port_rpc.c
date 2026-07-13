@@ -85,7 +85,7 @@ static int get_md_adc_val(__attribute__((unused))unsigned int num)
 #ifdef CONFIG_MEDIATEK_MT6577_AUXADC
 	return ccci_get_adc_val();
 #endif
-	CCCI_ERROR_LOG(0, RPC, "ERR:CONFIG AUXADC and IIO not ready");
+	((void)0);
 	return -1;
 }
 
@@ -105,7 +105,7 @@ static int get_md_adc_info(__attribute__((unused))char *adc_name,
 #ifdef CONFIG_MEDIATEK_MT6577_AUXADC
 	return ccci_get_adc_num();
 #endif
-	CCCI_ERROR_LOG(0, RPC, "ERR:CONFIG AUXADC and IIO not ready");
+	((void)0);
 	return -1;
 }
 
@@ -149,14 +149,12 @@ static int get_md_gpio_info(char *gpio_name,
 	char *name;
 
 	if (len >= 4096) {
-		CCCI_NORMAL_LOG(0, RPC,
-			"MD GPIO name length abnoremal(%d)\n", len);
+		((void)0);
 		return gpio_id;
 	}
 
 	if (!node) {
-		CCCI_NORMAL_LOG(0, RPC,
-			"MD_USE_GPIO is not set in device tree,need to check?\n");
+		((void)0);
 		return gpio_id;
 	}
 
@@ -175,8 +173,7 @@ static int get_md_gpio_info(char *gpio_name,
 			kfree(name);
 			return gpio_id;
 		}
-		CCCI_BOOTUP_LOG(0, RPC,
-			"alloc memory fail for gpio with size:%d\n", len);
+		((void)0);
 		return gpio_id;
 	}
 	gpio_id = get_gpio_id_from_dt(node, gpio_name, md_view_gpio_id);
@@ -192,7 +189,7 @@ static void md_drdi_gpio_status_scan(void)
 	char *curr;
 	int val;
 
-	CCCI_BOOTUP_LOG(0, RPC, "scan didr gpio status\n");
+	((void)0);
 	for (i = 0; i < ARRAY_SIZE(gpio_mapping_table); i++) {
 		curr = gpio_mapping_table[i].gpio_name_from_md;
 		size = strlen(curr) + 1;
@@ -200,8 +197,7 @@ static void md_drdi_gpio_status_scan(void)
 		gpio_id = get_md_gpio_info(curr, size, &gpio_md_view);
 		if (gpio_id >= 0) {
 			val = get_md_gpio_val(gpio_id);
-			CCCI_BOOTUP_LOG(0, RPC, "GPIO[%s]%d(%d@md),val:%d\n",
-					curr, gpio_id, gpio_md_view, val);
+			((void)0);
 		}
 	}
 }
@@ -266,8 +262,7 @@ static int get_eint_attr_val(int md_id, struct device_node *node, int index)
 		if (ret != 0) {
 			md_eint_struct[type].value_sim[index] =
 			ERR_SIM_HOT_PLUG_QUERY_TYPE;
-			CCCI_NORMAL_LOG(md_id, RPC, "%s:  not found\n",
-			md_eint_struct[type].property);
+			((void)0);
 			ret = ERR_SIM_HOT_PLUG_QUERY_TYPE;
 			continue;
 		}
@@ -296,8 +291,7 @@ static int get_eint_attr_val(int md_id, struct device_node *node, int index)
 					= -1;
 				md_eint_struct[SIM_EINT_SENS].value_sim[index]
 					= -1;
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid value, please check dtsi!\n");
+				((void)0);
 				break;
 			}
 			type++;
@@ -324,7 +318,7 @@ void get_dtsi_eint_node(int md_id)
 	init = 1;
 	for (i = 0; i < MD_SIM_MAX; i++) {
 		if (eint_node_prop.name[i].node_name == NULL) {
-			CCCI_INIT_LOG(md_id, RPC, "node %d is NULL\n", i);
+			((void)0);
 			break;
 		}
 		node = of_find_node_by_name(NULL,
@@ -333,8 +327,7 @@ void get_dtsi_eint_node(int md_id)
 			eint_node_prop.ExistFlag |= (1 << i);
 			get_eint_attr_val(md_id, node, i);
 		} else {
-			CCCI_INIT_LOG(md_id, RPC, "%s: node %d no found\n",
-				     eint_node_prop.name[i].node_name, i);
+			((void)0);
 		}
 	}
 }
@@ -359,11 +352,7 @@ int get_eint_attr_DTSVal(int md_id, char *name, unsigned int name_len,
 			eint_node_prop.eint_value[type].value_sim[i];
 			*len = sizeof(sim_value);
 			memcpy(sim_info, &sim_value, *len);
-			CCCI_BOOTUP_LOG(md_id, RPC,
-			"md_eint:%s, sizeof: %d, sim_info: %d, %d\n",
-			eint_node_prop.eint_value[type].property,
-			*len, *sim_info,
-			eint_node_prop.eint_value[type].value_sim[i]);
+			((void)0);
 			if (sim_value >= 0)
 				return 0;
 		}
@@ -386,10 +375,8 @@ static void get_md_dtsi_val(struct ccci_rpc_md_dtsi_input *input,
 	of_find_compatible_node(NULL, NULL, "mediatek,md_attr_node");
 
 	if (node == NULL) {
-		CCCI_INIT_LOG(-1, RPC, "%s: No node: %s\n", __func__,
-			input->strName);
-		CCCI_NORMAL_LOG(-1, RPC, "%s: No node: %s\n", __func__,
-			input->strName);
+		((void)0);
+		((void)0);
 		return;
 	}
 
@@ -400,10 +387,8 @@ static void get_md_dtsi_val(struct ccci_rpc_md_dtsi_input *input,
 			output->retValue = value;
 		break;
 	}
-	CCCI_INIT_LOG(-1, RPC, "%s %d, %s -- 0x%x\n", __func__,
-		input->req, input->strName, output->retValue);
-	CCCI_NORMAL_LOG(-1, RPC, "%s %d, %s -- 0x%x\n", __func__,
-		input->req, input->strName, output->retValue);
+	((void)0);
+	((void)0);
 }
 
 static void get_md_dtsi_debug(void)
@@ -417,8 +402,7 @@ static void get_md_dtsi_debug(void)
 	ret = snprintf(input.strName, sizeof(input.strName), "%s",
 		"mediatek,md_drdi_rf_set_idx");
 	if (ret <= 0 || ret >= sizeof(input.strName)) {
-		CCCI_ERROR_LOG(-1, RPC, "%s:snprintf input.strName fail\n",
-			__func__);
+		((void)0);
 		return;
 	}
 	get_md_dtsi_val(&input, &output);
@@ -575,8 +559,7 @@ static int ccci_rpc_remap_queue(int md_id, struct ccci_rpc_queue_mapping *remap)
 	port = port_get_by_minor(md_id, remap->net_if + CCCI_NET_MINOR_BASE);
 
 	if (!port) {
-		CCCI_ERROR_LOG(md_id, RPC, "can't find ccmni for netif: %d\n",
-			remap->net_if);
+		((void)0);
 		return -1;
 	}
 
@@ -584,17 +567,14 @@ static int ccci_rpc_remap_queue(int md_id, struct ccci_rpc_queue_mapping *remap)
 		/*normal queue*/
 		port->txq_index = 0;
 		port->txq_exp_index = 0xF0 | 0x1;
-		CCCI_NORMAL_LOG(md_id, RPC, "remap port %s Tx to cldma%d\n",
-			port->name, port->txq_index);
+		((void)0);
 	} else if (remap->lhif_q == LHIF_HWQ_AP_UL_Q1) {
 		/*IMS queue*/
 		port->txq_index = 3;
 		port->txq_exp_index = 0xF0 | 0x3;
-		CCCI_NORMAL_LOG(md_id, RPC, "remap port %s Tx to cldma%d\n",
-			port->name, port->txq_index);
+		((void)0);
 	} else
-		CCCI_ERROR_LOG(md_id, RPC, "invalid remap for q%d\n",
-			remap->lhif_q);
+		((void)0);
 
 	return 0;
 }
@@ -610,8 +590,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 	int md_id = port->md_id;
 	int md_val = -1;
 
-	CCCI_DEBUG_LOG(md_id, RPC, "%s++ %d\n", __func__,
-		p_rpc_buf->para_num);
+	((void)0);
 	tmp_data[0] = 0;
 	switch (p_rpc_buf->op_id) {
 	/* call EINT API to get TDD EINT configuration for modem EINT initial */
@@ -624,26 +603,20 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			unsigned int length = 0;
 
 			if (pkt_num < 2 || pkt_num > RPC_MAX_ARG_NUM) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"invalid parameter for [0x%X]: pkt_num=%d!\n",
-				p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err1;
 			}
 			length = pkt[0].len;
 			if (length < 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"invalid parameter for [0x%X]: pkt_num=%d, name_len=%d!\n",
-				p_rpc_buf->op_id, pkt_num, length);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err1;
 			}
 
 			name = kmalloc(length, GFP_KERNEL);
 			if (name == NULL) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"Fail alloc Mem for [0x%X]!\n",
-				p_rpc_buf->op_id);
+				((void)0);
 				tmp_data[0] = FS_ERROR_RESERVED;
 				goto err1;
 			} else {
@@ -673,10 +646,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 						get_num = FS_FUNC_FAIL;
 				}
 
-				CCCI_NORMAL_LOG(md_id, RPC,
-					"[0x%08X]: name:%s, len=%d, get_num:%d\n",
-					p_rpc_buf->op_id, name,
-					length, get_num);
+				((void)0);
 				pkt_num = 0;
 
 				/* NOTE: tmp_data[1] not [0] */
@@ -707,9 +677,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			int dram_clk = 0;
 
 			if (pkt_num != 0) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"invalid parameter for [0x%X]: pkt_num=%d!\n",
-				p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err2;
 			}
@@ -719,9 +687,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				goto err2;
 			} else {
 				tmp_data[0] = 0;
-				CCCI_NORMAL_LOG(md_id, RPC,
-				"[0x%08X]: dram_clk: %d, dram_type:%d\n",
-				p_rpc_buf->op_id, dram_clk, dram_type);
+				((void)0);
 			}
 
 			tmp_data[1] = (unsigned int)dram_type;
@@ -757,26 +723,20 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			int ret = 0;
 
 			if (pkt_num < 3 || pkt_num > RPC_MAX_ARG_NUM) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"invalid parameter for [0x%X]: pkt_num=%d!\n",
-				p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err3;
 			}
 			name_len = pkt[0].len;
 			if (name_len < 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"invalid parameter for [0x%X]: pkt_num=%d, name_len=%d!\n",
-				p_rpc_buf->op_id, pkt_num, name_len);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err3;
 			}
 
 			eint_name = kmalloc(name_len, GFP_KERNEL);
 			if (eint_name == NULL) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"Fail alloc Mem for [0x%X]!\n",
-				p_rpc_buf->op_id);
+				((void)0);
 				tmp_data[0] = FS_ERROR_RESERVED;
 				goto err3;
 			} else {
@@ -796,17 +756,11 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				pkt[pkt_num++].buf = (void *)&tmp_data[0];
 				pkt[pkt_num].len = res_len;
 				pkt[pkt_num++].buf = (void *)res;
-				CCCI_DEBUG_LOG(md_id, RPC,
-					"[0x%08X] OK: name:%s, len:%d, type:%d, res:%d, res_len:%d\n",
-					p_rpc_buf->op_id, eint_name, name_len,
-					type, *res, res_len);
+				((void)0);
 				kfree(eint_name);
 			} else {
 				tmp_data[0] = ret;
-				CCCI_DEBUG_LOG(md_id, RPC,
-					"[0x%08X] fail: name:%s, len:%d, type:%d, ret:%d\n",
-					p_rpc_buf->op_id, eint_name, name_len,
-					type, ret);
+				((void)0);
 				kfree(eint_name);
 				goto err3;
 			}
@@ -830,9 +784,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			u32 AfcDac;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -853,9 +805,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			pkt[pkt_num++].buf = (void *)&tmp_data[1];
 			clkbuf = (struct ccci_rpc_clkbuf_result *)&tmp_data[1];
 			if (count != CLKBUF_MAX_COUNT) {
-				CCCI_ERROR_LOG(md_id, RPC,
-				"IPC_RPC_GET_RF_CLK_BUF, wrong count %d/%d\n",
-				count, CLKBUF_MAX_COUNT);
+				((void)0);
 				clkbuf->CLKBuf_Count = 0xFF;
 				memset(&clkbuf->CLKBuf_Status, 0,
 					sizeof(clkbuf->CLKBuf_Status));
@@ -880,9 +830,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 						"mediatek,clkbuf-config", vals,
 						CLKBUF_MAX_COUNT);
 				} else {
-					CCCI_ERROR_LOG(md_id, RPC,
-					"%s can't find compatible node\n",
-					__func__);
+					((void)0);
 				}
 				clkbuf->CLKBuf_Count = CLKBUF_MAX_COUNT;
 				clkbuf->CLKBuf_Status[0] = vals[0];
@@ -904,14 +852,9 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				clkbuf->ClkBuf_Driving[1] = vals_drv[1];
 				clkbuf->ClkBuf_Driving[2] = vals_drv[2];
 				clkbuf->ClkBuf_Driving[3] = vals_drv[3];
-				CCCI_NORMAL_LOG(md_id, RPC,
-					"RF_CLK_BUF*_DRIVING_CURR %d, %d, %d, %d, AfcDac: %d\n",
-					vals_drv[0], vals_drv[1], vals_drv[2],
-					vals_drv[3], AfcDac);
+				((void)0);
 			}
-			CCCI_DEBUG_LOG(md_id, RPC,
-				"IPC_RPC_GET_RF_CLK_BUF count=%x\n",
-				clkbuf->CLKBuf_Count);
+			((void)0);
 			break;
 		}
 #endif
@@ -922,9 +865,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			int val = 0;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				goto err4;
 			}
@@ -935,8 +876,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			else if (p_rpc_buf->op_id == IPC_RPC_GET_ADC_VAL_OP)
 				val = get_md_adc_val(num);
 			tmp_data[0] = val;
-			CCCI_DEBUG_LOG(md_id, RPC, "[0x%X]: num=%d, val=%d!\n",
-				p_rpc_buf->op_id, num, val);
+			((void)0);
 
  err4:
 			pkt_num = 0;
@@ -956,9 +896,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			unsigned int pkt_size;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -984,9 +922,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				/* 0xF for failure */
 				memset(output, 0xF,
 				sizeof(struct ccci_rpc_gpio_adc_output));
-				CCCI_BOOTUP_LOG(md_id, RPC,
-					"IPC_RPC_GET_GPIO_ADC_OP request=%x\n",
-					input->reqMask);
+				((void)0);
 				ccci_rpc_get_gpio_adc(input, output);
 			} else if (pkt_size ==
 				sizeof(struct ccci_rpc_gpio_adc_intput_v2)) {
@@ -1006,14 +942,10 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				/* 0xF for failure */
 				memset(output_v2, 0xF,
 				sizeof(struct ccci_rpc_gpio_adc_output_v2));
-				CCCI_BOOTUP_LOG(md_id, RPC,
-					"IPC_RPC_GET_GPIO_ADC_OP request=%x\n",
-					input_v2->reqMask);
+				((void)0);
 				ccci_rpc_get_gpio_adc_v2(input_v2, output_v2);
 			} else {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"can't recognize pkt size%d!\n",
-					pkt_size);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -1030,9 +962,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			struct ccci_rpc_usim2nfs *input, *output;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -1050,9 +980,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			pkt[pkt_num++].buf = (void *)&tmp_data[1];
 			output = (struct ccci_rpc_usim2nfs *)&tmp_data[1];
 			output->lock_vsim1 = input->lock_vsim1;
-			CCCI_DEBUG_LOG(md_id, RPC,
-				"IPC_RPC_USIM2NFC_OP request=%x\n",
-				input->lock_vsim1);
+			((void)0);
 			/* lock_vsim1==1, NFC not power VSIM;
 			 * lock_vsim==0, NFC power VSIM
 			 */
@@ -1065,9 +993,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			struct ccci_rpc_queue_mapping *remap;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -1077,9 +1003,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 				break;
 			}
 
-			CCCI_NORMAL_LOG(md_id, RPC,
-				"op_id[0x%X]: pkt_num=%d, pkt[0] len %u!\n",
-				p_rpc_buf->op_id, pkt_num, pkt[0].len);
+			((void)0);
 
 			remap = (struct ccci_rpc_queue_mapping *)(pkt[0].buf);
 			ccci_rpc_remap_queue(md_id, remap);
@@ -1098,9 +1022,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 			struct ccci_rpc_md_dtsi_output *output;
 
 			if (pkt_num != 1) {
-				CCCI_ERROR_LOG(md_id, RPC,
-					"invalid parameter for [0x%X]: pkt_num=%d!\n",
-					p_rpc_buf->op_id, pkt_num);
+				((void)0);
 				tmp_data[0] = FS_PARAM_ERROR;
 				pkt_num = 0;
 				pkt[pkt_num].len = sizeof(unsigned int);
@@ -1128,36 +1050,26 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 		{
 			int i;
 
-			CCCI_NORMAL_LOG(md_id, RPC,
-				"[RPCIT] enter IT operation in ccci_rpc_work\n");
+			((void)0);
 			/* exam input parameters in pkt */
 			for (i = 0; i < pkt_num; i++) {
-				CCCI_NORMAL_LOG(md_id, RPC,
-					"len=%d val=%X\n", pkt[i].len,
-					*((unsigned int *)pkt[i].buf));
+				((void)0);
 			}
 			tmp_data[0] = 1;
 			tmp_data[1] = 0xA5A5;
 			pkt_num = 0;
-			CCCI_NORMAL_LOG(md_id, RPC,
-				"[RPCIT] prepare output parameters\n");
+			((void)0);
 			pkt[pkt_num].len = sizeof(unsigned int);
 			pkt[pkt_num++].buf = (void *)&tmp_data[0];
-			CCCI_NORMAL_LOG(md_id, RPC,
-				"[RPCIT] LV[%d]  len= 0x%08X, value= 0x%08X\n",
-				0, pkt[0].len, *((unsigned int *)pkt[0].buf));
+			((void)0);
 			pkt[pkt_num].len = sizeof(unsigned int);
 			pkt[pkt_num++].buf = (void *)&tmp_data[1];
-			CCCI_NORMAL_LOG(md_id, RPC,
-			"[RPCIT] LV[%d]  len= 0x%08X, value= 0x%08X\n",
-			1, pkt[1].len, *((unsigned int *)pkt[1].buf));
+			((void)0);
 			break;
 		}
 
 	default:
-		CCCI_NORMAL_LOG(md_id, RPC,
-		"[Error]Unknown Operation ID (0x%08X)\n",
-		p_rpc_buf->op_id);
+		((void)0);
 		tmp_data[0] = FS_NO_OP;
 		pkt_num = 0;
 		pkt[pkt_num].len = sizeof(int);
@@ -1166,8 +1078,7 @@ static void ccci_rpc_work_helper(struct port_t *port, struct rpc_pkt *pkt,
 	}
 
 	p_rpc_buf->para_num = pkt_num;
-	CCCI_DEBUG_LOG(md_id, RPC, "%s-- %d\n", __func__,
-		p_rpc_buf->para_num);
+	((void)0);
 }
 
 static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
@@ -1183,24 +1094,19 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 		kmalloc(128*sizeof(unsigned int), GFP_ATOMIC);
 
 	if (tmp_data == NULL) {
-		CCCI_ERROR_LOG(md_id, RPC,
-			"RPC request buffer fail 128*sizeof(unsigned int)\n");
+		((void)0);
 		goto err_out;
 	}
 	/* sanity check */
 	if (skb->len > RPC_MAX_BUF_SIZE) {
-		CCCI_ERROR_LOG(md_id, RPC,
-				"invalid RPC buffer size 0x%x/0x%x\n",
-				skb->len, RPC_MAX_BUF_SIZE);
+		((void)0);
 		goto err_out;
 	}
 	if (rpc_buf->header.reserved < 0 ||
 		rpc_buf->header.reserved > RPC_REQ_BUFFER_NUM ||
 	    rpc_buf->para_num < 0 ||
 		rpc_buf->para_num > RPC_MAX_ARG_NUM) {
-		CCCI_ERROR_LOG(md_id, RPC,
-			"invalid RPC index %d/%d\n",
-			rpc_buf->header.reserved, rpc_buf->para_num);
+		((void)0);
 		goto err_out;
 	}
 	/* parse buffer */
@@ -1209,16 +1115,12 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 	for (i = 0; i < rpc_buf->para_num; i++) {
 		pkt[i].len = *((unsigned int *)ptr);
 		if (pkt[i].len >= skb->len) {
-			CCCI_ERROR_LOG(md_id, RPC,
-				"invalid packet length in parse %u\n",
-				pkt[i].len);
+			((void)0);
 			goto err_out;
 		}
 		if ((data_len + sizeof(pkt[i].len) + pkt[i].len) >
 			RPC_MAX_BUF_SIZE) {
-			CCCI_ERROR_LOG(md_id, RPC,
-				"RPC buffer overflow in parse %zu\n",
-				data_len + sizeof(pkt[i].len) + pkt[i].len);
+			((void)0);
 			goto err_out;
 		}
 		ptr += sizeof(pkt[i].len);
@@ -1228,9 +1130,7 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 		data_len += (sizeof(pkt[i].len) + AlignLength);
 	}
 	if ((ptr - ptr_base) > RPC_MAX_BUF_SIZE) {
-		CCCI_ERROR_LOG(md_id, RPC,
-			"RPC overflow in parse 0x%p\n",
-			(void *)(ptr - ptr_base));
+		((void)0);
 		goto err_out;
 	}
 	/* handle RPC request */
@@ -1243,9 +1143,7 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 	for (i = 0; i < rpc_buf->para_num; i++) {
 		if ((data_len + sizeof(pkt[i].len) + pkt[i].len) >
 			RPC_MAX_BUF_SIZE) {
-			CCCI_ERROR_LOG(md_id, RPC,
-				"RPC overflow in write %zu\n",
-				data_len + sizeof(pkt[i].len) + pkt[i].len);
+			((void)0);
 			goto err_out;
 		}
 
@@ -1259,9 +1157,7 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 		if (ptr != pkt[i].buf)
 			memcpy(ptr, pkt[i].buf, pkt[i].len);
 		else
-			CCCI_DEBUG_LOG(md_id, RPC,
-				"same addr, no copy, op_id=0x%x\n",
-				rpc_buf->op_id);
+			((void)0);
 
 		ptr += AlignLength;
 	}
@@ -1274,11 +1170,7 @@ static void rpc_msg_handler(struct port_t *port, struct sk_buff *skb)
 	/* update CCCI header */
 	rpc_buf->header.channel = CCCI_RPC_TX;
 	rpc_buf->header.data[1] = data_len;
-	CCCI_DEBUG_LOG(md_id, RPC,
-		"Write %d/%d, %08X, %08X, %08X, %08X, op_id=0x%x\n",
-		skb->len, data_len, rpc_buf->header.data[0],
-		rpc_buf->header.data[1], rpc_buf->header.channel,
-		rpc_buf->header.reserved, rpc_buf->op_id);
+	((void)0);
 	/* switch to Tx request */
 	ret = port_send_skb_to_md(port, skb, 1);
 	if (ret)
@@ -1307,16 +1199,14 @@ static int port_rpc_init(struct port_t *port)
 	int ret = 0;
 	static int first_init = 1;
 
-	CCCI_DEBUG_LOG(port->md_id, RPC,
-		"rpc port %s is initializing\n", port->name);
+	((void)0);
 	port->rx_length_th = MAX_QUEUE_LENGTH;
 	port->skb_from_pool = 1;
 	port->interception = 0;
 	if (port->flags & PORT_F_WITH_CHAR_NODE) {
 		dev = kmalloc(sizeof(struct cdev), GFP_KERNEL);
 		if (unlikely(!dev)) {
-			CCCI_ERROR_LOG(port->md_id, CHAR,
-				"alloc rpc char dev fail!!\n");
+			((void)0);
 			return -1;
 		}
 		cdev_init(dev, &rpc_dev_fops);
@@ -1384,19 +1274,14 @@ int port_rpc_recv_match(struct port_t *port, struct sk_buff *skb)
 	if (is_userspace_msg &&
 		(port->flags & PORT_F_WITH_CHAR_NODE)) {
 		/*userspace msg, so need match userspace port*/
-		CCCI_DEBUG_LOG(md_id, RPC, "userspace rpc msg 0x%x on %s\n",
-						rpc_buf->op_id, port->name);
+		((void)0);
 	} else {
 		/*kernel msg, so need match kernel port*/
 		if (is_userspace_msg == 0 &&
 			!(port->flags & PORT_F_WITH_CHAR_NODE)) {
-			CCCI_DEBUG_LOG(md_id, RPC,
-				"kernelspace rpc msg 0x%x on %s\n",
-				rpc_buf->op_id, port->name);
+			((void)0);
 		} else {
-			CCCI_DEBUG_LOG(md_id, RPC,
-				"port_rpc cfg error, need check:msg 0x%x on %s\n",
-				rpc_buf->op_id, port->name);
+			((void)0);
 			return 0;
 		}
 	}

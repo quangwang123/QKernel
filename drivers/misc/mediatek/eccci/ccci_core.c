@@ -22,18 +22,6 @@
 #endif
 
 static void *dev_class;
-/*
- * for debug log:
- * 0 to disable; 1 for print to ram; 2 for print to uart
- * other value to desiable all log
- */
-#ifndef CCCI_LOG_LEVEL /* for platform override */
-#define CCCI_LOG_LEVEL CCCI_LOG_CRITICAL_UART
-#endif
-
-//#define CCCI_LOG_LEVEL CCCI_LOG_ALL_UART
-
-unsigned int ccci_debug_enable = CCCI_LOG_LEVEL;
 
 int ccci_register_dev_node(const char *name, int major_id, int minor)
 {
@@ -71,7 +59,7 @@ static struct notifier_block apsync_notifier = {
 #ifndef CCCI_KMODULE_ENABLE
 static int __init ccci_init(void)
 {
-	CCCI_INIT_LOG(-1, CORE, "ccci core init\n");
+	((void)0);
 	dev_class = class_create(THIS_MODULE, "ccci_node");
 	ccci_subsys_bm_init();
 #ifdef FEATURE_SCP_CCCI_SUPPORT
@@ -89,7 +77,7 @@ MODULE_LICENSE("GPL");
 #else
 int ccci_init(void)
 {
-	CCCI_INIT_LOG(-1, CORE, "ccci core init\n");
+	((void)0);
 	dev_class = class_create(THIS_MODULE, "ccci_node");
 	ccci_subsys_bm_init();
 #ifdef FEATURE_SCP_CCCI_SUPPORT

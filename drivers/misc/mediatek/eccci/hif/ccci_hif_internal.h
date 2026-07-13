@@ -136,8 +136,7 @@ static inline void ccci_md_add_log_history(struct ccci_hif_traffic *tinfo,
 static inline void *ccci_hif_get_by_id(unsigned char hif_id)
 {
 	if (hif_id >= CCCI_HIF_NUM) {
-		CCCI_ERROR_LOG(-1, CORE,
-		"%s  hif_id = %u\n", __func__, hif_id);
+		((void)0);
 		return NULL;
 	} else
 		return ccci_hif[hif_id];
@@ -176,9 +175,7 @@ static inline void ccci_md_inc_tx_seq_num(unsigned char md_id,
 {
 	if (ccci_h->channel >= ARRAY_SIZE(traffic_info->seq_nums[OUT])
 		|| ccci_h->channel < 0) {
-		CCCI_NORMAL_LOG(md_id, CORE,
-			"ignore seq inc on channel %x\n",
-			*(((u32 *) ccci_h) + 2));
+		((void)0);
 		return;		/* for force assert channel, etc. */
 	}
 	ccci_h->seq_num = traffic_info->seq_nums[OUT][ccci_h->channel]++;
@@ -206,25 +203,8 @@ static inline void ccci_channel_update_packet_counter(
 static inline void ccci_channel_dump_packet_counter(
 	unsigned char md_id, struct ccci_hif_traffic *traffic_info)
 {
-	CCCI_REPEAT_LOG(md_id, CORE,
-	"traffic(ch): tx:[%d]%ld, [%d]%ld, [%d]%ld rx:[%d]%ld, [%d]%ld, [%d]%ld\n",
-	CCCI_PCM_TX, traffic_info->logic_ch_pkt_cnt[CCCI_PCM_TX],
-	CCCI_UART2_TX, traffic_info->logic_ch_pkt_cnt[CCCI_UART2_TX],
-	CCCI_FS_TX, traffic_info->logic_ch_pkt_cnt[CCCI_FS_TX],
-	CCCI_PCM_RX, traffic_info->logic_ch_pkt_cnt[CCCI_PCM_RX],
-	CCCI_UART2_RX, traffic_info->logic_ch_pkt_cnt[CCCI_UART2_RX],
-	CCCI_FS_RX, traffic_info->logic_ch_pkt_cnt[CCCI_FS_RX]);
-	CCCI_REPEAT_LOG(md_id, CORE,
-	"traffic(net): tx: [%d]%ld %ld, [%d]%ld %ld, [%d]%ld %ld, rx:[%d]%ld, [%d]%ld, [%d]%ld\n",
-	CCCI_CCMNI1_TX, traffic_info->logic_ch_pkt_pre_cnt[CCCI_CCMNI1_TX],
-	traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI1_TX],
-	CCCI_CCMNI2_TX, traffic_info->logic_ch_pkt_pre_cnt[CCCI_CCMNI2_TX],
-	traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI2_TX],
-	CCCI_CCMNI3_TX, traffic_info->logic_ch_pkt_pre_cnt[CCCI_CCMNI3_TX],
-	traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI3_TX],
-	CCCI_CCMNI1_RX, traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI1_RX],
-	CCCI_CCMNI2_RX, traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI2_RX],
-	CCCI_CCMNI3_RX, traffic_info->logic_ch_pkt_cnt[CCCI_CCMNI3_RX]);
+	((void)0);
+	((void)0);
 }
 
 static inline unsigned int ccci_md_get_seq_num(

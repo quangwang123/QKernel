@@ -31,21 +31,13 @@ static int fsm_get_no_response_assert_type(struct ccci_fsm_poller *poller_ctl)
 	rem_nsec3 =
 	(latest_q0_rx_time == 0 ? 0 : do_div(latest_q0_rx_time, 1000000000));
 
-	CCCI_ERROR_LOG(md_id, FSM,
-		"polling: start=%lu.%06lu, isr=%lu.%06lu,q0_isr=%lu.%06lu, q0_rx=%lu.%06lu\n",
-		(unsigned long)poller_ctl->latest_poll_start_time,
-		rem_nsec0 / 1000,
-		(unsigned long)latest_isr_time, rem_nsec1 / 1000,
-		(unsigned long)latest_q0_isr_time, rem_nsec2 / 1000,
-		(unsigned long)latest_q0_rx_time, rem_nsec3 / 1000);
+	((void)0);
 	/* Check whether ap received polling queue irq, after polling start */
 	if (poller_ctl->latest_poll_start_time > latest_q0_isr_time) {
 		if (poller_ctl->latest_poll_start_time < latest_isr_time)
-			CCCI_ERROR_LOG(md_id, FSM,
-				"After polling start, have isr but no polling isr, maybe md no response\n");
+			((void)0);
 		else {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"After polling start, no any irq, check ap irq status and md side send or no\n");
+			((void)0);
 		}
 		return MD_FORCE_ASSERT_BY_MD_NO_RESPONSE;
 	}
@@ -54,13 +46,11 @@ static int fsm_get_no_response_assert_type(struct ccci_fsm_poller *poller_ctl)
 	 * no polling response package
 	 */
 	if (latest_q0_isr_time > latest_q0_rx_time) {
-		CCCI_ERROR_LOG(md_id, FSM,
-		"AP rx polling queue no work after isr, rx queue maybe blocked\n");
+		((void)0);
 		return MD_FORCE_ASSERT_BY_AP_Q0_BLOCKED;
 	}
 
-	CCCI_ERROR_LOG(md_id, FSM,
-	"AP polling isr & rx queue & kthread normally after polling start, MD may not response\n");
+	((void)0);
 	return MD_FORCE_ASSERT_BY_MD_NO_RESPONSE;
 }
 
@@ -82,18 +72,15 @@ static int fsm_poll_main(void *data)
 		poller_ctl->poller_state = FSM_POLLER_WAITING_RESPONSE;
 		ret = ccci_port_send_msg_to_md(poller_ctl->md_id,
 				CCCI_STATUS_TX, 0, 0, 1);
-		CCCI_NORMAL_LOG(poller_ctl->md_id, FSM,
-				"poll MD status send msg %d\n", ret);
+		((void)0);
 		ret = wait_event_timeout(poller_ctl->status_rx_wq,
 		poller_ctl->poller_state == FSM_POLLER_RECEIVED_RESPONSE,
 		POLLING_TIMEOUT * HZ);
-		CCCI_NORMAL_LOG(poller_ctl->md_id, FSM,
-			"poll MD status wait done %d\n", ret);
+		((void)0);
 		if (!ret) { /* timeout */
 			md_state = ccci_fsm_get_md_state(poller_ctl->md_id);
 			if (md_state == READY) {
-				CCCI_ERROR_LOG(poller_ctl->md_id, FSM,
-					"poll MD status timeout, force assert\n");
+				((void)0);
 				assert_md_type =
 				fsm_get_no_response_assert_type(poller_ctl);
 				if (assert_md_type
@@ -117,8 +104,7 @@ static int fsm_poll_main(void *data)
 					msleep(200);
 				}
 				if (count) {
-					CCCI_ERROR_LOG(poller_ctl->md_id, FSM,
-						"MD long time no response\n");
+					((void)0);
 					ccci_md_dump_info(poller_ctl->md_id,
 						DUMP_FLAG_QUEUE_0, NULL, 0);
 					fsm_append_command(ctl,
@@ -155,8 +141,7 @@ int ccci_fsm_recv_status_packet(int md_id, struct sk_buff *skb)
 		return -CCCI_ERR_INVALID_PARAM;
 	poller_ctl = &ctl->poller_ctl;
 
-	CCCI_NORMAL_LOG(poller_ctl->md_id, FSM,
-		"received MD status response %x\n", *(((u32 *)skb->data) + 2));
+	((void)0);
 	poller_ctl->poller_state = FSM_POLLER_RECEIVED_RESPONSE;
 	wake_up(&poller_ctl->status_rx_wq);
 	ccci_free_skb(skb);

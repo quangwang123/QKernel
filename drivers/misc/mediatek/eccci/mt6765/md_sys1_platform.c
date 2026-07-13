@@ -121,18 +121,16 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 	int idx = 0;
 
 	if (dev_ptr->dev.of_node == NULL) {
-		CCCI_ERROR_LOG(0, TAG, "modem OF node NULL\n");
+		((void)0);
 		return -1;
 	}
 
 	memset(dev_cfg, 0, sizeof(struct ccci_dev_cfg));
 	of_property_read_u32(dev_ptr->dev.of_node,
 		"mediatek,md_id", &dev_cfg->index);
-	CCCI_DEBUG_LOG(dev_cfg->index, TAG,
-		"modem hw info get idx:%d\n", dev_cfg->index);
+	((void)0);
 	if (!get_modem_is_enabled(dev_cfg->index)) {
-		CCCI_ERROR_LOG(dev_cfg->index, TAG,
-			"modem %d not enable, exit\n", dev_cfg->index + 1);
+		((void)0);
 		return -1;
 	}
 
@@ -150,8 +148,7 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 		hw_info->md_ccif_base =
 		 (unsigned long)of_iomap(dev_ptr->dev.of_node, 3);
 		if (!(hw_info->ap_ccif_base && hw_info->md_ccif_base)) {
-			CCCI_ERROR_LOG(-1, TAG, "%s: hw_info of_iomap failed\n",
-				       dev_ptr->dev.of_node->full_name);
+			((void)0);
 			return -1;
 		}
 		hw_info->ap_ccif_irq0_id =
@@ -163,8 +160,7 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 
 		hw_info->md_pcore_pccif_base =
 		 ioremap_nocache(MD_PCORE_PCCIF_BASE, 0x20);
-		CCCI_BOOTUP_LOG(dev_cfg->index, TAG,
-		 "pccif:%x\n", MD_PCORE_PCCIF_BASE);
+		((void)0);
 
 
 		/* Device tree using none flag to register irq,
@@ -192,23 +188,17 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 #if defined(CONFIG_PINCTRL_ELBRUS)
 		mdcldma_pinctrl = devm_pinctrl_get(&dev_ptr->dev);
 		if (IS_ERR(mdcldma_pinctrl)) {
-			CCCI_ERROR_LOG(dev_cfg->index, TAG,
-				"modem %d get mdcldma_pinctrl failed\n",
-							dev_cfg->index + 1);
+			((void)0);
 			return -1;
 		}
 #else
-		CCCI_ERROR_LOG(dev_cfg->index, TAG,
-			"gpio pinctrl is not ready yet, use workaround.\n");
+		((void)0);
 #endif
 		for (idx = 0; idx < ARRAY_SIZE(clk_table); idx++) {
 			clk_table[idx].clk_ref = devm_clk_get(&dev_ptr->dev,
 				clk_table[idx].clk_name);
 			if (IS_ERR(clk_table[idx].clk_ref)) {
-				CCCI_ERROR_LOG(dev_cfg->index, TAG,
-					 "md%d get %s failed\n",
-						dev_cfg->index + 1,
-						clk_table[idx].clk_name);
+				((void)0);
 				clk_table[idx].clk_ref = NULL;
 			}
 		}
@@ -216,9 +206,7 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 			"mediatek,mt6765-apmixedsys");
 		hw_info->ap_mixed_base = (unsigned long)of_iomap(node, 0);
 		if (!hw_info->ap_mixed_base) {
-			CCCI_ERROR_LOG(-1, TAG,
-				"%s: hw_info->ap_mixed_base of_iomap failed\n",
-				node->full_name);
+			((void)0);
 			return -1;
 		}
 		node = of_find_compatible_node(NULL, NULL, "mediatek,topckgen");
@@ -228,9 +216,7 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 			hw_info->ap_topclkgen_base =
 				ioremap_nocache(0x10000000, 4);
 		if (!hw_info->ap_topclkgen_base) {
-			CCCI_ERROR_LOG(-1, TAG,
-			"%s:ioremap topclkgen base address fail\n",
-			__func__);
+			((void)0);
 			return -1;
 		}
 		break;
@@ -240,35 +226,21 @@ int md_cd_get_modem_hw_info(struct platform_device *dev_ptr,
 
 	if (hw_info->ap_ccif_base == 0 ||
 		hw_info->md_ccif_base == 0) {
-		CCCI_ERROR_LOG(dev_cfg->index, TAG,
-			"ap_ccif_base:0x%p, md_ccif_base:0x%p\n",
-			(void *)hw_info->ap_ccif_base,
-			(void *)hw_info->md_ccif_base);
+		((void)0);
 		return -1;
 	}
 	if (hw_info->ap_ccif_irq0_id == 0 ||
 		hw_info->ap_ccif_irq1_id == 0 ||
 		hw_info->md_wdt_irq_id == 0) {
-		CCCI_ERROR_LOG(dev_cfg->index, TAG,
-			"ccif_irq0:%d,ccif_irq0:%d,md_wdt_irq:%d\n",
-			hw_info->ap_ccif_irq0_id,
-			hw_info->ap_ccif_irq1_id, hw_info->md_wdt_irq_id);
+		((void)0);
 		return -1;
 	}
 
-	CCCI_DEBUG_LOG(dev_cfg->index, TAG,
-		"dev_major:%d,minor_base:%d,capability:%d\n",
-		dev_cfg->major, dev_cfg->minor_base, dev_cfg->capability);
+	((void)0);
 
-	CCCI_DEBUG_LOG(dev_cfg->index, TAG,
-		"ap_ccif_base:0x%p, md_ccif_base:0x%p\n",
-					(void *)hw_info->ap_ccif_base,
-					(void *)hw_info->md_ccif_base);
+	((void)0);
 
-	CCCI_DEBUG_LOG(dev_cfg->index, TAG,
-		"ccif_irq0:%d,ccif_irq1:%d,md_wdt_irq:%d\n",
-		hw_info->ap_ccif_irq0_id,
-		hw_info->ap_ccif_irq1_id, hw_info->md_wdt_irq_id);
+	((void)0);
 
 	return 0;
 }
@@ -290,8 +262,7 @@ static int md_cd_io_remap_md_side_register(struct ccci_modem *md)
 
 	md_reg = kzalloc(sizeof(struct md_pll_reg), GFP_KERNEL);
 	if (md_reg == NULL) {
-		CCCI_ERROR_LOG(-1, TAG,
-		 "cldma_sw_init:alloc md reg map mem fail\n");
+		((void)0);
 		return -1;
 	}
 	/*needed by bootup flow start*/
@@ -338,15 +309,11 @@ static void md_cd_dump_md_bootup_status(struct ccci_modem *md)
 
 	cldma_read32(md_reg->md_boot_stats0, 0);	/* dummy read */
 	cldma_read32(md_reg->md_boot_stats0, 0);	/* dummy read */
-	CCCI_NOTICE_LOG(md->index, TAG,
-		"md_boot_stats0:0x%X\n",
-		cldma_read32(md_reg->md_boot_stats0, 0));
+	((void)0);
 
 	cldma_read32(md_reg->md_boot_stats1, 0);	/* dummy read */
 	cldma_read32(md_reg->md_boot_stats1, 0);	/* dummy read */
-	CCCI_NOTICE_LOG(md->index, TAG,
-		"md_boot_stats1:0x%X\n",
-		cldma_read32(md_reg->md_boot_stats1, 0));
+	((void)0);
 }
 
 static void md_cd_get_md_bootup_status(
@@ -355,7 +322,7 @@ static void md_cd_get_md_bootup_status(
 	struct md_sys1_info *md_info = (struct md_sys1_info *)md->private_data;
 	struct md_pll_reg *md_reg = md_info->md_pll_base;
 
-	CCCI_NOTICE_LOG(md->index, TAG, "md_boot_stats len %d\n", length);
+	((void)0);
 
 	if (length < 2) {
 		md_cd_dump_md_bootup_status(md);
@@ -369,8 +336,7 @@ static void md_cd_get_md_bootup_status(
 	cldma_read32(md_reg->md_boot_stats1, 0);	/* dummy read */
 	cldma_read32(md_reg->md_boot_stats1, 0);	/* dummy read */
 	buff[1] = cldma_read32(md_reg->md_boot_stats1, 0);
-	CCCI_NOTICE_LOG(md->index, TAG,
-		"md_boot_stats0 / 1:0x%X / 0x%X\n", buff[0], buff[1]);
+	((void)0);
 
 }
 
@@ -384,14 +350,13 @@ static int dump_emi_last_bm(struct ccci_modem *md)
 
 	buf = kzalloc(buf_len, GFP_ATOMIC);
 	if (!buf) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"alloc memory failed for emi last bm\n");
+		((void)0);
 		return -1;
 	}
 #ifdef CONFIG_MTK_EMI_BWL
 	dump_last_bm(buf, buf_len);
 #endif
-	CCCI_MEM_LOG_TAG(md->index, TAG, "Dump EMI last bm\n");
+	((void)0);
 	buf[buf_len - 1] = '\0';
 	temp_buf = buf;
 	for (i = 0, j = 1; i < buf_len - 1; i++, j++) {
@@ -400,8 +365,7 @@ static int dump_emi_last_bm(struct ccci_modem *md)
 		if (buf[i] == 0x0A && j < 256) {
 			/* 0x0A stands for end of string, no 0x0D */
 			buf[i] = '\0';
-			CCCI_MEM_LOG(md->index, TAG,
-				"%s\n", temp_buf);/* max 256 bytes */
+			((void)0);/* max 256 bytes */
 			temp_buf = buf + i + 1;
 			j = 0;
 		} else if (unlikely(j >= 255)) {
@@ -410,7 +374,7 @@ static int dump_emi_last_bm(struct ccci_modem *md)
 			 */
 			temp_char = buf[i];
 			buf[i] = '\0';
-			CCCI_MEM_LOG(md->index, TAG, "%s\n", temp_buf);
+			((void)0);
 			temp_buf = buf + i;
 			j = 0;
 			buf[i] = temp_char;
@@ -443,8 +407,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		(reg_value[0] >= 0x53310000 && reg_value[0] <= 0x533100FF)))
 		return;
 	if (unlikely(in_interrupt())) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"In interrupt, skip dump MD debug register.\n");
+		((void)0);
 		return;
 	}
 	md_cd_lock_modem_clock_src(1);
@@ -455,8 +418,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		dump_reg0 = ioremap_nocache(MD1_OPEN_DEBUG_APB_CLK, 0x1000);
 		ccci_write32(dump_reg0, 0x430, 0x1);
 		udelay(1000);
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"md_dbg_sys:0x%X\n", cldma_read32(dump_reg0, 0x430));
+		((void)0);
 		iounmap(dump_reg0);
 	} else {
 		md_cd_lock_modem_clock_src(0);
@@ -465,9 +427,8 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 
 	/* 1. PC Monitor */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_PCMON)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG, "Dump MD PC monitor\n");
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"common: 0x%X\n", (MD_PC_MONITOR_BASE + 0x800));
+		((void)0);
+		((void)0);
 		/* Stop all PCMon */
 		dump_reg0 =
 		 ioremap_nocache(MD_PC_MONITOR_BASE, MD_PC_MONITOR_LEN);
@@ -479,9 +440,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     (dump_reg0 + 0xA00), 0x60, false);
 		/* core0 */
-		CCCI_MEM_LOG_TAG(md->index, TAG, "core0/1: [0]0x%X, [1]0x%X\n",
-				MD_PC_MONITOR_BASE,
-				(MD_PC_MONITOR_BASE + 0x400));
+		((void)0);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     dump_reg0, 0x400, false);
 		/* core1 */
@@ -495,12 +454,9 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 
 	/* 2. dump PLL */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_PLL)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG, "Dump MD PLL\n");
+		((void)0);
 		/* MD CLKSW */
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"CLKSW: [0]0x%X, [1]0x%X, [2]0x%X\n",
-			MD_CLKSW_BASE, (MD_CLKSW_BASE + 0x100),
-			(MD_CLKSW_BASE + 0xF00));
+		((void)0);
 		dump_reg0 = ioremap_nocache(MD_CLKSW_BASE, MD_CLKSW_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     dump_reg0, 0xD4, false);
@@ -510,18 +466,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 				     (dump_reg0 + 0xF00), 0x8, false);
 		iounmap(dump_reg0);
 		/* MD PLLMIXED */
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"PLLMIXED:[0]0x%X,[1]0x%X,[2]0x%X,[3]0x%X,[4]0x%X,[5]0x%X,[6]0x%X,[7]0x%X,[8]0x%X,[9]0x%X\n",
-			MD_PLL_MIXED_BASE,
-			(MD_PLL_MIXED_BASE + 0x100),
-			(MD_PLL_MIXED_BASE + 0x200),
-			(MD_PLL_MIXED_BASE + 0x300),
-			(MD_PLL_MIXED_BASE + 0x400),
-			(MD_PLL_MIXED_BASE + 0x500),
-			(MD_PLL_MIXED_BASE + 0x600),
-			(MD_PLL_MIXED_BASE + 0xC00),
-			(MD_PLL_MIXED_BASE + 0xD00),
-			(MD_PLL_MIXED_BASE + 0xF00));
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_PLL_MIXED_BASE, MD_PLL_MIXED_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -546,8 +491,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 				     (dump_reg0 + 0xF00), 0x14, false);
 		iounmap(dump_reg0);
 		/* MD CLKCTL */
-		CCCI_MEM_LOG_TAG(md->index, TAG, "CLKCTL: [0]0x%X, [1]0x%X\n",
-			MD_CLKCTL_BASE, (MD_CLKCTL_BASE + 0x100));
+		((void)0);
 		dump_reg0 = ioremap_nocache(MD_CLKCTL_BASE, MD_CLKCTL_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     dump_reg0, 0x1C, false);
@@ -555,17 +499,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 				     (dump_reg0 + 0x100), 0x20, false);
 		iounmap(dump_reg0);
 		/* MD GLOBAL CON */
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"GLOBAL CON: [0]0x%X, [1]0x%X, [2]0x%X, [3]0x%X, [4]0x%X, [5]0x%X, [6]0x%X, [7]0x%X, [8]0x%X\n",
-			MD_GLOBALCON_BASE,
-			(MD_GLOBALCON_BASE + 0x100),
-			(MD_GLOBALCON_BASE + 0x200),
-			(MD_GLOBALCON_BASE + 0x300),
-			(MD_GLOBALCON_BASE + 0x800),
-			(MD_GLOBALCON_BASE + 0x900),
-			(MD_GLOBALCON_BASE + 0xC00),
-			(MD_GLOBALCON_BASE + 0xD00),
-			(MD_GLOBALCON_BASE + 0xF00));
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_GLOBALCON_BASE, MD_GLOBALCON_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -592,19 +526,13 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 	/* 3. Bus status */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_BUS)) {
 #if defined(CONFIG_MACH_MT6765)
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD Bus status: [0]0x%X, [1]0x%X, [2]0x%X, [3]0x%X\n",
-			MD_BUS_REG_BASE0, MD_BUS_REG_BASE1,
-			MD_BUS_REG_BASE2, MD_BUS_REG_BASE3);
+		((void)0);
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE0, MD_BUS_REG_LEN0);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     dump_reg0, MD_BUS_REG_LEN0, false);
 		iounmap(dump_reg0);
 #elif defined(CONFIG_MACH_MT6761)
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD Bus status: [0]0x%X, [1]0x%X, [2]0x%X\n",
-			MD_BUS_REG_BASE1, MD_BUS_REG_BASE2,
-			MD_BUS_REG_BASE3);
+		((void)0);
 #endif
 		dump_reg0 = ioremap_nocache(MD_BUS_REG_BASE1, MD_BUS_REG_LEN1);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -623,14 +551,9 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 	/* 4. Bus REC */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_BUSREC)) {
 #if defined(CONFIG_MACH_MT6765)
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD Bus REC: [0]0x%X, [1]0x%X, [2]0x%X\n",
-			MD_MCU_MO_BUSREC_BASE, MD_INFRA_BUSREC_BASE,
-			MD_BUSREC_LAY_BASE);
+		((void)0);
 #elif defined(CONFIG_MACH_MT6761)
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD Bus REC: [0]0x%X, [1]0x%X\n",
-			MD_MCU_MO_BUSREC_BASE, MD_INFRA_BUSREC_BASE);
+		((void)0);
 #endif
 		dump_reg0 =
 		 ioremap_nocache(MD_MCU_MO_BUSREC_BASE, MD_MCU_MO_BUSREC_LEN);
@@ -677,10 +600,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 
 	/* 5. ECT */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_ECT)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD ECT: [0]0x%X, [1]0x%X, [2]0x%X, [3]0x%X\n",
-			MD_ECT_REG_BASE0, MD_ECT_REG_BASE1,
-			(MD_ECT_REG_BASE2 + 0x14), (MD_ECT_REG_BASE2 + 0x0C));
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_ECT_REG_BASE0, MD_ECT_REG_LEN0);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -706,10 +626,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 		RAnd2W(md->hw_info->plat_val->infra_ao_base,
 			INFRA_AP2MD_DUMMY_REG,
 			(~(0x1 << INFRA_AP2MD_DUMMY_BIT)));
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"ap2md dummy reg 0x%X: 0x%X\n", INFRA_AP2MD_DUMMY_REG,
-			cldma_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_AP2MD_DUMMY_REG));
+		((void)0);
 		/*disable MD to AP*/
 		cldma_write32(md->hw_info->plat_val->infra_ao_base,
 			INFRA_MD2PERI_PROT_SET,
@@ -719,12 +636,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			& (0x1 << INFRA_MD2PERI_PROT_BIT))
 			!= (0x1 << INFRA_MD2PERI_PROT_BIT))
 			;
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"md2peri: en[0x%X], rdy[0x%X]\n",
-			cldma_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_MD2PERI_PROT_EN),
-			cldma_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_MD2PERI_PROT_RDY));
+		((void)0);
 		/*make sure AP to MD is enabled*/
 		cldma_write32(md->hw_info->plat_val->infra_ao_base,
 			INFRA_PERI2MD_PROT_CLR,
@@ -733,18 +645,12 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 			INFRA_PERI2MD_PROT_RDY)
 			& (0x1 << INFRA_PERI2MD_PROT_BIT)))
 			;
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"peri2md: en[0x%X], rdy[0x%X]\n",
-			cldma_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_PERI2MD_PROT_EN),
-			cldma_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_PERI2MD_PROT_RDY));
+		((void)0);
 	}
 
 	/* 6. TOPSM */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_TOPSM)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD TOPSM status: 0x%X\n", MD_TOPSM_REG_BASE);
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_TOPSM_REG_BASE, MD_TOPSM_REG_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -754,9 +660,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 
 	/* 7. MD RGU */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_MDRGU)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD RGU: [0]0x%X, [1]0x%X\n",
-			MD_RGU_REG_BASE, (MD_RGU_REG_BASE + 0x200));
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_RGU_REG_BASE, MD_RGU_REG_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -768,9 +672,7 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 
 	/* 8 OST */
 	if (per_md_data->md_dbg_dump_flag & (1 << MD_DBG_DUMP_OST)) {
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD OST status: [0]0x%X, [1]0x%X\n",
-			MD_OST_STATUS_BASE, (MD_OST_STATUS_BASE + 0x200));
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_OST_STATUS_BASE, 0x300);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -779,16 +681,14 @@ static void md_cd_dump_debug_register(struct ccci_modem *md)
 				     (dump_reg0 + 0x200), 0x8, false);
 		iounmap(dump_reg0);
 		/* 9 CSC */
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD CSC: 0x%X\n", MD_CSC_REG_BASE);
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_CSC_REG_BASE, MD_CSC_REG_LEN);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     dump_reg0, MD_CSC_REG_LEN, false);
 		iounmap(dump_reg0);
 		/* 10 ELM */
-		CCCI_MEM_LOG_TAG(md->index, TAG,
-			"Dump MD ELM: 0x%X\n", MD_ELM_REG_BASE);
+		((void)0);
 		dump_reg0 =
 		 ioremap_nocache(MD_ELM_REG_BASE, 0x480);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -820,8 +720,7 @@ static int md_start_platform(struct ccci_modem *md)
 	if (IS_ERR(reg_vmodem)) {
 		ret = PTR_ERR(reg_vmodem);
 		if ((ret != -ENODEV) && md->plat_dev->dev.of_node) {
-			CCCI_ERROR_LOG(md->index, TAG,
-				"get regulator(PMIC) fail: ret = %d\n", ret);
+			((void)0);
 			return ret;
 		}
 	}
@@ -829,8 +728,7 @@ static int md_start_platform(struct ccci_modem *md)
 	if (IS_ERR(reg_vsram)) {
 		ret = PTR_ERR(reg_vsram);
 		if ((ret != -ENODEV) && md->plat_dev->dev.of_node) {
-			CCCI_ERROR_LOG(md->index, TAG,
-				"get regulator(PMIC1) fail: ret = %d\n", ret);
+			((void)0);
 			return ret;
 		}
 	}
@@ -844,10 +742,10 @@ static void md1_pmic_setting_on(void)
 
 	ret = regulator_set_voltage(reg_vmodem, 800000, 800000);
 	if (ret)
-		CCCI_ERROR_LOG(-1, TAG, "pmic_vmodem setting on fail\n");
+		((void)0);
 	ret = regulator_sync_voltage(reg_vmodem);
 	if (ret)
-		CCCI_ERROR_LOG(-1, TAG, "pmic_vmodem setting on fail\n");
+		((void)0);
 
 //	ret = regulator_set_voltage(reg_vsram, 800000, 800000);
 //	if (ret)
@@ -864,10 +762,7 @@ static void md1_pre_access_md_reg(struct ccci_modem *md)
 	RAnd2W(md->hw_info->plat_val->infra_ao_base,
 		INFRA_AP2MD_DUMMY_REG,
 		(~(0x1 << INFRA_AP2MD_DUMMY_BIT)));
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"pre: ap2md dummy reg 0x%X: 0x%X\n", INFRA_AP2MD_DUMMY_REG,
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_AP2MD_DUMMY_REG));
+	((void)0);
 	/*disable MD to AP*/
 	cldma_write32(md->hw_info->plat_val->infra_ao_base,
 		INFRA_MD2PERI_PROT_SET,
@@ -877,11 +772,7 @@ static void md1_pre_access_md_reg(struct ccci_modem *md)
 		& (0x1 << INFRA_MD2PERI_PROT_BIT))
 		!= (0x1 << INFRA_MD2PERI_PROT_BIT))
 		;
-	CCCI_BOOTUP_LOG(md->index, TAG, "md2peri: en[0x%X], rdy[0x%X]\n",
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_MD2PERI_PROT_EN),
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_MD2PERI_PROT_RDY));
+	((void)0);
 }
 
 static void md1_post_access_md_reg(struct ccci_modem *md)
@@ -895,11 +786,7 @@ static void md1_post_access_md_reg(struct ccci_modem *md)
 		& (0x1 << INFRA_PERI2MD_PROT_BIT))
 		!= (0x1 << INFRA_PERI2MD_PROT_BIT))
 		;
-	CCCI_BOOTUP_LOG(md->index, TAG, "peri2md: en[0x%X], rdy[0x%X]\n",
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_PERI2MD_PROT_EN),
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_PERI2MD_PROT_RDY));
+	((void)0);
 
 	/*enable MD to AP*/
 	cldma_write32(md->hw_info->plat_val->infra_ao_base,
@@ -909,19 +796,12 @@ static void md1_post_access_md_reg(struct ccci_modem *md)
 		INFRA_MD2PERI_PROT_RDY)
 		& (0x1 << INFRA_MD2PERI_PROT_BIT)))
 		;
-	CCCI_BOOTUP_LOG(md->index, TAG, "md2peri: en[0x%X], rdy[0x%X]\n",
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_MD2PERI_PROT_EN),
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_MD2PERI_PROT_RDY));
+	((void)0);
 
 	/*set dummy reg flag and let md access AP*/
 	ROr2W(md->hw_info->plat_val->infra_ao_base, INFRA_AP2MD_DUMMY_REG,
 		(0x1 << INFRA_AP2MD_DUMMY_BIT));
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"post: ap2md dummy reg 0x%X: 0x%X\n", INFRA_AP2MD_DUMMY_REG,
-		cldma_read32(md->hw_info->plat_val->infra_ao_base,
-		INFRA_AP2MD_DUMMY_REG));
+	((void)0);
 }
 
 static void md1_pll_init(struct ccci_modem *md)
@@ -934,7 +814,7 @@ static void md1_pll_init(struct ccci_modem *md)
 
 	while (1) {
 		reg_val = cldma_read32(md_pll->md_top_Pll, 0x0);
-		CCCI_BOOTUP_LOG(md->index, TAG, "Curr pll ver:0x%X\n", reg_val);
+		((void)0);
 		if (reg_val != 0)
 			break;
 		msleep(20);
@@ -966,21 +846,17 @@ static void md1_pll_init(struct ccci_modem *md)
 		reg_val = cldma_read32(md_pll->md_top_Pll, 0x10);
 		cnt++;
 		if ((cnt % 5) == 0) {
-			CCCI_BOOTUP_LOG(md->index, TAG,
-				"pll init: rewrite 0x100010(%d)\n", cnt);
+			((void)0);
 				cldma_write32(md_pll->md_top_Pll,
 				0x10, 0x100010);
 		}
 		msleep(20);
 	} while (reg_val != 0x100010);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"pll init: check 0x100010[0x%X], cnt:%d\n", reg_val, cnt);
+	((void)0);
 
 	while ((cldma_read32(md_pll->md_top_clkSW, 0x84) & 0x8000) != 0x8000) {
 		msleep(20);
-		CCCI_BOOTUP_LOG(md->index, TAG,
-			"pll init: [0x%x]=0x%x\n", MDTOP_CLKSW_BASE + 0x84,
-			cldma_read32(md_pll->md_top_clkSW, 0x84));
+		((void)0);
 	}
 
 	ROr2W(md_pll->md_top_clkSW, 0x24, 0x3);
@@ -994,7 +870,7 @@ static void md1_pll_init(struct ccci_modem *md)
 
 	/*make a record that means MD pll has been initialized.*/
 	cldma_write32(md_pll->md_top_Pll, 0xF00, 0x62930000);
-	CCCI_BOOTUP_LOG(md->index, TAG, "pll init: end\n");
+	((void)0);
 }
 
 
@@ -1005,9 +881,7 @@ static int md_cd_vcore_config(unsigned int md_id, unsigned int hold_req)
 	static int is_hold;
 	static struct mtk_pm_qos_request md_qos_vcore_request;
 
-	CCCI_BOOTUP_LOG(md_id, TAG,
-		"%s: is_hold=%d, hold_req=%d\n",
-		__func__, is_hold, hold_req);
+	((void)0);
 	if (hold_req && is_hold == 0) {
 		mtk_pm_qos_add_request(&md_qos_vcore_request,
 		MTK_PM_QOS_VCORE_OPP, VCORE_OPP_0);
@@ -1016,14 +890,10 @@ static int md_cd_vcore_config(unsigned int md_id, unsigned int hold_req)
 		mtk_pm_qos_remove_request(&md_qos_vcore_request);
 		is_hold = 0;
 	} else
-		CCCI_ERROR_LOG(md_id, TAG,
-			"invalid hold_req: is_hold=%d, hold_req=%d\n",
-			is_hold, hold_req);
+		((void)0);
 
 	if (ret)
-		CCCI_ERROR_LOG(md_id, TAG,
-			"%s fail: ret=%d, hold_req=%d\n",
-			__func__, ret, hold_req);
+		((void)0);
 
 	return ret;
 }
@@ -1051,9 +921,7 @@ static int md_cd_power_on(struct ccci_modem *md)
 	reg_value = ccci_read32(hw_info->ap_topclkgen_base, 0);
 	reg_value &= ~((1<<8)|(1<<9));
 	ccci_write32(hw_info->ap_topclkgen_base, 0, reg_value);
-	CCCI_BOOTUP_LOG(md->index, CORE,
-	"%s: set md1_clk_mod =0x%x\n",
-	__func__, ccci_read32(hw_info->ap_topclkgen_base, 0));
+	((void)0);
 
 	/* step 2: PMIC setting */
 	md1_pmic_setting_on();
@@ -1062,10 +930,9 @@ static int md_cd_power_on(struct ccci_modem *md)
 	switch (md->index) {
 	case MD_SYS1:
 		clk_buf_set_by_flightmode(false);
-		CCCI_BOOTUP_LOG(md->index, TAG, "enable md sys clk\n");
+		((void)0);
 		ret = clk_prepare_enable(clk_table[0].clk_ref);
-		CCCI_BOOTUP_LOG(md->index, TAG,
-			"enable md sys clk done,ret = %d\n", ret);
+		((void)0);
 		break;
 	}
 	if (ret)
@@ -1080,22 +947,16 @@ static int md_cd_power_on(struct ccci_modem *md)
 	reg_value |= 0x21;
 	ccci_write32(md->hw_info->plat_val->infra_ao_base,
 		INFRA_AO_MD_SRCCLKENA, reg_value);
-	CCCI_BOOTUP_LOG(md->index, CORE,
-		"%s: set md1_srcclkena bit(0x1000_0F0C)=0x%x\n",
-		__func__,
-		ccci_read32(md->hw_info->plat_val->infra_ao_base,
-			INFRA_AO_MD_SRCCLKENA));
+	((void)0);
 
 #ifdef FEATURE_INFORM_NFC_VSIM_CHANGE
 	/* notify NFC */
 	inform_nfc_vsim_change(md->index, 1, 0);
 #endif
 	/* step 5: pll init */
-	CCCI_BOOTUP_LOG(md->index, CORE,
-		"%s: md1_pll_init ++++\n", __func__);
+	((void)0);
 	md1_pll_init(md);
-	CCCI_BOOTUP_LOG(md->index, CORE,
-		"%s: md1_pll_init ----\n", __func__);
+	((void)0);
 
 	/* step 6: disable MD WDT */
 	cldma_write32(md_info->md_rgu_base, WDT_MD_MODE, WDT_MD_MODE_KEY);
@@ -1114,13 +975,11 @@ static int md_cd_let_md_go(struct ccci_modem *md)
 
 	if (MD_IN_DEBUG(md))
 		return -1;
-	CCCI_BOOTUP_LOG(md->index, TAG, "set MD boot slave\n");
+	((void)0);
 
 	/* make boot vector take effect */
 	cldma_write32(md_info->md_boot_slave_En, 0, 1);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"MD boot slave = 0x%x\n",
-		cldma_read32(md_info->md_boot_slave_En, 0));
+	((void)0);
 
 	md1_post_access_md_reg(md);
 	return 0;
@@ -1143,19 +1002,15 @@ static int md_cd_power_off(struct ccci_modem *md, unsigned int timeout)
 		/* 1. power off MD MTCMOS */
 		clk_disable_unprepare(clk_table[0].clk_ref);
 		/* 2. disable srcclkena */
-		CCCI_BOOTUP_LOG(md->index, TAG, "disable md1 clk\n");
+		((void)0);
 		reg_value =
 			ccci_read32(md->hw_info->plat_val->infra_ao_base,
 			INFRA_AO_MD_SRCCLKENA);
 		reg_value &= ~(0xFF);
 		ccci_write32(md->hw_info->plat_val->infra_ao_base,
 			INFRA_AO_MD_SRCCLKENA, reg_value);
-		CCCI_BOOTUP_LOG(md->index, CORE,
-			"%s: set md1_srcclkena=0x%x\n",
-			__func__,
-			ccci_read32(md->hw_info->plat_val->infra_ao_base,
-				INFRA_AO_MD_SRCCLKENA));
-		CCCI_BOOTUP_LOG(md->index, TAG, "Call md1_pmic_setting_off\n");
+		((void)0);
+		((void)0);
 
 		clk_buf_set_by_flightmode(true);
 		/* 3. PMIC off */
@@ -1165,10 +1020,7 @@ static int md_cd_power_off(struct ccci_modem *md, unsigned int timeout)
 		reg_value = ccci_read32(hw_info->ap_topclkgen_base, 0);
 		reg_value |= ((1<<8)|(1<<9));
 		ccci_write32(hw_info->ap_topclkgen_base, 0, reg_value);
-		CCCI_BOOTUP_LOG(md->index, CORE,
-			"%s: set md1_clk_mod =0x%x\n",
-			__func__,
-			ccci_read32(hw_info->ap_topclkgen_base, 0));
+		((void)0);
 
 		break;
 	}
@@ -1177,8 +1029,7 @@ static int md_cd_power_off(struct ccci_modem *md, unsigned int timeout)
 
 void ccci_modem_plt_resume(struct ccci_modem *md)
 {
-	CCCI_NORMAL_LOG(0, TAG, "[%s] md->hif_flag = %d\n",
-			__func__, md->hif_flag);
+	((void)0);
 
 	//if (md->hif_flag & (1 << CLDMA_HIF_ID))
 	//	ccci_cldma_restore_reg(md);
@@ -1186,8 +1037,7 @@ void ccci_modem_plt_resume(struct ccci_modem *md)
 
 int ccci_modem_plt_suspend(struct ccci_modem *md)
 {
-	CCCI_NORMAL_LOG(0, TAG, "[%s] md->hif_flag = %d\n",
-			__func__, md->hif_flag);
+	((void)0);
 
 	return 0;
 }
@@ -1205,7 +1055,7 @@ static int ccci_modem_suspend(struct platform_device *dev, pm_message_t state)
 {
 	struct ccci_modem *md = (struct ccci_modem *)dev->dev.platform_data;
 
-	CCCI_DEBUG_LOG(md->index, TAG, "%s\n", __func__);
+	((void)0);
 	return 0;
 }
 
@@ -1213,7 +1063,7 @@ static int ccci_modem_resume(struct platform_device *dev)
 {
 	struct ccci_modem *md = (struct ccci_modem *)dev->dev.platform_data;
 
-	CCCI_DEBUG_LOG(md->index, TAG, "%s\n", __func__);
+	((void)0);
 	return 0;
 }
 
@@ -1222,7 +1072,7 @@ static int ccci_modem_pm_suspend(struct device *device)
 	struct platform_device *pdev = to_platform_device(device);
 
 	if (pdev == NULL) {
-		CCCI_ERROR_LOG(MD_SYS1, TAG, "%s pdev == NULL\n", __func__);
+		((void)0);
 		return -1;
 	}
 	return ccci_modem_suspend(pdev, PMSG_SUSPEND);
@@ -1233,7 +1083,7 @@ static int ccci_modem_pm_resume(struct device *device)
 	struct platform_device *pdev = to_platform_device(device);
 
 	if (pdev == NULL) {
-		CCCI_ERROR_LOG(MD_SYS1, TAG, "%s pdev == NULL\n", __func__);
+		((void)0);
 		return -1;
 	}
 	return ccci_modem_resume(pdev);
@@ -1263,14 +1113,12 @@ static int ccci_modem_probe(struct platform_device *plat_dev)
 	/* Allocate modem hardware info structure memory */
 	md_hw = kzalloc(sizeof(struct md_hw_info), GFP_KERNEL);
 	if (md_hw == NULL) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:alloc md hw mem fail\n", __func__);
+		((void)0);
 		return -1;
 	}
 	ret = md_cd_get_modem_hw_info(plat_dev, &dev_cfg, md_hw);
 	if (ret != 0) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:get hw info fail(%d)\n", __func__, ret);
+		((void)0);
 		kfree(md_hw);
 		md_hw = NULL;
 		return -1;
@@ -1330,9 +1178,7 @@ static int __init modem_cd_init(void)
 
 	ret = platform_driver_register(&ccci_modem_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"clmda modem platform driver register fail(%d)\n",
-			ret);
+		((void)0);
 		return ret;
 	}
 	return 0;

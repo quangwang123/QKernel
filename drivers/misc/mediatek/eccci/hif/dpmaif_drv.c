@@ -30,8 +30,7 @@ static void drv_dpmaif_dl_pit_only_update_enable_bit_done(unsigned char q_num)
 			break;
 		}
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"DPMAIF_PD_DL_PIT_INIT ready failed\n");
+			((void)0);
 			dpmaif_ctrl->ops->dump_status(DPMAIF_HIF_ID,
 				DUMP_FLAG_REG, NULL, -1);
 			count = 0;
@@ -42,8 +41,7 @@ static void drv_dpmaif_dl_pit_only_update_enable_bit_done(unsigned char q_num)
 	while ((DPMA_READ_PD_DL(DPMAIF_PD_DL_PIT_INIT) &
 		DPMAIF_DL_PIT_INIT_NOT_READY) == DPMAIF_DL_PIT_INIT_NOT_READY) {
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"DPMAIF_PD_DL_PIT_INIT not ready failed\n");
+			((void)0);
 			dpmaif_ctrl->ops->dump_status(DPMAIF_HIF_ID,
 				DUMP_FLAG_REG, NULL, -1);
 			count = 0;
@@ -69,8 +67,7 @@ static void drv_dpmaif_check_dl_fifo_idle(void)
 			DPMAIF_DL_FIFO_IDLE_STS))
 			break;
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"DPMAIF_AO_DL_PIT_STA3 failed\n");
+			((void)0);
 			dpmaif_ctrl->ops->dump_status(DPMAIF_HIF_ID,
 				DUMP_FLAG_REG, NULL, -1);
 			count = 0;
@@ -82,8 +79,7 @@ static void drv_dpmaif_check_dl_fifo_idle(void)
 		if ((DPMA_READ_PD_DL(0x258) & 0x01) == 0x01)
 			break;
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"DPMAIF_DMA_WRT poll failed\n");
+			((void)0);
 			count = 0;
 			break;
 		}
@@ -125,15 +121,7 @@ static int drv_dpmaif_check_dl_awidx(void)
 			if (re_aidx_1 >= pit_size)
 				re_aidx_1 -= pit_size;
 			if (re_aidx_1 != widx) {
-				CCCI_MEM_LOG_TAG(0, TAG,
-					"dpmaif will do adjustment: 0x1021B558 = 0x%x, 0x%x, 0x%x, 0x%x, 0x%x, (0x%x, 0x%x)\n",
-					DPMA_READ_PD_DL(0x258),
-					DPMA_READ_PD_DL(DPMAIF_PD_DL_DBG_STA0),
-					DPMA_READ_PD_DL(DPMAIF_PD_DL_DBG_STA1),
-					DPMA_READ_PD_DL(DPMAIF_PD_DL_DBG_STA7),
-					DPMA_READ_PD_DL(DPMAIF_PD_DL_DBG_STA14),
-					DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA2),
-					DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA3));
+				((void)0);
 			}
 		}
 #endif
@@ -161,11 +149,7 @@ static int drv_dpmaif_check_dl_awidx(void)
 		re_widx = re_aidx;
 		re_widx = ((tmp_idx1 & 0xFFFF0000) | re_widx);
 
-		CCCI_MEM_LOG_TAG(0, TAG,
-			"dpmaif rx adjustment: 0x%x, 0x%x, (0x%x, 0x%x)\n",
-			tmp_idx1, tmp_idx2,
-			DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA2),
-			DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA3));
+		((void)0);
 
 		DPMA_WRITE_PD_DL(DPMAIF_PD_DL_PIT_INIT_CON2, re_widx);
 		DPMA_WRITE_PD_DL(DPMAIF_PD_DL_PIT_INIT_CON3, re_aidx<<16);
@@ -187,8 +171,7 @@ static int drv_dpmaif_dl_set_idle(bool set_en)
 			drv_dpmaif_dl_pit_only_update_enable_bit_done(0);
 			while (drv_dpmaif_dl_idle_check() != 0) {
 				if (++count >= 1600000) {
-					CCCI_MEM_LOG_TAG(0, TAG,
-						"drv_dpmaif_dl_idle poll\n");
+					((void)0);
 					count = 0;
 					ret = HW_REG_CHK_FAIL;
 					break;
@@ -199,8 +182,7 @@ static int drv_dpmaif_dl_set_idle(bool set_en)
 				== 0) {
 				while (drv_dpmaif_dl_idle_check() != 0) {
 					if (++count >= 1600000) {
-						CCCI_MEM_LOG_TAG(0, TAG,
-						"drv_dpmaif_dl_idle poll\n");
+						((void)0);
 						count = 0;
 						ret = HW_REG_CHK_FAIL;
 						break;
@@ -210,8 +192,7 @@ static int drv_dpmaif_dl_set_idle(bool set_en)
 				break;
 			}
 			if (++count1 >= 1600000) {
-				CCCI_ERROR_LOG(0, TAG,
-					"DPMAIF_AO_DL_PIT_STA3 failed\n");
+				((void)0);
 				dpmaif_ctrl->ops->dump_status(DPMAIF_HIF_ID,
 					DUMP_FLAG_REG, NULL, -1);
 				count1 = 0;
@@ -259,9 +240,7 @@ int drv_dpmaif_dl_add_frg_bat_cnt(unsigned char q_num,
 	while ((DPMA_READ_PD_DL(DPMAIF_PD_DL_BAT_ADD) &
 		DPMAIF_DL_ADD_NOT_READY) == DPMAIF_DL_ADD_NOT_READY) {
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"frg update failed, 0x%x\n", DPMA_READ_PD_DL(
-				DPMAIF_PD_DL_DBG_STA1));
+			((void)0);
 			break;
 		}
 	}
@@ -306,9 +285,7 @@ int drv_dpmaif_dl_add_bat_cnt(unsigned char q_num,
 	while ((DPMA_READ_PD_DL(DPMAIF_PD_DL_BAT_ADD) &
 		DPMAIF_DL_ADD_NOT_READY) == DPMAIF_DL_ADD_NOT_READY) {
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG,
-				"bat update failed, 0x%x\n", DPMA_READ_PD_DL(
-				DPMAIF_PD_DL_DBG_STA1));
+			((void)0);
 			break;
 		}
 	}
@@ -360,11 +337,7 @@ unsigned int  drv_dpmaif_dl_get_wridx(unsigned char q_num)
 	widx = DPMA_READ_PD_DL(DPMAIF_PD_DL_STA8);
 	widx = (widx >> 16) & DPMAIF_DL_PIT_WRIDX_MSK;
 
-	CCCI_REPEAT_LOG(0, TAG,
-		"DPMAIF_AO_DL_PIT_STA2/3/PD8(0x%x/0x%x/0x%x)\n",
-		DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA2),
-		DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA3),
-		widx);
+	((void)0);
 
 #else
 	widx = DPMA_READ_AO_DL(DPMAIF_AO_DL_PIT_STA2);
@@ -620,8 +593,7 @@ int drv_dpmaif_ul_add_wcnt(unsigned char q_num, unsigned short drb_wcnt)
 			break;
 		}
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG, "drb_add rdy poll fail: 0x%x\n",
-				DPMA_READ_PD_UL(DPMAIF_PD_UL_DBG_STA2));
+			((void)0);
 			dpmaif_ctrl->ops->dump_status(DPMAIF_HIF_ID,
 				DUMP_FLAG_REG, NULL, -1);
 			return HW_REG_CHK_FAIL;
@@ -631,8 +603,7 @@ int drv_dpmaif_ul_add_wcnt(unsigned char q_num, unsigned short drb_wcnt)
 	while ((DPMA_READ_PD_UL(DPMAIF_ULQ_ADD_DESC_CH_n(q_num)) &
 		DPMAIF_UL_ADD_NOT_READY) == DPMAIF_UL_ADD_NOT_READY) {
 		if (++count >= 1600000) {
-			CCCI_ERROR_LOG(0, TAG, "drb_add fail: 0x%x\n",
-				DPMA_READ_PD_UL(DPMAIF_PD_UL_DBG_STA2));
+			((void)0);
 			break;
 		}
 	}

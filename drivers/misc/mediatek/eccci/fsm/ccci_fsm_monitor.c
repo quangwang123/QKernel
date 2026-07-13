@@ -24,8 +24,7 @@ static int dev_char_open(struct inode *inode, struct file *file)
 		return -EBUSY;
 
 	monitor_ctl = &ctl->monitor_ctl;
-	CCCI_NORMAL_LOG(monitor_ctl->md_id, FSM,
-		"monitor node open by %s\n", current->comm);
+	((void)0);
 	atomic_inc(&monitor_ctl->usage_cnt);
 	file->private_data = monitor_ctl;
 	nonseekable_open(inode, file);
@@ -43,11 +42,10 @@ static int dev_char_close(struct inode *inode, struct file *file)
 		ccci_free_skb(skb);
 		clear_cnt++;
 	}
-	CCCI_NORMAL_LOG(monitor_ctl->md_id, FSM,
-		"monitor close, clear_cnt=%d\n", clear_cnt);
+	((void)0);
 	ret = force_md_stop(monitor_ctl);
 	if (ret)
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM, "force stop MD fail\n");
+		((void)0);
 	return 0;
 }
 
@@ -71,9 +69,7 @@ static ssize_t dev_char_read(struct file *file, char *buf,
 		read_len = skb->len;
 		if (read_len > count
 			|| copy_to_user(buf, skb->data, read_len)) {
-			CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-				"read on monitor, copy to user failed, %d/%zu\n",
-				     read_len, count);
+			((void)0);
 			ret = -EFAULT;
 		}
 		ccci_free_skb(skb);
@@ -131,9 +127,7 @@ int fsm_monitor_send_message(int md_id, enum CCCI_MD_MSG msg, u32 resv)
 		return -CCCI_ERR_INVALID_PARAM;
 
 	if (unlikely(in_interrupt())) {
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-			"sending virtual msg from IRQ context %ps\n",
-			__builtin_return_address(0));
+		((void)0);
 		return -CCCI_ERR_ASSERT_ERR;
 	}
 
@@ -157,8 +151,7 @@ int fsm_monitor_init(struct ccci_fsm_monitor *monitor_ctl)
 
 	monitor_ctl->md_id = ctl->md_id;
 	if (monitor_ctl->md_id < 0 || monitor_ctl->md_id >= MAX_MD_NUM) {
-		CCCI_ERROR_LOG(-1, FSM,
-			"invalid md_id = %d\n", monitor_ctl->md_id);
+		((void)0);
 		return -1;
 	}
 	ccci_skb_queue_init(&monitor_ctl->rx_skb_list, 16, 1024, 0);
@@ -168,8 +161,7 @@ int fsm_monitor_init(struct ccci_fsm_monitor *monitor_ctl)
 	monitor_ctl->char_dev = kmalloc(sizeof(struct cdev), GFP_KERNEL);
 
 	if (unlikely(!monitor_ctl->char_dev)) {
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-			"alloc fsm monitor char dev fail!!\n");
+		((void)0);
 		return -1;
 	}
 
@@ -178,18 +170,15 @@ int fsm_monitor_init(struct ccci_fsm_monitor *monitor_ctl)
 	ret = alloc_chrdev_region(&monitor_ctl->dev_n,
 			monitor_ctl->md_id, 1, FSM_NAME);
 	if (ret)
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-			"alloc_chrdev_region fail, ret=%d\n", ret);
+		((void)0);
 	ret = cdev_add(monitor_ctl->char_dev, monitor_ctl->dev_n, 1);
 	if (ret)
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-			"cdev_add fail, ret=%d\n", ret);
+		((void)0);
 
 	ret = ccci_register_dev_node(fsm_monitor_name[monitor_ctl->md_id],
 			MAJOR(monitor_ctl->dev_n), MINOR(monitor_ctl->dev_n));
 	if (ret)
-		CCCI_ERROR_LOG(monitor_ctl->md_id, FSM,
-			"device_create fail, ret=%d\n", ret);
+		((void)0);
 	return ret;
 }
 
