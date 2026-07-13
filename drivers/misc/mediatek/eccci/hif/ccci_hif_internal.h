@@ -44,8 +44,6 @@ struct ccci_hif_traffic {
 		int tx_history_ptr[MAX_TXQ_NUM];
 		int rx_history_ptr[MAX_RXQ_NUM];
 #endif
-		unsigned long logic_ch_pkt_cnt[CCCI_MAX_CH_NUM];
-		unsigned long logic_ch_pkt_pre_cnt[CCCI_MAX_CH_NUM];
 		short seq_nums[2][CCCI_MAX_CH_NUM];
 
 		unsigned long long latest_isr_time;
@@ -191,20 +189,6 @@ static inline void ccci_md_inc_tx_seq_num(unsigned char md_id,
 		|| ccci_h->channel == CCCI_FS_TX)
 		&& ccci_fsm_get_md_state(md_id) != BOOT_WAITING_FOR_HS2)
 		ccci_h->assert_bit = 0;
-}
-
-static inline void ccci_channel_update_packet_counter(
-	unsigned long *logic_ch_pkt_cnt, struct ccci_header *ccci_h)
-{
-	if ((ccci_h->channel & 0xFF) < CCCI_MAX_CH_NUM)
-		logic_ch_pkt_cnt[ccci_h->channel]++;
-}
-
-static inline void ccci_channel_dump_packet_counter(
-	unsigned char md_id, struct ccci_hif_traffic *traffic_info)
-{
-	((void)0);
-	((void)0);
 }
 
 static inline unsigned int ccci_md_get_seq_num(

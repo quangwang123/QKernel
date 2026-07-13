@@ -464,8 +464,6 @@ void md_cd_traffic_monitor_func(struct timer_list *t)
 
 	((void)0);
 #endif
-	ccci_channel_dump_packet_counter(md_ctrl->md_id, tinfo);
-
 	if ((jiffies - md_ctrl->traffic_stamp) / HZ <=
 		TRAFFIC_MONITOR_INTERVAL * 2)
 		mod_timer(&md_ctrl->traffic_monitor,
@@ -1022,8 +1020,6 @@ static int cldma_gpd_bd_tx_collect(struct md_cd_queue *queue,
 			((void)0);
 		}
 		((void)0);
-		ccci_channel_update_packet_counter(
-			md_ctrl->traffic_info.logic_ch_pkt_cnt, ccci_h);
 		ccci_free_skb(skb_free);
 #if TRAFFIC_MONITOR_INTERVAL
 		md_ctrl->tx_traffic_monitor[queue->index]++;
@@ -1143,8 +1139,6 @@ static int cldma_gpd_tx_collect(struct md_cd_queue *queue,
 			((void)0);
 		}
 		((void)0);
-		ccci_channel_update_packet_counter(
-			md_ctrl->traffic_info.logic_ch_pkt_cnt, ccci_h);
 		ccci_free_skb(skb_free);
 #if TRAFFIC_MONITOR_INTERVAL
 		md_ctrl->tx_traffic_monitor[queue->index]++;
@@ -2513,8 +2507,6 @@ static int md_cd_send_skb(unsigned char hif_id, int qno,
 		/* update log */
 #if TRAFFIC_MONITOR_INTERVAL
 		md_ctrl->tx_pre_traffic_monitor[queue->index]++;
-		ccci_channel_update_packet_counter(
-			md_ctrl->traffic_info.logic_ch_pkt_pre_cnt, &ccci_h);
 #endif
 		ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
 			(int)queue->index, &ccci_h, 0);
