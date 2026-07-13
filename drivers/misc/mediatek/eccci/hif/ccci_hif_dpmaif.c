@@ -312,87 +312,6 @@ static int dpmaif_dump_status(unsigned char hif_id,
 	return 0;
 }
 
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-static void dpmaif_clear_traffic_data(unsigned char hif_id)
-{
-	struct hif_dpmaif_ctrl *hif_ctrl = dpmaif_ctrl;
-
-	memset(hif_ctrl->tx_traffic_monitor, 0,
-		sizeof(hif_ctrl->tx_traffic_monitor));
-	memset(hif_ctrl->rx_traffic_monitor, 0,
-		sizeof(hif_ctrl->rx_traffic_monitor));
-	memset(hif_ctrl->tx_pre_traffic_monitor, 0,
-		sizeof(hif_ctrl->tx_pre_traffic_monitor));
-	memset(hif_ctrl->tx_done_last_count, 0,
-		sizeof(hif_ctrl->tx_done_last_count));
-	memset(hif_ctrl->tx_done_last_start_time, 0,
-		sizeof(hif_ctrl->tx_done_last_start_time));
-#ifdef DPMAIF_DEBUG_LOG
-	hif_ctrl->traffic_info.isr_time_bak = 0;
-	hif_ctrl->traffic_info.isr_cnt = 0;
-	hif_ctrl->traffic_info.rx_full_cnt = 0;
-
-	hif_ctrl->traffic_info.rx_done_isr_cnt[0] = 0;
-	hif_ctrl->traffic_info.rx_other_isr_cnt[0] = 0;
-	hif_ctrl->traffic_info.rx_tasket_cnt = 0;
-
-	hif_ctrl->traffic_info.tx_done_isr_cnt[0] = 0;
-	hif_ctrl->traffic_info.tx_done_isr_cnt[1] = 0;
-	hif_ctrl->traffic_info.tx_done_isr_cnt[2] = 0;
-	hif_ctrl->traffic_info.tx_done_isr_cnt[3] = 0;
-	hif_ctrl->traffic_info.tx_other_isr_cnt[0] = 0;
-	hif_ctrl->traffic_info.tx_other_isr_cnt[1] = 0;
-	hif_ctrl->traffic_info.tx_other_isr_cnt[2] = 0;
-	hif_ctrl->traffic_info.tx_other_isr_cnt[3] = 0;
-#endif
-
-}
-#endif
-
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-static void dpmaif_traffic_monitor_func(struct timer_list *t)
-{
-	struct hif_dpmaif_ctrl *hif_ctrl =
-			from_timer(hif_ctrl, t, traffic_monitor);
-
-	struct ccci_hif_traffic *tinfo = &hif_ctrl->traffic_info;
-	unsigned long q_rx_rem_nsec[DPMAIF_RXQ_NUM] = {0};
-	unsigned long isr_rem_nsec;
-	int i, q_state = 0;
-
-	((void)0);
-
-	for (i = 0; i < DPMAIF_TXQ_NUM; i++) {
-		if (hif_ctrl->txq[i].busy_count != 0) {
-			((void)0);
-			hif_ctrl->txq[i].busy_count = 0;
-		}
-		q_state |= (hif_ctrl->txq[i].que_started << i);
-		((void)0);
-	}
-
-	if (3 < DPMAIF_TXQ_NUM)
-		((void)0);
-
-	isr_rem_nsec = (tinfo->latest_isr_time == 0 ?
-		0 : do_div(tinfo->latest_isr_time, NSEC_PER_SEC));
-	((void)0);
-	for (i = 0; i < DPMAIF_RXQ_NUM; i++) {
-		q_rx_rem_nsec[i] = (tinfo->latest_q_rx_isr_time[i] == 0 ?
-			0 : do_div(tinfo->latest_q_rx_isr_time[i],
-			NSEC_PER_SEC));
-		((void)0);
-
-		q_rx_rem_nsec[i] = (tinfo->latest_q_rx_time[i] == 0 ?
-			0 : do_div(tinfo->latest_q_rx_time[i], NSEC_PER_SEC));
-		((void)0);
-	}
-
-	mod_timer(&hif_ctrl->traffic_monitor,
-			jiffies + DPMAIF_TRAFFIC_MONITOR_INTERVAL * HZ);
-}
-#endif
-
 /* =======================================================
  *
  * Descriptions: common part
@@ -1005,9 +924,6 @@ static int dpmaif_send_skb_to_net(struct dpmaif_rx_queue *rxq,
 #ifdef DPMAIF_DEBUG_LOG
 	((void)0);
 #endif
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	dpmaif_ctrl->rx_traffic_monitor[rxq->index]++;
-#endif
 	ccci_md_add_log_history(&dpmaif_ctrl->traffic_info, IN,
 		(int)rxq->index, &ccci_h, 0);
 
@@ -1345,7 +1261,6 @@ static void dpmaif_rxq0_work(struct work_struct *work)
 		return;
 	}
 
-	hif_ctrl->traffic_info.latest_q_rx_time[rxq->index] = local_clock();
 	ret = dpmaif_rx_data_collect(hif_ctrl, rxq->index, rxq->budget, 1);
 
 	if (ret == ONCE_MORE) {
@@ -1373,16 +1288,12 @@ static void dpmaif_rxq0_tasklet(unsigned long data)
 	int ret;
 
 	atomic_set(&rxq->rx_processing, 1);
-#ifdef DPMAIF_DEBUG_LOG
-	hif_ctrl->traffic_info.rx_tasket_cnt++;
-#endif
 	smp_mb(); /* for cpu exec. */
 	if (rxq->que_started != true) {
 		ret = ALL_CLEAR;
 		atomic_set(&rxq->rx_processing, 0);
 		return;
 	}
-	hif_ctrl->traffic_info.latest_q_rx_time[rxq->index] = local_clock();
 	ret = dpmaif_rx_data_collect(hif_ctrl, rxq->index, rxq->budget, 0);
 
 	if (ret == ONCE_MORE) {
@@ -1482,9 +1393,6 @@ static unsigned short dpmaif_relase_tx_buffer(unsigned char q_num,
 			}
 			ccci_free_skb(skb_free);
 			cur_drb_skb->skb = NULL;
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-			dpmaif_ctrl->tx_traffic_monitor[txq->index]++;
-#endif
 		} else if (cur_drb->dtyp == DES_DTYP_MSG) {
 			txq->last_ch_id =
 				((struct dpmaif_drb_msg *)cur_drb)->channel_id;
@@ -1539,10 +1447,6 @@ static int dpmaif_tx_release(unsigned char q_num, unsigned short budget)
 		real_rel_cnt = dpmaif_relase_tx_buffer(q_num, real_rel_cnt);
 	}
 	/* not need to know release idx hw, hw just update rd, and read wrt */
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	dpmaif_ctrl->tx_done_last_count[q_num] = real_rel_cnt;
-#endif
-
 	if (real_rel_cnt < 0 || txq->que_started == false)
 		return ERROR_STOP;
 	else
@@ -1558,10 +1462,6 @@ static void dpmaif_tx_done(struct work_struct *work)
 	struct hif_dpmaif_ctrl *hif_ctrl = dpmaif_ctrl;
 	int ret;
 	unsigned int L2TISAR0;
-
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	hif_ctrl->tx_done_last_start_time[txq->index] = local_clock();
-#endif
 
 	ret = dpmaif_tx_release(txq->index, txq->drb_size_cnt);
 
@@ -1741,9 +1641,6 @@ retry:
 				&MODEM_CAP_TXBUSY_STOP))
 			dpmaif_queue_broadcast_state(hif_ctrl, TX_FULL, OUT,
 					txq->index);
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-		txq->busy_count++;
-#endif
 		if (blocking) {
 			/* infact, dpmaif for net, so no used here. */
 			ret = wait_event_interruptible_exclusive(txq->req_wq,
@@ -1834,9 +1731,6 @@ retry:
 		cur_idx = ringbuf_get_next_idx(txq->drb_size_cnt, cur_idx, 1);
 	}
 
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	dpmaif_ctrl->tx_pre_traffic_monitor[txq->index]++;
-#endif
 	atomic_sub(send_cnt, &txq->tx_budget);
 	/* 3.3 submit drb descriptor*/
 	wmb();
@@ -1886,14 +1780,6 @@ static void dpmaif_irq_rx_lenerr_handler(unsigned int rx_int_isr)
 		((void)0);
 	}
 
-#ifdef DPMAIF_DEBUG_LOG
-	if (rx_int_isr & (DPMAIF_DL_INT_SKB_LEN_ERR(0) |
-		DPMAIF_DL_INT_MTU_ERR_MSK))
-		dpmaif_ctrl->traffic_info.rx_other_isr_cnt[0]++;
-	if (rx_int_isr & (DPMAIF_DL_INT_PITCNT_LEN_ERR(0) |
-		DPMAIF_DL_INT_BATCNT_LEN_ERR(0)))
-		dpmaif_ctrl->traffic_info.rx_full_cnt++;
-#endif
 	/*PIT table full interrupt*/
 	if (rx_int_isr & DPMAIF_DL_INT_PITCNT_LEN_ERR(0)) {
 #ifdef _E1_SB_SW_WORKAROUND_
@@ -1914,8 +1800,6 @@ static void dpmaif_irq_rx_lenerr_handler(unsigned int rx_int_isr)
 static void dpmaif_irq_rx_done(unsigned int rx_done_isr)
 {
 	/* debug information colloect */
-	dpmaif_ctrl->traffic_info.latest_q_rx_isr_time[0] = local_clock();
-
 	/* disable RX_DONE  interrupt */
 	drv_dpmaif_mask_dl_interrupt(0);
 	/*always start work due to no napi*/
@@ -1925,7 +1809,7 @@ static void dpmaif_irq_rx_done(unsigned int rx_done_isr)
 
 static void dpmaif_irq_tx_done(unsigned int tx_done_isr)
 {
-	int i, ret;
+	int i;
 	unsigned int intr_ul_que_done;
 
 	for (i = 0; i < DPMAIF_TXQ_NUM; i++) {
@@ -1933,12 +1817,9 @@ static void dpmaif_irq_tx_done(unsigned int tx_done_isr)
 			tx_done_isr & (1 << (i + UL_INT_DONE_OFFSET));
 		if (intr_ul_que_done) {
 			drv_dpmaif_mask_ul_que_interrupt(i);
-			ret = queue_delayed_work(dpmaif_ctrl->txq[i].worker,
+			queue_delayed_work(dpmaif_ctrl->txq[i].worker,
 					&dpmaif_ctrl->txq[i].dpmaif_tx_work,
 					msecs_to_jiffies(1000 / HZ));
-#ifdef DPMAIF_DEBUG_LOG
-			dpmaif_ctrl->traffic_info.tx_done_isr_cnt[i]++;
-#endif
 		}
 	}
 }
@@ -1947,9 +1828,6 @@ static void dpmaif_irq_cb(struct hif_dpmaif_ctrl *hif_ctrl)
 {
 	unsigned int L2RISAR0, L2TISAR0;
 	unsigned int L2RIMR0, L2TIMR0;
-#ifdef DPMAIF_DEBUG_LOG
-	unsigned long long ts = 0, isr_rem_nsec;
-#endif
 
 	/* RX interrupt */
 	L2RISAR0 = drv_dpmaif_get_dl_isr_event();
@@ -2003,39 +1881,8 @@ static void dpmaif_irq_cb(struct hif_dpmaif_ctrl *hif_ctrl)
 		if (L2RISAR0 & DPMAIF_DL_INT_QDONE_MSK) {
 			dpmaif_irq_rx_done(
 				L2RISAR0 & DPMAIF_DL_INT_QDONE_MSK);
-#ifdef DPMAIF_DEBUG_LOG
-			hif_ctrl->traffic_info.rx_done_isr_cnt[0]++;
-#endif
 		}
 	}
-#ifdef DPMAIF_DEBUG_LOG
-	hif_ctrl->traffic_info.isr_cnt++;
-
-	ts = hif_ctrl->traffic_info.latest_isr_time;
-	isr_rem_nsec = do_div(ts, NSEC_PER_SEC);
-
-	if (hif_ctrl->traffic_info.isr_time_bak != ts) {
-		((void)0);
-		hif_ctrl->traffic_info.isr_time_bak = ts;
-
-		hif_ctrl->traffic_info.isr_cnt = 0;
-
-		hif_ctrl->traffic_info.rx_done_isr_cnt[0] = 0;
-		hif_ctrl->traffic_info.rx_other_isr_cnt[0] = 0;
-		hif_ctrl->traffic_info.rx_tasket_cnt = 0;
-
-		hif_ctrl->traffic_info.tx_done_isr_cnt[0] = 0;
-		hif_ctrl->traffic_info.tx_done_isr_cnt[1] = 0;
-		hif_ctrl->traffic_info.tx_done_isr_cnt[2] = 0;
-		hif_ctrl->traffic_info.tx_done_isr_cnt[3] = 0;
-		hif_ctrl->traffic_info.tx_other_isr_cnt[0] = 0;
-		hif_ctrl->traffic_info.tx_other_isr_cnt[1] = 0;
-		hif_ctrl->traffic_info.tx_other_isr_cnt[2] = 0;
-		hif_ctrl->traffic_info.tx_other_isr_cnt[3] = 0;
-	}
-
-#endif
-
 }
 
 static irqreturn_t dpmaif_isr(int irq, void *data)
@@ -2049,7 +1896,6 @@ static irqreturn_t dpmaif_isr(int irq, void *data)
 #elif defined(DPMAIF_DEBUG_LOG)
 	((void)0);
 #endif
-	hif_ctrl->traffic_info.latest_isr_time = local_clock();
 	dpmaif_irq_cb(hif_ctrl);
 	return IRQ_HANDLED;
 }
@@ -2370,9 +2216,6 @@ static int dpmaif_txq_init(struct dpmaif_tx_queue *txq)
 		1, dpmaif_ctrl->md_id + 1, txq->index);
 	INIT_DELAYED_WORK(&txq->dpmaif_tx_work, dpmaif_tx_done);
 	spin_lock_init(&txq->tx_lock);
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	txq->busy_count = 0;
-#endif
 #ifdef DPMAIF_DEBUG_LOG
 	dpmaif_dump_txq_remain(dpmaif_ctrl, txq->index, 0);
 #endif
@@ -2567,12 +2410,6 @@ int dpmaif_start(unsigned char hif_id)
 		txq->que_started = true;
 		dpmaif_tx_hw_init(txq);
 	}
-	/* debug */
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	dpmaif_clear_traffic_data(DPMAIF_HIF_ID);
-	mod_timer(&dpmaif_ctrl->traffic_monitor,
-			jiffies + DPMAIF_TRAFFIC_MONITOR_INTERVAL * HZ);
-#endif
 	dpmaif_enable_irq(dpmaif_ctrl);
 	dpmaif_ctrl->dpmaif_state = HIFDPMAIF_STATE_PWRON;
 #ifdef DPMAIF_DEBUG_LOG
@@ -2902,11 +2739,6 @@ int dpmaif_stop(unsigned char hif_id)
 
 	/* rx rx clear */
 	dpmaif_stop_rx_sw(hif_id);
-	/* stop debug mechnism */
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	del_timer(&dpmaif_ctrl->traffic_monitor);
-#endif
-
 	/* 3. todo: reset IP */
 	dpmaif_hw_reset(dpmaif_ctrl->md_id);
 	/* CG set */
@@ -3154,10 +2986,6 @@ int ccci_dpmaif_hif_init(struct device *dev)
 	/* other ops: tx, dump */
 	hif_ctrl->ops = &ccci_hif_dpmaif_ops;
 
-	/* set debug related */
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	timer_setup(&hif_ctrl->traffic_monitor, dpmaif_traffic_monitor_func, 0);
-#endif
 	ccci_hif_register(DPMAIF_HIF_ID, (void *)dpmaif_ctrl,
 		&ccci_hif_dpmaif_ops);
 	register_syscore_ops(&dpmaif_sysops);

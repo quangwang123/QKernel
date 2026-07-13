@@ -223,59 +223,6 @@ static void md_ccif_dump(unsigned char *title, unsigned char hif_id)
 
 }
 
-static void md_ccif_queue_dump(unsigned char hif_id)
-{
-	int idx;
-	unsigned long long ts = 0;
-	unsigned long nsec_rem = 0;
-
-	struct md_ccif_ctrl *md_ctrl =
-		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
-
-	if (!md_ctrl || !md_ctrl->rxq[0].ringbuf)
-		return;
-
-	((void)0);
-	ts = md_ctrl->traffic_info.latest_isr_time;
-	nsec_rem = do_div(ts, NSEC_PER_SEC);
-	((void)0);
-#ifdef DEBUG_FOR_CCB
-	((void)0);
-	ts = md_ctrl->traffic_info.latest_ccb_isr_time;
-	nsec_rem = do_div(ts, NSEC_PER_SEC);
-	((void)0);
-#endif
-
-	for (idx = 0; idx < QUEUE_NUM; idx++) {
-		((void)0);
-		((void)0);
-		ts = md_ctrl->traffic_info.latest_q_rx_isr_time[idx];
-		nsec_rem = do_div(ts, NSEC_PER_SEC);
-		((void)0);
-		ts = md_ctrl->traffic_info.latest_q_rx_time[idx];
-		nsec_rem = do_div(ts, NSEC_PER_SEC);
-		((void)0);
-	}
-	ccci_md_dump_log_history(md_ctrl->md_id,
-		&md_ctrl->traffic_info, 1, QUEUE_NUM, QUEUE_NUM);
-}
-
-static void md_ccif_dump_queue_history(unsigned char hif_id, unsigned int qno)
-{
-	struct md_ccif_ctrl *md_ctrl =
-		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
-
-	if (!md_ctrl || !md_ctrl->rxq[qno].ringbuf)
-		return;
-
-	((void)0);
-	((void)0);
-	((void)0);
-	((void)0);
-	ccci_md_dump_log_history(md_ctrl->md_id,
-		&md_ctrl->traffic_info, 0, qno, qno);
-}
-
 static void md_cd_dump_ccif_reg(unsigned char hif_id)
 {
 	struct md_ccif_ctrl *ccif_ctrl =
@@ -345,17 +292,10 @@ static int md_ccif_op_dump_status(unsigned char hif_id,
 	if (flag & DUMP_FLAG_CCIF) {
 		ccif_debug_dump_data(hif_id, buff, length);
 		md_ccif_dump("Dump CCIF SRAM\n", hif_id);
-		md_ccif_queue_dump(hif_id);
 	}
 	if (flag & DUMP_FLAG_IRQ_STATUS) {
 		((void)0);
 		/* mt_irq_dump_status(md_ctrl->ccif_irq_id);*/
-	}
-	if (flag & DUMP_FLAG_QUEUE_0)
-		md_ccif_dump_queue_history(hif_id, 0);
-	if (flag & DUMP_FLAG_QUEUE_0_1) {
-		md_ccif_dump_queue_history(hif_id, 0);
-		md_ccif_dump_queue_history(hif_id, 1);
 	}
 	if (flag & (DUMP_FLAG_CCIF_REG | DUMP_FLAG_REG))
 		md_cd_dump_ccif_reg(hif_id);
@@ -575,31 +515,6 @@ static int ccif_check_flow_ctrl(struct md_ccif_ctrl *md_ctrl,
 	return ret;
 }
 
-static void md_ccif_traffic_work_func(struct work_struct *work)
-{
-	struct ccci_hif_traffic *traffic_inf =
-		container_of(work, struct ccci_hif_traffic,
-			traffic_work_struct);
-	struct md_ccif_ctrl *md_ctrl =
-		container_of(traffic_inf, struct md_ccif_ctrl, traffic_info);
-
-	ccci_port_dump_status(md_ctrl->md_id);
-	/*pre_cnt for tx, pkt_cont for rx*/
-	if (md_ctrl->md_id == MD_SYS3) {
-		((void)0);
-		((void)0);
-	}
-	mod_timer(&md_ctrl->traffic_monitor,
-		jiffies + CCIF_TRAFFIC_MONITOR_INTERVAL * HZ);
-}
-
-static void md_ccif_traffic_monitor_func(struct timer_list *t)
-{
-	struct md_ccif_ctrl *md_ctrl = from_timer(md_ctrl, t, traffic_monitor);
-
-	schedule_work(&md_ctrl->traffic_info.traffic_work_struct);
-}
-
 atomic_t lb_dl_q;
 /*this function may be called from both workqueue and softirq (NAPI)*/
 static unsigned long rx_data_cnt;
@@ -636,7 +551,6 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 		from_pool = 1;
 
 	while (1) {
-		md_ctrl->traffic_info.latest_q_rx_time[qno] = local_clock();
 		spin_lock_irqsave(&queue->rx_lock, flags);
 		pkg_size = ccci_ringbuf_readable(md_ctrl->md_id, rx_buf);
 		spin_unlock_irqrestore(&queue->rx_lock, flags);
@@ -853,11 +767,7 @@ void md_ccif_reset_queue(unsigned char hif_id, unsigned char for_start)
 	int ccif_id = md_ctrl->md_id ==
 		MD_SYS1 ? AP_MD1_CCIF : AP_MD3_CCIF;
 
-	if (for_start) {
-		mod_timer(&md_ctrl->traffic_monitor,
-			jiffies + CCIF_TRAFFIC_MONITOR_INTERVAL * HZ);
-	} else {
-		del_timer(&md_ctrl->traffic_monitor);
+	if (!for_start) {
 		ccci_reset_ccif_hw(md_ctrl->md_id,
 			ccif_id, md_ctrl->ccif_ap_base,
 			md_ctrl->ccif_md_base, md_ctrl);
@@ -972,17 +882,11 @@ static void md_ccif_launch_work(struct md_ccif_ctrl *md_ctrl)
 			md_ctrl->wakeup_count++;
 			((void)0);
 		}
-#ifdef DEBUG_FOR_CCB
-		md_ctrl->traffic_info.latest_ccb_isr_time
-			= local_clock();
-#endif
 		ccci_port_queue_status_notify(md_ctrl->md_id, CCIF_HIF_ID,
 			AP_MD_CCB_WAKEUP, -1, RX_IRQ);
 	}
 	for (i = 0; i < QUEUE_NUM; i++) {
 		if (md_ctrl->channel_id & (1 << (i + D2H_RINGQ0))) {
-			md_ctrl->traffic_info.latest_q_rx_isr_time[i]
-				= local_clock();
 			clear_bit(i + D2H_RINGQ0, &md_ctrl->channel_id);
 			if (atomic_read(&md_ctrl->rxq[i].rx_on_going)) {
 				((void)0);
@@ -1018,12 +922,6 @@ static irqreturn_t md_ccif_isr(int irq, void *data)
 	((void)0);
 	/* igore exception queue */
 	if (ch_id >> RINGQ_BASE) {
-		md_ctrl->traffic_info.latest_isr_time
-			= local_clock();
-#ifdef DEBUG_FOR_CCB
-	/* infactly, maybe md_ctrl->channel_id is, which maybe cleared */
-		md_ctrl->traffic_info.last_ccif_r_ch = ch_id;
-#endif
 		md_ccif_launch_work(md_ctrl);
 	} else
 		md_ccif_handle_exception(md_ctrl);
@@ -1790,10 +1688,7 @@ int ccci_ccif_hif_init(struct platform_device *pdev,
 	/* ccif_ctrl = md_ctrl; */
 	INIT_WORK(&md_ctrl->ccif_sram_work, md_ccif_sram_rx_work);
 
-	timer_setup(&md_ctrl->traffic_monitor, md_ccif_traffic_monitor_func, 0);
 	md_ctrl->heart_beat_counter = 0;
-	INIT_WORK(&md_ctrl->traffic_info.traffic_work_struct,
-		md_ccif_traffic_work_func);
 
 	md_ctrl->channel_id = 0;
 	md_ctrl->md_id = md_id;

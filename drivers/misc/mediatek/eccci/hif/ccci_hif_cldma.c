@@ -418,59 +418,6 @@ static int md_cldma_hif_dump_status(unsigned char hif_id,
 	return 0;
 }
 
-#if TRAFFIC_MONITOR_INTERVAL
-//void md_cd_traffic_monitor_func(unsigned long data)
-void md_cd_traffic_monitor_func(struct timer_list *t)
-{
-	int i;
-	//struct md_cd_ctrl *md_ctrl = (struct md_cd_ctrl *)data;
-	struct md_cd_ctrl *md_ctrl = from_timer(md_ctrl, t, traffic_monitor);
-
-	struct ccci_hif_traffic *tinfo = &md_ctrl->traffic_info;
-	unsigned long q_rx_rem_nsec[CLDMA_RXQ_NUM] = {0};
-	unsigned long isr_rem_nsec;
-
-	((void)0);
-
-	ccci_port_dump_status(md_ctrl->md_id);
-	((void)0);
-	for (i = 0; i < QUEUE_LEN(md_ctrl->txq); i++) {
-		if (md_ctrl->txq[i].busy_count != 0) {
-			((void)0);
-			md_ctrl->txq[i].busy_count = 0;
-		}
-		((void)0);
-	}
-
-	i = NET_TX_FIRST_QUE;
-	if (i + 3 < CLDMA_TXQ_NUM)
-		((void)0);
-
-	isr_rem_nsec = (tinfo->latest_isr_time == 0 ? 0
-		: do_div(tinfo->latest_isr_time, 1000000000));
-
-	((void)0);
-
-	for (i = 0; i < QUEUE_LEN(md_ctrl->rxq); i++) {
-		q_rx_rem_nsec[i] =
-			(tinfo->latest_q_rx_isr_time[i] == 0 ?
-			0 :
-			do_div(tinfo->latest_q_rx_isr_time[i], 1000000000));
-		((void)0);
-	}
-
-#ifdef ENABLE_CLDMA_TIMER
-	((void)0);
-
-	((void)0);
-#endif
-	if ((jiffies - md_ctrl->traffic_stamp) / HZ <=
-		TRAFFIC_MONITOR_INTERVAL * 2)
-		mod_timer(&md_ctrl->traffic_monitor,
-			jiffies + TRAFFIC_MONITOR_INTERVAL * HZ);
-}
-#endif
-
 static int cldma_queue_broadcast_state(struct md_cd_ctrl *md_ctrl,
 	enum HIF_STATE state, enum DIRECTION dir, int index)
 {
@@ -491,7 +438,6 @@ static void cldma_timeout_timer_func(unsigned long data)
 		return;
 
 	ccci_md_dump_port_status(md);
-	md_cd_traffic_monitor_func((unsigned long)md);
 	ccci_hif_dump_status(CLDMA_HIF_ID, DUMP_FLAG_CLDMA, NULL,
 		1 << queue->index);
 
@@ -708,9 +654,6 @@ again:
 			queue->tr_done =
 				cldma_ring_step_forward(queue->tr_ring, req);
 			/* update log */
-#if TRAFFIC_MONITOR_INTERVAL
-			md_ctrl->rx_traffic_monitor[queue->index]++;
-#endif
 			rxbytes += skb_bytes;
 			ccci_md_add_log_history(&md_ctrl->traffic_info, IN,
 				(int)queue->index, &ccci_h,
@@ -930,8 +873,6 @@ static void cldma_rx_done(struct work_struct *work)
 	struct md_cd_ctrl *md_ctrl = cldma_ctrl;
 	int ret;
 
-	md_ctrl->traffic_info.latest_q_rx_time[queue->index]
-		= local_clock();
 	ret =
 		queue->tr_ring->handle_rx_done(queue, queue->budget, 1);
 	/* enable RX_DONE interrupt */
@@ -1021,9 +962,6 @@ static int cldma_gpd_bd_tx_collect(struct md_cd_queue *queue,
 		}
 		((void)0);
 		ccci_free_skb(skb_free);
-#if TRAFFIC_MONITOR_INTERVAL
-		md_ctrl->tx_traffic_monitor[queue->index]++;
-#endif
 		/* check if there is any pending TGPD with HWO=1
 		 * & UL status is 0
 		 */
@@ -1140,9 +1078,6 @@ static int cldma_gpd_tx_collect(struct md_cd_queue *queue,
 		}
 		((void)0);
 		ccci_free_skb(skb_free);
-#if TRAFFIC_MONITOR_INTERVAL
-		md_ctrl->tx_traffic_monitor[queue->index]++;
-#endif
 		/* resume channel */
 		spin_lock_irqsave(&md_ctrl->cldma_timeout_lock, flags);
 		if (md_ctrl->txq_active & (1 << queue->index)) {
@@ -1230,17 +1165,10 @@ static void cldma_tx_done(struct work_struct *work)
 	else
 		tx_interal = total_time - leave_time[queue->index];
 #endif
-#if TRAFFIC_MONITOR_INTERVAL
-	md_ctrl->tx_done_last_start_time[queue->index] = local_clock();
-#endif
-
 	count = queue->tr_ring->handle_tx_done(queue, 0, 0);
 	if (count && md_ctrl->tx_busy_warn_cnt)
 		md_ctrl->tx_busy_warn_cnt = 0;
 
-#if TRAFFIC_MONITOR_INTERVAL
-	md_ctrl->tx_done_last_count[queue->index] = count;
-#endif
 	/* greedy mode */
 	L2TISAR0 = cldma_read32(md_ctrl->cldma_ap_pdn_base,
 				CLDMA_AP_L2TISAR0);
@@ -1648,8 +1576,6 @@ static void cldma_irq_work_cb(struct md_cd_ctrl *md_ctrl)
 			if ((L2RISAR0 & CLDMA_RX_INT_DONE & (1 << i)) ||
 			    (L2RISAR0 & CLDMA_RX_INT_QUEUE_EMPTY
 				& ((1 << i) << CLDMA_RX_QE_OFFSET))) {
-				md_ctrl->traffic_info.latest_q_rx_isr_time[i]
-					= local_clock();
 				/* disable RX_DONE and QUEUE_EMPTY interrupt */
 				cldma_write32_ao_misc(md_ctrl,
 					CLDMA_AP_L2RIMSR0,
@@ -1671,7 +1597,6 @@ static irqreturn_t cldma_isr(int irq, void *data)
 	struct md_cd_ctrl *md_ctrl = (struct md_cd_ctrl *)data;
 
 	((void)0);
-	md_ctrl->traffic_info.latest_isr_time = local_clock();
 	cldma_irq_work_cb(md_ctrl);
 	return IRQ_HANDLED;
 }
@@ -1869,20 +1794,6 @@ static int cldma_stop_for_ee(unsigned char hif_id)
 	return 0;
 }
 
-#if TRAFFIC_MONITOR_INTERVAL
-static void md_cd_clear_traffic_data(unsigned char hif_id)
-{
-	struct md_cd_ctrl *md_ctrl = cldma_ctrl;
-
-	memset(md_ctrl->tx_traffic_monitor, 0,
-		sizeof(md_ctrl->tx_traffic_monitor));
-	memset(md_ctrl->rx_traffic_monitor, 0,
-		sizeof(md_ctrl->rx_traffic_monitor));
-	memset(md_ctrl->tx_pre_traffic_monitor, 0,
-		sizeof(md_ctrl->tx_pre_traffic_monitor));
-}
-#endif
-
 static int cldma_reset(unsigned char hif_id)
 {
 	struct md_cd_ctrl *md_ctrl = cldma_ctrl;
@@ -1892,9 +1803,6 @@ static int cldma_reset(unsigned char hif_id)
 	md_ctrl->tx_busy_warn_cnt = 0;
 
 	ccci_reset_seq_num(&md_ctrl->traffic_info);
-#if TRAFFIC_MONITOR_INTERVAL
-	md_cd_clear_traffic_data(CLDMA_HIF_ID);
-#endif
 	/*config MTU reg for 93*/
 	cldma_write32(md_ctrl->cldma_ap_ao_base,
 		CLDMA_AP_DL_MTU_SIZE, CLDMA_AP_MTU_SIZE);
@@ -2270,9 +2178,6 @@ static int md_cldma_clear(unsigned char hif_id)
 	if (retry == 0 && cldma_read32(md_ctrl->cldma_ap_pdn_base,
 			CLDMA_AP_CLDMA_IP_BUSY) != 0) {
 		((void)0);
-		//md_cd_traffic_monitor_func((unsigned long)md_ctrl);
-		md_cd_traffic_monitor_func(&md_ctrl->traffic_monitor);
-
 		cldma_dump_register(md_ctrl);
 	} else {
 		((void)0);
@@ -2458,14 +2363,6 @@ static int md_cd_send_skb(unsigned char hif_id, int qno,
 #endif
 
 	memset(&ccci_h, 0, sizeof(struct ccci_header));
-#if TRAFFIC_MONITOR_INTERVAL
-	if ((jiffies - md_ctrl->traffic_stamp) / HZ >
-			TRAFFIC_MONITOR_INTERVAL)
-		mod_timer(&md_ctrl->traffic_monitor,
-			jiffies + TRAFFIC_MONITOR_INTERVAL * HZ);
-	md_ctrl->traffic_stamp = jiffies;
-#endif
-
 	if (qno >= QUEUE_LEN(md_ctrl->txq)) {
 		ret = -CCCI_ERR_INVALID_QUEUE_INDEX;
 		goto __EXIT_FUN;
@@ -2505,9 +2402,6 @@ static int md_cd_send_skb(unsigned char hif_id, int qno,
 			cldma_ring_step_forward(queue->tr_ring, tx_req);
 		spin_unlock_irqrestore(&queue->ring_lock, flags);
 		/* update log */
-#if TRAFFIC_MONITOR_INTERVAL
-		md_ctrl->tx_pre_traffic_monitor[queue->index]++;
-#endif
 		ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
 			(int)queue->index, &ccci_h, 0);
 		/*
@@ -2575,7 +2469,6 @@ static int md_cd_send_skb(unsigned char hif_id, int qno,
 		if (cldma_read32(md_ctrl->cldma_ap_pdn_base,
 				CLDMA_AP_UL_STATUS) & (1 << qno)) {
 			((void)0);
-			queue->busy_count++;
 			md_ctrl->tx_busy_warn_cnt = 0;
 		} else {
 			if (cldma_read32(md_ctrl->cldma_ap_pdn_base,
@@ -2659,8 +2552,6 @@ static void md_cldma_rxq0_tasklet(unsigned long data)
 	struct md_cd_queue *queue;
 
 	queue = &md_ctrl->rxq[0];
-	md_ctrl->traffic_info.latest_q_rx_time[queue->index]
-		= local_clock();
 	ret = queue->tr_ring->handle_rx_done(queue,
 			queue->budget, 0);
 	if (ret == ONCE_MORE)
@@ -2850,9 +2741,6 @@ static int ccci_cldma_hif_init(struct platform_device *pdev,
 	INIT_WORK(&md_ctrl->cldma_irq_work, cldma_irq_work);
 
 	atomic_set(&md_ctrl->cldma_irq_enabled, 1);
-#if TRAFFIC_MONITOR_INTERVAL
-	timer_setup(&md_ctrl->traffic_monitor, md_cd_traffic_monitor_func, 0);
-#endif
 	md_ctrl->tx_busy_warn_cnt = 0;
 
 	ccci_hif_register(CLDMA_HIF_ID, (void *)cldma_ctrl,
