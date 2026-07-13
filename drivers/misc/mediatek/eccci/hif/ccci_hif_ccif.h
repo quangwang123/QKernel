@@ -113,7 +113,6 @@ struct md_ccif_ctrl {
 	unsigned char md_id;
 	unsigned char hif_id;
 	struct ccci_hif_traffic traffic_info;
-	struct timer_list traffic_monitor;
 
 	unsigned short heart_beat_counter;
 	struct ccci_hif_ops *ops;

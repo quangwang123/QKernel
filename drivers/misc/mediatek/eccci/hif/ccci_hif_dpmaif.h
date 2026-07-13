@@ -126,7 +126,6 @@ struct dpmaif_bat_page_t {
 
 #define MAX_BD_NUM (MAX_SKB_FRAGS + 1)
 #if 0
-#define DPMAIF_TRAFFIC_MONITOR_INTERVAL 10
 #endif
 #define SKB_RX_LIST_MAX_LEN 0xFFFFFFFF
 
@@ -260,9 +259,6 @@ struct dpmaif_tx_queue {
 
 	spinlock_t tx_lock;
 	atomic_t tx_processing;
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	unsigned int busy_count;
-#endif
 };
 
 enum hifdpmaif_state {
@@ -307,16 +303,6 @@ struct hif_dpmaif_ctrl {
 	atomic_t dpmaif_irq_enabled;
 
 	struct ccci_hif_ops *ops;
-#ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
-	unsigned int tx_traffic_monitor[DPMAIF_TXQ_NUM];
-	unsigned int rx_traffic_monitor[DPMAIF_RXQ_NUM];
-	unsigned int tx_pre_traffic_monitor[DPMAIF_TXQ_NUM];
-	unsigned long long tx_done_last_start_time[DPMAIF_TXQ_NUM];
-	unsigned int tx_done_last_count[DPMAIF_TXQ_NUM];
-
-	struct timer_list traffic_monitor;
-	char traffic_started;
-#endif
 	struct clk *clk_ref;
 	struct platform_device *plat_dev; /* maybe: no need. */
 	struct ccci_hif_dpmaif_val plat_val;

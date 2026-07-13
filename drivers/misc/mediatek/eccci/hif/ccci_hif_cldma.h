@@ -33,7 +33,6 @@
 #define NORMAL_RXQ_NUM 0
 
 #define MAX_BD_NUM (MAX_SKB_FRAGS + 1)
-#define TRAFFIC_MONITOR_INTERVAL 10	/* seconds */
 #define SKB_RX_QUEUE_MAX_LEN 200000
 #define CLDMA_ACTIVE_T 20
 
@@ -229,7 +228,6 @@ struct md_cd_queue {
 #endif
 	unsigned char hif_id;
 	enum DIRECTION dir;
-	unsigned int busy_count;
 };
 
 #define QUEUE_LEN(a) (sizeof(a)/sizeof(struct md_cd_queue))
@@ -261,16 +259,6 @@ struct md_cd_ctrl {
 	atomic_t wakeup_src;
 	unsigned int wakeup_count;
 
-#if TRAFFIC_MONITOR_INTERVAL
-	unsigned int tx_traffic_monitor[CLDMA_TXQ_NUM];
-	unsigned int rx_traffic_monitor[CLDMA_RXQ_NUM];
-	unsigned int tx_pre_traffic_monitor[CLDMA_TXQ_NUM];
-	unsigned long long tx_done_last_start_time[CLDMA_TXQ_NUM];
-	unsigned int tx_done_last_count[CLDMA_TXQ_NUM];
-
-	struct timer_list traffic_monitor;
-	unsigned long traffic_stamp;
-#endif
 	unsigned int tx_busy_warn_cnt;
 
 	/* here we assume T/R GPD/BD/SPD have the same size  */
@@ -378,7 +366,6 @@ static inline void md_cd_queue_struct_init(struct md_cd_queue *queue,
 	queue->tx_xmit = NULL;
 	init_waitqueue_head(&queue->req_wq);
 	spin_lock_init(&queue->ring_lock);
-	queue->busy_count = 0;
 #ifdef ENABLE_FAST_HEADER
 	queue->fast_hdr.gpd_count = 0;
 #endif
