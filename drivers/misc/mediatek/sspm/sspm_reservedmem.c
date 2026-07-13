@@ -25,6 +25,8 @@
 #include <linux/of_fdt.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
+#include <linux/memblock.h>
+#include <linux/sizes.h>
 #include <linux/types.h>
 #include <linux/platform_device.h>
 #include "sspm_define.h"
@@ -70,6 +72,27 @@ static void sspm_reserve_memory_ioremap(struct platform_device *pdev)
 #elif defined(CONFIG_OF_RESERVED_MEM)
 static int __init sspm_reserve_mem_of_init(struct reserved_mem *rmem)
 {
+#ifdef CONFIG_MTK_ENABLE_GMO
+	const phys_addr_t keep = SZ_64K;
+
+	if (rmem->size > keep) {
+		phys_addr_t tail_base = rmem->base + keep;
+		phys_addr_t tail_size = rmem->size - keep;
+		int ret;
+
+		if (memblock_is_region_memory(tail_base, tail_size))
+			ret = memblock_free(tail_base, tail_size);
+		else
+			ret = memblock_add(tail_base, tail_size);
+		if (ret)
+			return ret;
+
+		rmem->size = keep;
+		pr_info("[SSPM] reclaimed %pa-byte logger tail at %pa\n",
+			&tail_size, &tail_base);
+	}
+#endif
+
 	sspm_mem_base_phys = rmem->base;
 	sspm_mem_size      = rmem->size;
 
