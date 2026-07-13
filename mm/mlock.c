@@ -19,6 +19,7 @@
 #include <linux/sched.h>
 #include <linux/export.h>
 #include <linux/rmap.h>
+#include <linux/sizes.h>
 #include <linux/mmzone.h>
 #include <linux/hugetlb.h>
 #include <linux/memcontrol.h>
@@ -26,13 +27,24 @@
 
 #include "internal.h"
 
+unsigned long mlock_limit_pages(void)
+{
+	unsigned long limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+
+	if (!capable(CAP_IPC_LOCK))
+		return limit;
+
+#ifdef CONFIG_MTK_ENABLE_GMO
+	/* Keep Android's PinnerService bounded on memory-constrained devices. */
+	return SZ_128M >> PAGE_SHIFT;
+#else
+	return ULONG_MAX;
+#endif
+}
+
 bool can_do_mlock(void)
 {
-	if (rlimit(RLIMIT_MEMLOCK) != 0)
-		return true;
-	if (capable(CAP_IPC_LOCK))
-		return true;
-	return false;
+	return mlock_limit_pages() != 0;
 }
 EXPORT_SYMBOL(can_do_mlock);
 
@@ -685,15 +697,14 @@ static __must_check int do_mlock(unsigned long start, size_t len, vm_flags_t fla
 	len = PAGE_ALIGN(len + (offset_in_page(start)));
 	start &= PAGE_MASK;
 
-	lock_limit = rlimit(RLIMIT_MEMLOCK);
-	lock_limit >>= PAGE_SHIFT;
+	lock_limit = mlock_limit_pages();
 	locked = len >> PAGE_SHIFT;
 
 	if (down_write_killable(&current->mm->mmap_sem))
 		return -EINTR;
 
 	locked += current->mm->locked_vm;
-	if ((locked > lock_limit) && (!capable(CAP_IPC_LOCK))) {
+	if (locked > lock_limit) {
 		/*
 		 * It is possible that the regions requested intersect with
 		 * previously mlocked areas, that part area in "mm->locked_vm"
@@ -705,7 +716,7 @@ static __must_check int do_mlock(unsigned long start, size_t len, vm_flags_t fla
 	}
 
 	/* check against resource limits */
-	if ((locked <= lock_limit) || capable(CAP_IPC_LOCK))
+	if (locked <= lock_limit)
 		error = apply_vma_lock_flags(start, len, flags);
 
 	up_write(&current->mm->mmap_sem);
@@ -810,15 +821,13 @@ SYSCALL_DEFINE1(mlockall, int, flags)
 	if (!can_do_mlock())
 		return -EPERM;
 
-	lock_limit = rlimit(RLIMIT_MEMLOCK);
-	lock_limit >>= PAGE_SHIFT;
+	lock_limit = mlock_limit_pages();
 
 	if (down_write_killable(&current->mm->mmap_sem))
 		return -EINTR;
 
 	ret = -ENOMEM;
-	if (!(flags & MCL_CURRENT) || (current->mm->total_vm <= lock_limit) ||
-	    capable(CAP_IPC_LOCK))
+	if (!(flags & MCL_CURRENT) || current->mm->total_vm <= lock_limit)
 		ret = apply_mlockall_flags(flags);
 	up_write(&current->mm->mmap_sem);
 	if (!ret && (flags & MCL_CURRENT))
