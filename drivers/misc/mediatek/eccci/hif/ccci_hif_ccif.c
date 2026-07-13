@@ -584,8 +584,6 @@ static void md_ccif_traffic_work_func(struct work_struct *work)
 		container_of(traffic_inf, struct md_ccif_ctrl, traffic_info);
 
 	ccci_port_dump_status(md_ctrl->md_id);
-	ccci_channel_dump_packet_counter(md_ctrl->md_id,
-		&md_ctrl->traffic_info);
 	/*pre_cnt for tx, pkt_cont for rx*/
 	if (md_ctrl->md_id == MD_SYS3) {
 		((void)0);
@@ -705,10 +703,6 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 			ccci_md_add_log_history(&md_ctrl->traffic_info, IN,
 				(int)queue->index, &ccci_hdr,
 				(ret >= 0 ? 0 : 1));
-			ccci_channel_update_packet_counter(
-				md_ctrl->traffic_info.logic_ch_pkt_cnt,
-				&ccci_hdr);
-
 			if (queue->debug_id) {
 				((void)0);
 				queue->debug_id = 0;
@@ -1115,10 +1109,6 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 		}
 		ccci_md_inc_tx_seq_num(md_ctrl->md_id,
 			&md_ctrl->traffic_info, ccci_h);
-
-		ccci_channel_update_packet_counter(
-			md_ctrl->traffic_info.logic_ch_pkt_cnt,
-			ccci_h);
 
 		if (md_ctrl->md_id == MD_SYS3) {
 			/* heart beat msg is sent from status channel in ECCCI,

@@ -1834,9 +1834,6 @@ retry:
 		cur_idx = ringbuf_get_next_idx(txq->drb_size_cnt, cur_idx, 1);
 	}
 
-	/* debug: tx on ccci_channel && HW Q */
-	ccci_channel_update_packet_counter(
-		dpmaif_ctrl->traffic_info.logic_ch_pkt_pre_cnt, &ccci_h);
 #ifdef DPMAIF_TRAFFIC_MONITOR_INTERVAL
 	dpmaif_ctrl->tx_pre_traffic_monitor[txq->index]++;
 #endif
