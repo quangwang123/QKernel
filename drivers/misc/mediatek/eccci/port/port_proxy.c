@@ -111,17 +111,16 @@ int port_dev_close(struct inode *inode, struct file *file)
 		ccci_free_skb(skb);
 		clear_cnt++;
 	}
-	port->rx_drop_cnt += clear_cnt;
 	/*  flush Rx */
 	port_ask_more_req_to_md(port);
 	spin_unlock_irqrestore(&port->rx_skb_list.lock, flags);
 	((void)0);
 	pr_debug(
-		"md%d: port %s close rx_len=%d empty=%d, clear_cnt=%d, drop=%d\n",
+		"md%d: port %s close rx_len=%d empty=%d, clear_cnt=%d\n",
 		md_id, port->name,
 		port->rx_skb_list.qlen,
 		skb_queue_empty(&port->rx_skb_list),
-		clear_cnt, port->rx_drop_cnt);
+		clear_cnt);
 	port_user_unregister(port);
 
 	return 0;
@@ -196,8 +195,6 @@ READ_START:
 		read_len = count;
 	}
 	spin_unlock_irqrestore(&port->rx_skb_list.lock, flags);
-	if (port->flags & PORT_F_CH_TRAFFIC)
-		port_ch_dump(port, 0, skb->data, read_len);
 	/* 3. copy to user */
 	if (copy_to_user(buf, skb->data, read_len)) {
 		((void)0);
@@ -291,13 +288,6 @@ ssize_t port_dev_write(struct file *file, const char __user *buf,
 			ccci_h->channel = port->tx_ch;
 		}
 
-		if (port->flags & PORT_F_CH_TRAFFIC) {
-			if (port->flags & PORT_F_USER_HEADER)
-				port_ch_dump(port, 1, skb->data, actual_count);
-			else
-				port_ch_dump(port, 1, skb->data + header_len,
-					actual_count);
-		}
 		if (port->rx_ch == CCCI_IPC_RX) {
 			ret = port_ipc_write_check_id(port, skb);
 			if (ret < 0)
@@ -393,8 +383,6 @@ static inline int port_struct_init(struct port_t *port,
 	INIT_LIST_HEAD(&port->queue_entry);
 	skb_queue_head_init(&port->rx_skb_list);
 	init_waitqueue_head(&port->rx_wq);
-	port->tx_busy_count = 0;
-	port->rx_busy_count = 0;
 	atomic_set(&port->usage_cnt, 0);
 	port->port_proxy = port_p;
 	port->md_id = port_p->md_id;
@@ -407,119 +395,6 @@ static inline int port_struct_init(struct port_t *port,
 	return 0;
 }
 
-static void port_dump_string(struct port_t *port, int dir,
-	void *msg_buf, int len)
-{
-#define DUMP_BUF_SIZE 32
-	unsigned char *char_ptr = (unsigned char *)msg_buf;
-	char buf[DUMP_BUF_SIZE];
-	int i, j, ret;
-	u64 ts_nsec;
-	unsigned long rem_nsec;
-	char *replace_str;
-
-	for (i = 0, j = 0; i < len && i < DUMP_BUF_SIZE &&
-		j + 4 < DUMP_BUF_SIZE; i++) {
-		if (((char_ptr[i] >= 32) && (char_ptr[i] <= 126))) {
-			buf[j] = char_ptr[i];
-			j += 1;
-		} else if (char_ptr[i] == '\r' ||
-			char_ptr[i] == '\n' ||
-			char_ptr[i] == '\t') {
-			switch (char_ptr[i]) {
-			case '\r':
-				replace_str = "\\r";
-				break;
-			case '\n':
-				replace_str = "\\n";
-				break;
-			case '\t':
-				replace_str = "\\t";
-				break;
-			default:
-				replace_str = "";
-				break;
-			}
-			ret = snprintf(buf+j, DUMP_BUF_SIZE - j,
-				"%s", replace_str);
-			if (ret <= 0 || ret >= DUMP_BUF_SIZE - j) {
-				((void)0);
-				break;
-			}
-			j += 2;
-		} else {
-			ret = snprintf(buf+j, DUMP_BUF_SIZE - j,
-				"[%02X]", char_ptr[i]);
-			if (ret <= 0 || ret >= DUMP_BUF_SIZE - j) {
-				((void)0);
-				break;
-			}
-			j += 4;
-		}
-	}
-	buf[j] = '\0';
-	ts_nsec = local_clock();
-	rem_nsec = do_div(ts_nsec, 1000000000);
-	if (dir == 0)
-		((void)0);
-	else
-		((void)0);
-}
-static void port_dump_raw_data(struct port_t *port, int dir,
-	void *msg_buf, int len)
-{
-#define DUMP_RAW_DATA_SIZE 16
-	unsigned int *curr_p = (unsigned int *)msg_buf;
-	unsigned char *curr_ch_p;
-	int _16_fix_num = len / 16;
-	int tail_num = len % 16;
-	char buf[16];
-	int i, j;
-	int dump_size;
-	u64 ts_nsec;
-	unsigned long rem_nsec;
-
-	if (curr_p == NULL) {
-		((void)0);
-		return;
-	}
-	if (len == 0) {
-		((void)0);
-		return;
-	}
-	if (port->rx_ch == CCCI_FS_RX)
-		curr_p++;
-
-	dump_size = len > DUMP_RAW_DATA_SIZE ? DUMP_RAW_DATA_SIZE : len;
-	_16_fix_num = dump_size / 16;
-	tail_num = dump_size % 16;
-
-	ts_nsec = local_clock();
-	rem_nsec = do_div(ts_nsec, 1000000000);
-
-	if (dir == 0)
-		((void)0);
-	else
-		((void)0);
-	/* Fix section */
-	for (i = 0; i < _16_fix_num; i++) {
-		((void)0);
-		curr_p += 4;
-	}
-
-	/* Tail section */
-	if (tail_num > 0) {
-		curr_ch_p = (unsigned char *)curr_p;
-		for (j = 0; j < tail_num; j++) {
-			buf[j] = *curr_ch_p;
-			curr_ch_p++;
-		}
-		for (; j < 16; j++)
-			buf[j] = 0;
-		curr_p = (unsigned int *)buf;
-		((void)0);
-	}
-}
 static inline int port_get_queue_no(struct port_t *port, enum DIRECTION dir,
 			 int is_ack)
 {
@@ -587,7 +462,6 @@ int port_recv_skb(struct port_t *port, struct sk_buff *skb)
 		/* set udc status */
 		if (ccci_h->channel == CCCI_UDC_RX)
 			set_udc_status(skb);
-		port->rx_pkg_cnt++;
 		spin_unlock_irqrestore(&port->rx_skb_list.lock, flags);
 		__pm_wakeup_event(port->rx_wakelock, jiffies_to_msecs(HZ/10));
 		spin_lock_irqsave(&port->rx_wq.lock, flags);
@@ -607,7 +481,6 @@ int port_recv_skb(struct port_t *port, struct sk_buff *skb)
  drop:
 	/* only return drop and caller do drop */
 	((void)0);
-	port->rx_drop_cnt++;
 	return -CCCI_ERR_DROP_PACKET;
 }
 
@@ -644,20 +517,6 @@ int port_kthread_handler(void *arg)
 	}
 	return 0;
 }
-
-/*
- * This API is called by port,
- * which wants to dump message as
- * ascii string or raw binary format,
- */
-void port_ch_dump(struct port_t *port, int dir, void *msg_buf, int len)
-{
-	if (port->flags & PORT_F_DUMP_RAW_DATA)
-		port_dump_raw_data(port, dir, msg_buf, len);
-	else
-		port_dump_string(port, dir, msg_buf, len);
-}
-
 
 int port_ask_more_req_to_md(struct port_t *port)
 {
@@ -781,8 +640,6 @@ int port_send_skb_to_md(struct port_t *port, struct sk_buff *skb, int blocking)
 	tx_qno = port_get_queue_no(port, OUT, -1);
 	ret = ccci_hif_send_skb(port->hif_id, tx_qno, skb,
 			port->skb_from_pool, blocking);
-	if (ret == 0)
-		port->tx_pkg_cnt++;
 	return ret;
 }
 /****************************************************************************/
@@ -1026,8 +883,6 @@ static inline int proxy_dispatch_recv_skb(struct port_proxy *proxy_p,
 				ret = -CCCI_ERR_CHANNEL_NUM_MIS_MATCH;
 				goto err_exit;
 			}
-			if (ret == -CCCI_ERR_PORT_RX_FULL)
-				port->rx_busy_count++;
 			break;
 		}
 	}
@@ -1113,12 +968,6 @@ static inline void proxy_dispatch_md_status(struct port_proxy *proxy_p,
 
 	for (i = 0; i < proxy_p->port_number; i++) {
 		port = proxy_p->ports + i;
-		if ((state == GATED) && (port->flags &
-			PORT_F_CH_TRAFFIC)) {
-			port->rx_pkg_cnt = 0;
-			port->rx_drop_cnt = 0;
-			port->tx_pkg_cnt = 0;
-		}
 		if (port->ops->md_state_notify)
 			port->ops->md_state_notify(port, state);
 	}
@@ -1135,11 +984,6 @@ static inline void proxy_dump_status(struct port_proxy *proxy_p)
 		port = proxy_p->ports + i;
 		if (port->flags & PORT_F_RX_FULLED)
 			port_full |= (1LL << i);
-		if (port->tx_busy_count != 0 || port->rx_busy_count != 0) {
-			((void)0);
-			port->tx_busy_count = 0;
-			port->rx_busy_count = 0;
-		}
 		if (port->ops->dump_info)
 			port->ops->dump_info(port, 0);
 	}
@@ -1194,51 +1038,6 @@ static inline void proxy_init_all_ports(struct port_proxy *proxy_p)
 			port->ops->init(port);
 	}
 	proxy_setup_channel_mapping(proxy_p);
-}
-
-static inline void proxy_set_traffic_flag(struct port_proxy *proxy_p,
-	unsigned int dump_flag)
-{
-	int idx;
-	struct port_t *port;
-
-	proxy_p->traffic_dump_flag = dump_flag;
-	((void)0);
-	for (idx = 0; idx < proxy_p->port_number; idx++) {
-		port = proxy_p->ports + idx;
-		/*clear traffic & dump flag*/
-		port->flags &= ~(PORT_F_CH_TRAFFIC | PORT_F_DUMP_RAW_DATA);
-
-		/*set RILD related port*/
-		if (proxy_p->traffic_dump_flag & (1 << PORT_DBG_DUMP_RILD)) {
-			if (port->rx_ch == CCCI_UART2_RX ||
-				port->rx_ch == CCCI_C2K_AT ||
-				port->rx_ch == CCCI_C2K_AT2 ||
-				port->rx_ch == CCCI_C2K_AT3 ||
-				port->rx_ch == CCCI_C2K_AT4 ||
-				port->rx_ch == CCCI_C2K_AT5 ||
-				port->rx_ch == CCCI_C2K_AT6 ||
-				port->rx_ch == CCCI_C2K_AT7 ||
-				port->rx_ch == CCCI_C2K_AT8)
-				port->flags |= PORT_F_CH_TRAFFIC;
-		}
-		/*set AUDIO related port*/
-		if (proxy_p->traffic_dump_flag & (1 << PORT_DBG_DUMP_AUDIO)) {
-			if (port->rx_ch == CCCI_PCM_RX)
-				port->flags |= (PORT_F_CH_TRAFFIC
-					| PORT_F_DUMP_RAW_DATA);
-		}
-		/*set IMS related port*/
-		if (proxy_p->traffic_dump_flag & (1 << PORT_DBG_DUMP_IMS)) {
-			if (port->rx_ch == CCCI_IMSV_DL ||
-				port->rx_ch == CCCI_IMSC_DL ||
-				port->rx_ch == CCCI_IMSA_DL ||
-				port->rx_ch == CCCI_IMSA_DL ||
-				port->rx_ch == CCCI_IMSEM_DL)
-				port->flags |= (PORT_F_CH_TRAFFIC
-					| PORT_F_DUMP_RAW_DATA);
-		}
-	}
 }
 
 static inline struct port_proxy *proxy_alloc(int md_id)
@@ -1510,26 +1309,6 @@ int ccci_port_send_msg_to_md(int md_id, int ch, unsigned int msg,
 	return proxy_send_msg_to_md(proxy_p, ch, msg, resv, blocking);
 }
 EXPORT_SYMBOL(ccci_port_send_msg_to_md);
-/*
- * This API is called by ccci fsm,
- * and used to set port traffic flag to catch traffic history on
- * some important channel.
- * port traffic use md_boot_data[MD_CFG_DUMP_FLAG] =
- * 0x6000_000x as port dump flag
- */
-void ccci_port_set_traffic_flag(int md_id, unsigned int dump_flag)
-{
-	struct port_proxy *proxy_p;
-
-	if (md_id < 0 || md_id >= MAX_MD_NUM) {
-		((void)0);
-		return;
-	}
-	CHECK_MD_ID(md_id);
-	proxy_p = GET_PORT_PROXY(md_id);
-	proxy_set_traffic_flag(proxy_p, dump_flag);
-}
-
 #ifdef CONFIG_MTK_ECCCI_C2K /* only md3 can usb bypass */
 int modem_dtr_set(int on, int low_latency)
 {

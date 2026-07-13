@@ -87,20 +87,6 @@ static int port_char_init(struct port_t *port)
 				port->minor_base + port->minor);
 		port->flags |= PORT_F_ADJUST_HEADER;
 	}
-#ifndef DPMAIF_DEBUG_LOG
-	if (port->rx_ch == CCCI_UART2_RX ||
-		port->rx_ch == CCCI_C2K_AT ||
-		port->rx_ch == CCCI_C2K_AT2 ||
-		port->rx_ch == CCCI_C2K_AT3 ||
-		port->rx_ch == CCCI_C2K_AT4 ||
-		port->rx_ch == CCCI_C2K_AT5 ||
-		port->rx_ch == CCCI_C2K_AT6 ||
-		port->rx_ch == CCCI_C2K_AT7 ||
-		port->rx_ch == CCCI_C2K_AT8)
-		port->flags |= PORT_F_CH_TRAFFIC;
-	else if (port->rx_ch == CCCI_FS_RX)
-		port->flags |= (PORT_F_CH_TRAFFIC | PORT_F_DUMP_RAW_DATA);
-#endif
 	return ret;
 }
 
@@ -182,20 +168,7 @@ static int port_char_recv_skb(struct port_t *port, struct sk_buff *skb)
 	return port_recv_skb(port, skb);
 }
 
-void port_char_dump_info(struct port_t *port, unsigned int flag)
-{
-	if (port == NULL) {
-		((void)0);
-		return;
-	}
-	if (atomic_read(&port->usage_cnt) == 0)
-		return;
-	if (port->flags & PORT_F_CH_TRAFFIC)
-		((void)0);
-}
 struct port_ops char_port_ops = {
 	.init = &port_char_init,
 	.recv_skb = &port_char_recv_skb,
-	.dump_info = &port_char_dump_info,
 };
-

@@ -66,12 +66,4 @@ int ccci_port_get_critical_user(int md_id, unsigned int user_id);
 int ccci_port_send_msg_to_md(int md_id, int ch, unsigned int msg,
 	unsigned int resv, int blocking);
 
-/*
- * This API is called by ccci fsm,
- * and used to set port traffic flag to catch traffic history
- * on some important channel.
- * port traffic use md_boot_data[MD_CFG_DUMP_FLAG] = 0x6000_000x
- * as port dump flag
- */
-void ccci_port_set_traffic_flag(int md_id, unsigned int dump_flag);
 #endif /* __CCCI_PORT_H__ */
