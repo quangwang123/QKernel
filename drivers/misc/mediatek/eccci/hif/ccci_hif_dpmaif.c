@@ -973,11 +973,7 @@ static int ccci_skb_to_list(struct ccci_skb_queue *queue, struct sk_buff *newsk)
 
 	spin_lock_irqsave(&queue->skb_list.lock, flags);
 	if (queue->skb_list.qlen < queue->max_len) {
-		queue->enq_count++;
 		__skb_queue_tail(&queue->skb_list, newsk);
-		if (queue->skb_list.qlen > queue->max_history)
-			queue->max_history = queue->skb_list.qlen;
-
 	} else {
 		spin_unlock_irqrestore(&queue->skb_list.lock, flags);
 		return -1;
@@ -3228,4 +3224,3 @@ module_exit(ccci_hif_dpmaif_exit);
 MODULE_AUTHOR("ccci");
 MODULE_DESCRIPTION("ccci hif dpmaif driver");
 MODULE_LICENSE("GPL");
-

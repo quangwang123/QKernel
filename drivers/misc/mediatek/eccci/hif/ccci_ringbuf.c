@@ -5,7 +5,6 @@
 
 #include <linux/skbuff.h>
 #include <linux/wait.h>
-#include <linux/sched/clock.h> /* local_clock() */
 #include <linux/delay.h>
 #include <linux/module.h>
 #include "ccci_ringbuf.h"
@@ -85,59 +84,6 @@ do {\
 			data_size - (buflen - write_pos));\
 	} \
 } while (0)
-
-static void ccci_ringbuf_dump(int md_id, unsigned char *title,
-	unsigned char *buffer, unsigned int read,
-	unsigned int length, int dump_size)
-{
-	int i, j;
-	unsigned char tmp_buf[256];
-	unsigned char buf[256];
-	unsigned int write = read + dump_size;
-	int ret = 0;
-
-	if (write >= length)
-		write -= length;
-	((void)0);
-	read = (read >> 3) << 3;
-	/* 8byte align*/
-	write = ((write + 7) >> 3) << 3;
-	if (write >= length)
-		write -= length;
-	((void)0);
-	i = read;
-	while (1) {
-		memset(tmp_buf, 0, sizeof(tmp_buf));
-		ret = snprintf(tmp_buf, sizeof(tmp_buf), "%08X:", i);
-		if (ret < 0 || ret >= sizeof(tmp_buf)) {
-			((void)0);
-			return;
-		}
-		for (j = 0; j < 4; j++) {
-			ret = snprintf(buf, sizeof(tmp_buf), "%s", tmp_buf);
-			if (ret < 0 || ret >= sizeof(tmp_buf)) {
-				((void)0);
-				return;
-			}
-			ret = snprintf(tmp_buf, sizeof(tmp_buf),
-				 "%s %02X%02X%02X%02X", buf, *(buffer + i),
-				 *(buffer + i + 1), *(buffer + i + 2),
-				 *(buffer + i + 3));
-			if (ret < 0 || ret >= sizeof(tmp_buf)) {
-				((void)0);
-				return;
-			}
-			i += sizeof(unsigned int);
-			if (i >= length)
-				i -= length;
-			if (i == write)
-				goto OUT;
-		}
-		((void)0);
-	}
- OUT:
-	((void)0);
-}
 
 struct ccci_ringbuf *ccci_create_ringbuf(int md_id, unsigned char *buf,
 	int buf_size, int rx_size, int tx_size)
@@ -279,8 +225,6 @@ int ccci_ringbuf_readable(int md_id, struct ccci_ringbuf *ringbuf)
 	if (header[0] != CCIF_PKG_HEADER) {
 		((void)0);
 		((void)0);
-		ccci_ringbuf_dump(md_id, "readable",
-			rx_buffer, read, length, size);
 		return -CCCI_RINGBUF_BAD_HEADER;
 	}
 	ccci_pkg_len = header[1];
@@ -299,8 +243,6 @@ int ccci_ringbuf_readable(int md_id, struct ccci_ringbuf *ringbuf)
 	CCIF_RBF_READ(rx_buffer, outptr, CCIF_FOOTER_LEN, footer_pos, length);
 	if (footer[0] != CCIF_PKG_FOOTER || footer[1] != CCIF_PKG_FOOTER) {
 		((void)0);
-		ccci_ringbuf_dump(md_id, "readable",
-			rx_buffer, read, length, ccif_pkg_len + 8);
 		return -CCCI_RINGBUF_BAD_FOOTER;
 	}
 	return ccci_pkg_len;
@@ -358,4 +300,3 @@ void ccci_ringbuf_reset(int md_id, struct ccci_ringbuf *ringbuf, int dir)
 		((void)0);
 	}
 }
-
