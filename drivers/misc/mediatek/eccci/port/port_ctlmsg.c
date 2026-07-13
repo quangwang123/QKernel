@@ -26,15 +26,12 @@ static void control_msg_handler(struct port_t *port, struct sk_buff *skb)
 
 	ret = ccci_fsm_recv_control_packet(md_id, skb);
 	if (ret)
-		CCCI_ERROR_LOG(port->md_id, PORT,
-			"%s control msg gotten error: %d\n",
-			port->name, ret);
+		((void)0);
 }
 
 static int port_ctl_init(struct port_t *port)
 {
-	CCCI_DEBUG_LOG(port->md_id, PORT,
-		"kernel port %s is initializing\n", port->name);
+	((void)0);
 	port->skb_handler = &control_msg_handler;
 	port->private_data = kthread_run(port_kthread_handler,
 		port, "%s", port->name);

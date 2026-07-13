@@ -28,27 +28,22 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* dump AP_MDSRC_REQ */
 	dump_reg0 = ioremap_nocache(0x10006434, 0x4);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x4 bytes from 0x10006434\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"md_dbg_sys: 0x%X\n", ccci_read32(dump_reg0, 0x0));
+	((void)0);
 	iounmap(dump_reg0);
 
 	/* PC Monitor */
 	dump_reg0 = ioremap_nocache(0x0D0D9000, 0x1360);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x1360 bytes from 0x0D0D9000\n");
+		((void)0);
 		return;
 	}
 	/* Stop PCMon */
 	mdreg_write32(MD_REG_PC_MONITOR, 0x222);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD PC monitor\n");
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"common: 0x0D0DA000\n");
+	((void)0);
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00001000), 0x100, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -57,8 +52,7 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 			     (dump_reg0 + 0x00001200), 0x60, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00001300), 0x60, false);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"core0/1/2: [0]0x0D0D9000, [1]0x0D0D9400, [2]0x0D0D9800\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x400, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -72,22 +66,18 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* PLL reg (clock control) */
 	dump_reg0 = ioremap_nocache(0x0D0C3800, 0x1C85C);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x1C85C bytes from 0x0D0C3800\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD PLL\n");
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"CLKSW: [0]0x0D0D6000, [1]0x0D0D6200, [2]0x0D0D6F00\n");
+	((void)0);
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00012800), 0x110, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00012A00), 0x20, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00013700), 0x8, false);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"PLLMIXED:[0]0x0D0D4000,[1]0x0D0D4100,[2]0x0D0D4200,[3]0x0D0D4300,[4]0x0D0D4400,[5]0x0D0D4500,[6]0x0D0D4C00,[7]0x0D0D4D00,[8]0x0D0D4F00\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00010800), 0x68, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -106,14 +96,12 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 			     (dump_reg0 + 0x00011500), 0x8, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00011700), 0x14, false);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"CLKCTL: [0]0x0D0C3800, [1]0x0D0C3910\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x1C, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000110), 0x20, false);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"GLOBAL CON: [0]0x0D0D5000, [1]0x0D0D5090, [2]0x0D0D5200, [3]0x0D0D5300, [4]0x0D0D5700, [5]0x0D0D5800, [6]0x0D0D5900, [7]0x0D0D5D00, [8]0x0D0D5F00\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00011800), 0x4, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -132,8 +120,7 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 			     (dump_reg0 + 0x00012500), 0x4, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00012700), 0x8, false);
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"AO CONFIG: [0]0x0D0E0050\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x0001C850), 0xC, false);
 	iounmap(dump_reg0);
@@ -141,12 +128,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* BUS */
 	dump_reg0 = ioremap_nocache(0x0D0C7000, 0x19098);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x19098 bytes from 0x0D0C7000\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD Bus status: [0]0x0D0C7000, [1]0x0D0C9000, [2]0x0D0E0000\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0xE0, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -158,12 +143,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* BUSMON  */
 	dump_reg0 = ioremap_nocache(0x0D0C6000, 0x291C);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x291C bytes from 0x0D0C6000\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD Bus REC: [0]0x0D0C6000, [1]0x0D0C8000\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x104, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -289,12 +272,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* ECT */
 	dump_reg0 = ioremap_nocache(0x0D0CC130, 0x1EE8);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x1EE8 bytes from 0x0D0CC130\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD ECT: [0]0x0D0CC130, [1]0x0D0CC134, [2]0x0D0CD130, [3]0x0D0CD134, [4]0x0D0CE014, [5]0x0D0CE00C\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x4, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -312,12 +293,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* TOPSM reg */
 	dump_reg0 = ioremap_nocache(0x0D0D0000, 0x8E4);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x8E4 bytes from 0x0D0D0000\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD TOPSM status: 0x0D0D0000\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x8E4, false);
 	iounmap(dump_reg0);
@@ -325,12 +304,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* MD RGU reg */
 	dump_reg0 = ioremap_nocache(0x0D0D2100, 0x25C);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x25C bytes from 0x0D0D2100\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD RGU: [0]0x0D0D2100, [1]0x0D0D2300\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0xCC, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -340,12 +317,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* OST status */
 	dump_reg0 = ioremap_nocache(0x0D0D1000, 0x208);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x208 bytes from 0x0D0D1000\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD OST status: [0]0x0D0D1000, [1]0x0D0D1200\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0xF0, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
@@ -355,12 +330,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* CSC reg */
 	dump_reg0 = ioremap_nocache(0x0D0D3000, 0x214);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x214 bytes from 0x0D0D3000\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD CSC: 0x0D0D3000\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x214, false);
 	iounmap(dump_reg0);
@@ -368,13 +341,11 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* ELM reg */
 	dump_reg0 = ioremap_nocache(0x20350000, 0x52C);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x52C bytes from 0x20350000\n");
+		((void)0);
 		return;
 	}
 #if defined(__MD_DEBUG_DUMP__)
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD ELM: 0x20350000\n");
+	((void)0);
 #endif
 #if defined(__MD_DEBUG_DUMP__)
 	/* This dump might cause bus hang so enable it only when needed */
@@ -386,12 +357,10 @@ static void internal_md_dump_debug_register(unsigned int md_index)
 	/* USIP */
 	dump_reg0 = ioremap_nocache(0x0D0C4400, 0x3500);
 	if (dump_reg0 == NULL) {
-		CCCI_MEM_LOG_TAG(md_index, TAG,
-			"Dump MD failed to ioremap 0x3500 bytes from 0x0D0C4400\n");
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(md_index, TAG,
-		"Dump MD USIP: [0]0x0D0C4400, [1]0x0D0C4610, [2]0x0D0C5400, [3]0x0D0C5610, [4]0x0D0C7800\n");
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			     (dump_reg0 + 0x00000000), 0x100, false);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,

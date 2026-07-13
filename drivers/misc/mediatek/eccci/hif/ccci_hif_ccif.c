@@ -195,82 +195,30 @@ static int tx_exp_buffer_size[QUEUE_NUM] = { 12 * 1024, 32 * 1024,
 	8 * 1024, 0 * 1024, 0 * 1024, 0 * 1024, 8 * 1024, 0 * 1024,
 };
 
-#ifdef CCCI_KMODULE_ENABLE
-/*
- * for debug log:
- * 0 to disable; 1 for print to ram; 2 for print to uart
- * other value to desiable all log
- */
-#ifndef CCCI_LOG_LEVEL /* for platform override */
-#define CCCI_LOG_LEVEL CCCI_LOG_CRITICAL_UART
-#endif
-unsigned int ccci_debug_enable = CCCI_LOG_LEVEL;
-//void __iomem *infra_ao_base;
-#endif
-
 static void md_ccif_dump(unsigned char *title, unsigned char hif_id)
 {
 	int idx;
 	struct md_ccif_ctrl *md_ctrl =
 		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
 
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "%s: %s\n", __func__, title);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_CON(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_CON,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_CON));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_BUSY(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_BUSY,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_BUSY));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_START(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_START,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_START));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_TCHNUM(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_TCHNUM,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_TCHNUM));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_RCHNUM(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_RCHNUM,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_RCHNUM));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "AP_ACK(%p)=0x%x\n",
-			md_ctrl->ccif_ap_base + APCCIF_ACK,
-			ccif_read32(md_ctrl->ccif_ap_base, APCCIF_ACK));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_CON(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_CON,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_CON));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_BUSY(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_BUSY,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_BUSY));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_START(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_START,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_START));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_TCHNUM(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_TCHNUM,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_TCHNUM));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_RCHNUM(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_RCHNUM,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_RCHNUM));
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG, "MD_ACK(%p)=0x%x\n",
-			md_ctrl->ccif_md_base + APCCIF_ACK,
-			ccif_read32(md_ctrl->ccif_md_base, APCCIF_ACK));
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
 
 	for (idx = 0;
 		 idx < md_ctrl->sram_size / sizeof(u32);
 		 idx += 4) {
-		CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-				 "CHDATA(%p): %08X %08X %08X %08X\n",
-				 md_ctrl->ccif_ap_base + APCCIF_CHDATA +
-				 idx * sizeof(u32),
-				 ccif_read32(md_ctrl->ccif_ap_base +
-						APCCIF_CHDATA,
-						(idx + 0) * sizeof(u32)),
-				 ccif_read32(md_ctrl->ccif_ap_base +
-						APCCIF_CHDATA,
-						(idx + 1) * sizeof(u32)),
-				 ccif_read32(md_ctrl->ccif_ap_base +
-						APCCIF_CHDATA,
-						(idx + 2) * sizeof(u32)),
-				 ccif_read32(md_ctrl->ccif_ap_base +
-						APCCIF_CHDATA,
-						(idx + 3) * sizeof(u32)));
+		((void)0);
 	}
 
 }
@@ -287,47 +235,26 @@ static void md_ccif_queue_dump(unsigned char hif_id)
 	if (!md_ctrl || !md_ctrl->rxq[0].ringbuf)
 		return;
 
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump md_ctrl->channel_id 0x%lx\n",
-		md_ctrl->channel_id);
+	((void)0);
 	ts = md_ctrl->traffic_info.latest_isr_time;
 	nsec_rem = do_div(ts, NSEC_PER_SEC);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump CCIF latest isr %5llu.%06lu\n", ts,
-		nsec_rem / 1000);
+	((void)0);
 #ifdef DEBUG_FOR_CCB
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump CCIF latest r_ch: 0x%x\n",
-		md_ctrl->traffic_info.last_ccif_r_ch);
+	((void)0);
 	ts = md_ctrl->traffic_info.latest_ccb_isr_time;
 	nsec_rem = do_div(ts, NSEC_PER_SEC);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump CCIF latest ccb_isr %5llu.%06lu\n", ts,
-		nsec_rem / 1000);
+	((void)0);
 #endif
 
 	for (idx = 0; idx < QUEUE_NUM; idx++) {
-		CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d TX: w=%d, r=%d, len=%d, %p\n",
-		idx, md_ctrl->txq[idx].ringbuf->tx_control.write,
-		md_ctrl->txq[idx].ringbuf->tx_control.read,
-		md_ctrl->txq[idx].ringbuf->tx_control.length,
-		md_ctrl->txq[idx].ringbuf);
-		CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d RX: w=%d, r=%d, len=%d\n",
-		idx, md_ctrl->rxq[idx].ringbuf->rx_control.write,
-		md_ctrl->rxq[idx].ringbuf->rx_control.read,
-		md_ctrl->rxq[idx].ringbuf->rx_control.length);
+		((void)0);
+		((void)0);
 		ts = md_ctrl->traffic_info.latest_q_rx_isr_time[idx];
 		nsec_rem = do_div(ts, NSEC_PER_SEC);
-		CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d RX: last isr %5llu.%06lu\n", idx, ts,
-		nsec_rem / 1000);
+		((void)0);
 		ts = md_ctrl->traffic_info.latest_q_rx_time[idx];
 		nsec_rem = do_div(ts, NSEC_PER_SEC);
-		CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d RX: last wq  %5llu.%06lu\n", idx, ts,
-		nsec_rem / 1000);
+		((void)0);
 	}
 	ccci_md_dump_log_history(md_ctrl->md_id,
 		&md_ctrl->traffic_info, 1, QUEUE_NUM, QUEUE_NUM);
@@ -341,20 +268,10 @@ static void md_ccif_dump_queue_history(unsigned char hif_id, unsigned int qno)
 	if (!md_ctrl || !md_ctrl->rxq[qno].ringbuf)
 		return;
 
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump md_ctrl->channel_id 0x%lx\n", md_ctrl->channel_id);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Dump CCIF Queue%d Control\n", qno);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d TX: w=%d, r=%d, len=%d\n",
-		qno, md_ctrl->txq[qno].ringbuf->tx_control.write,
-		md_ctrl->txq[qno].ringbuf->tx_control.read,
-		md_ctrl->txq[qno].ringbuf->tx_control.length);
-	CCCI_MEM_LOG_TAG(md_ctrl->md_id, TAG,
-		"Q%d RX: w=%d, r=%d, len=%d\n",
-		qno, md_ctrl->rxq[qno].ringbuf->rx_control.write,
-		md_ctrl->rxq[qno].ringbuf->rx_control.read,
-		md_ctrl->rxq[qno].ringbuf->rx_control.length);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
 	ccci_md_dump_log_history(md_ctrl->md_id,
 		&md_ctrl->traffic_info, 0, qno, qno);
 }
@@ -367,62 +284,26 @@ static void md_cd_dump_ccif_reg(unsigned char hif_id)
 
 	if (ccif_ctrl->ccif_state == HIFCCIF_STATE_PWROFF
 		|| ccif_ctrl->ccif_state == HIFCCIF_STATE_MIN) {
-		CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG,
-			"CCIF not power on, skip dump\n");
+		((void)0);
 		return;
 	}
 
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_CON(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_CON,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_CON));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_BUSY(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_BUSY,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_BUSY));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_START(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_START,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_START));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_TCHNUM(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_TCHNUM,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_TCHNUM));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_RCHNUM(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_RCHNUM,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_RCHNUM));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "AP_ACK(%p)=%x\n",
-		ccif_ctrl->ccif_ap_base + APCCIF_ACK,
-		ccif_read32(ccif_ctrl->ccif_ap_base, APCCIF_ACK));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_CON(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_CON,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_CON));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_BUSY(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_BUSY,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_BUSY));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_START(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_START,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_START));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_TCHNUM(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_TCHNUM,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_TCHNUM));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_RCHNUM(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_RCHNUM,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_RCHNUM));
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG, "MD_ACK(%p)=%x\n",
-		ccif_ctrl->ccif_md_base + APCCIF_ACK,
-		ccif_read32(ccif_ctrl->ccif_md_base, APCCIF_ACK));
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
 
 	for (idx = 0; idx < ccif_ctrl->sram_size / sizeof(u32);
 		idx += 4) {
-		CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG,
-			"CHDATA(%p): %08X %08X %08X %08X\n",
-			ccif_ctrl->ccif_ap_base + APCCIF_CHDATA +
-			idx * sizeof(u32),
-			ccif_read32(ccif_ctrl->ccif_ap_base + APCCIF_CHDATA,
-				(idx + 0) * sizeof(u32)),
-			ccif_read32(ccif_ctrl->ccif_ap_base + APCCIF_CHDATA,
-				(idx + 1) * sizeof(u32)),
-			ccif_read32(ccif_ctrl->ccif_ap_base + APCCIF_CHDATA,
-				(idx + 2) * sizeof(u32)),
-			ccif_read32(ccif_ctrl->ccif_ap_base + APCCIF_CHDATA,
-				(idx + 3) * sizeof(u32)));
+		((void)0);
 	}
 }
 
@@ -444,8 +325,7 @@ static int ccif_debug_dump_data(unsigned int hif_id, int *buff, int length)
 			APCCIF_CHDATA + (sram_size - length) +
 			i * sizeof(unsigned int));
 	}
-	CCCI_MEM_LOG_TAG(ccif_ctrl->md_id, TAG,
-		"Dump CCIF SRAM (last %d bytes)\n", length);
+	((void)0);
 	print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4, dest_buff,
 			     length, false);
 
@@ -468,8 +348,7 @@ static int md_ccif_op_dump_status(unsigned char hif_id,
 		md_ccif_queue_dump(hif_id);
 	}
 	if (flag & DUMP_FLAG_IRQ_STATUS) {
-		CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG,
-		"Dump AP CCIF IRQ status not support\n");
+		((void)0);
 		/* mt_irq_dump_status(md_ctrl->ccif_irq_id);*/
 	}
 	if (flag & DUMP_FLAG_QUEUE_0)
@@ -493,19 +372,13 @@ static int c2k_ch_to_ccci_ch(int c2k_ch, int direction)
 	c2k_channel_id = (u16) c2k_ch;
 	for (i = 0; i < (sizeof(c2k_ports) / sizeof(struct c2k_port)); i++) {
 		if (c2k_channel_id == c2k_ports[i].ch) {
-			CCCI_DEBUG_LOG(MD_SYS3, TAG,
-				"%s:channel(%d)-->(T%d R%d)\n",
-				(direction == OUT) ? "TX" : "RX", c2k_ch,
-				c2k_ports[i].tx_ch_mapping,
-				c2k_ports[i].rx_ch_mapping);
+			((void)0);
 			return (direction == OUT) ? c2k_ports[i].tx_ch_mapping :
 				c2k_ports[i].rx_ch_mapping;
 		}
 	}
 
-	CCCI_ERROR_LOG(MD_SYS3, TAG,
-		"%s:ERR cannot find mapped c2k ch ID(%d)\n",
-		direction ? "TX" : "RX", c2k_ch);
+	((void)0);
 	return CCCI_OVER_MAX_CH;
 }
 
@@ -521,17 +394,13 @@ static int ccci_ch_to_c2k_ch(int md_state, int ccci_ch, int direction)
 			c2k_ports[i].rx_ch_mapping;
 
 		if (ccci_channel_id == channel_map) {
-			CCCI_DEBUG_LOG(MD_SYS3, TAG, "%s:channel(%d)-->(%d)\n",
-					(direction == OUT) ? "TX" : "RX",
-					ccci_channel_id, c2k_ports[i].ch);
+			((void)0);
 			return (md_state != EXCEPTION) ? c2k_ports[i].ch :
 				c2k_ports[i].excp_ch;
 		}
 	}
 
-	CCCI_ERROR_LOG(MD_SYS3, TAG,
-		"%s:ERR cannot find mapped ccci ch ID(%d)\n",
-		direction ? "TX" : "RX", ccci_ch);
+	((void)0);
 	return C2K_OVER_MAX_CH;
 }
 
@@ -549,10 +418,7 @@ static inline void ccci_md_check_rx_seq_num(unsigned char md_id,
 	if (assert_bit && traffic_info->seq_nums[IN][channel] != 0
 		&& ((seq_num - traffic_info->seq_nums[IN][channel])
 		& 0x7FFF) != 1) {
-		CCCI_ERROR_LOG(md_id, CORE,
-			"channel %d seq number out-of-order %d->%d (data: %X, %X)\n",
-			channel, seq_num, traffic_info->seq_nums[IN][channel],
-			ccci_h->data[0], ccci_h->data[1]);
+		((void)0);
 		md_ccif_op_dump_status(CCIF_HIF_ID, DUMP_FLAG_CCIF, NULL, qno);
 		param[0] = channel;
 		param[1] = traffic_info->seq_nums[IN][channel];
@@ -580,17 +446,13 @@ static void md_ccif_sram_rx_work(struct work_struct *work)
 	u32 i = 0;
 	u8 *md_feature = (u8 *)(&md_ctrl->ccif_sram_layout->md_rt_data);
 
-	CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-		"%s:dk_pkg=%p, md_featrue=%p\n", __func__,
-		dl_pkg, md_feature);
+	((void)0);
 	pkg_size =
 		sizeof(struct ccci_header) + sizeof(struct md_query_ap_feature);
 
 	skb = ccci_alloc_skb(pkg_size, 1, 1);
 	if (skb == NULL) {
-		CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"%s: alloc skb size=%d, failed\n", __func__,
-			pkg_size);
+		((void)0);
 		return;
 	}
 	skb_put(skb, pkg_size);
@@ -614,9 +476,7 @@ static void md_ccif_sram_rx_work(struct work_struct *work)
 
 	if (atomic_cmpxchg(&md_ctrl->wakeup_src, 1, 0) == 1) {
 		md_ctrl->wakeup_count++;
-		CCCI_NOTICE_LOG(md_ctrl->md_id, TAG,
-			"CCIF_MD wakeup source:(SRX_IDX/%d)(%u)\n",
-			ccci_h->channel, md_ctrl->wakeup_count);
+		((void)0);
 	}
 	ccci_hdr = *ccci_h;
 	ccci_md_check_rx_seq_num(md_ctrl->md_id,
@@ -624,25 +484,18 @@ static void md_ccif_sram_rx_work(struct work_struct *work)
 
  RETRY:
 	ret = ccci_md_recv_skb(md_ctrl->md_id, md_ctrl->hif_id, skb);
-	CCCI_DEBUG_LOG(md_ctrl->md_id, TAG, "Rx msg %x %x %x %x ret=%d\n",
-		ccci_hdr.data[0], ccci_hdr.data[1],
-		*(((u32 *)&ccci_hdr) + 2), ccci_hdr.reserved, ret);
+	((void)0);
 	if (ret >= 0 || ret == -CCCI_ERR_DROP_PACKET) {
-		CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-			"%s:ccci_port_recv_skb ret=%d\n", __func__,
-			ret);
+		((void)0);
 	} else {
 		if (retry_cnt < 20) {
-			CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"%s:ccci_md_recv_skb ret=%d,retry=%d\n", __func__,
-			ret, retry_cnt);
+			((void)0);
 			udelay(5);
 			retry_cnt++;
 			goto RETRY;
 		}
 		ccci_free_skb(skb);
-		CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-		"%s:ccci_port_recv_skb ret=%d\n", __func__, ret);
+		((void)0);
 	}
 }
 
@@ -656,22 +509,18 @@ static void c2k_mem_dump(void *start_addr, int len)
 	int i, j;
 
 	if (curr_p == NULL) {
-		CCCI_ERROR_LOG(MD_SYS3, TAG, "[C2K-DUMP]NULL point to dump!\n");
+		((void)0);
 		return;
 	}
 	if (len == 0) {
-		CCCI_ERROR_LOG(MD_SYS3, TAG, "[C2K-DUMP]Not need to dump\n");
+		((void)0);
 		return;
 	}
 
-	CCCI_DEBUG_LOG(MD_SYS3, TAG, "[C2K-DUMP]Base: 0x%lx, len: %d\n",
-		(unsigned long)start_addr, len);
+	((void)0);
 	/*Fix section */
 	for (i = 0; i < _16_fix_num; i++) {
-		CCCI_MEM_LOG(MD_SYS3, TAG,
-			"[C2K-DUMP]%03X: %08X %08X %08X %08X\n",
-			i * 16, *curr_p, *(curr_p + 1),
-			*(curr_p + 2), *(curr_p + 3));
+		((void)0);
 		curr_p += 4;
 	}
 
@@ -685,10 +534,7 @@ static void c2k_mem_dump(void *start_addr, int len)
 		for (; j < 16; j++)
 			buf[j] = 0;
 		curr_p = (unsigned int *)buf;
-		CCCI_MEM_LOG(MD_SYS3, TAG,
-			"[C2K-DUMP]%03X: %08X %08X %08X %08X\n",
-			i * 16, *curr_p, *(curr_p + 1),
-			*(curr_p + 2), *(curr_p + 3));
+		((void)0);
 	}
 }
 
@@ -700,9 +546,7 @@ static int ccif_check_flow_ctrl(struct md_ccif_ctrl *md_ctrl,
 
 	is_busy = ccif_is_md_queue_busy(md_ctrl, queue->index);
 	if (is_busy < 0) {
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-			"ccif flow ctrl: check modem return %d\n",
-			is_busy);
+		((void)0);
 		return 0;
 	}
 	if (is_busy > 0) {
@@ -718,15 +562,10 @@ static int ccif_check_flow_ctrl(struct md_ccif_ctrl *md_ctrl,
 						C2K_FLOW_CTRL_MSG,
 						queue->index, 0);
 				if (ret < 0)
-					CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-						"fail to resume md Q%d, ret0x%x\n",
-						queue->index, ret);
+					((void)0);
 				else {
 					queue->resume_cnt++;
-					CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-						"flow ctrl: resume Q%d, buf %d, cnt %d\n",
-						queue->index, buf_size,
-						queue->resume_cnt);
+					((void)0);
 				}
 			}
 		}
@@ -749,42 +588,8 @@ static void md_ccif_traffic_work_func(struct work_struct *work)
 		&md_ctrl->traffic_info);
 	/*pre_cnt for tx, pkt_cont for rx*/
 	if (md_ctrl->md_id == MD_SYS3) {
-		CCCI_REPEAT_LOG(md_ctrl->md_id, TAG,
-		"traffic(AT): tx:[%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld\n",
-		CCCI_C2K_AT,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT],
-		CCCI_C2K_AT2,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT2],
-		CCCI_C2K_AT3,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT3],
-		CCCI_C2K_AT4,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT4],
-		CCCI_C2K_AT5,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT5],
-		CCCI_C2K_AT6,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT6],
-		CCCI_C2K_AT7,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT7],
-		CCCI_C2K_AT8,
-		md_ctrl->traffic_info.logic_ch_pkt_pre_cnt[CCCI_C2K_AT8]);
-		CCCI_REPEAT_LOG(md_ctrl->md_id, TAG,
-		"traffic(AT): rx:[%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld, [%d]%ld\n",
-		CCCI_C2K_AT,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT],
-		CCCI_C2K_AT2,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT2],
-		CCCI_C2K_AT3,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT3],
-		CCCI_C2K_AT4,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT4],
-		CCCI_C2K_AT5,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT5],
-		CCCI_C2K_AT6,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT6],
-		CCCI_C2K_AT7,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT7],
-		CCCI_C2K_AT8,
-		md_ctrl->traffic_info.logic_ch_pkt_cnt[CCCI_C2K_AT8]);
+		((void)0);
+		((void)0);
 	}
 	mod_timer(&md_ctrl->traffic_monitor,
 		jiffies + CCIF_TRAFFIC_MONITOR_INTERVAL * HZ);
@@ -821,9 +626,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 		ccci_get_per_md_data(md_ctrl->md_id);
 
 	if (atomic_read(&queue->rx_on_going)) {
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-			"Q%d rx is on-going(%d)1\n",
-			queue->index, atomic_read(&queue->rx_on_going));
+		((void)0);
 		*result = 0;
 		return -1;
 	}
@@ -840,9 +643,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 		pkg_size = ccci_ringbuf_readable(md_ctrl->md_id, rx_buf);
 		spin_unlock_irqrestore(&queue->rx_lock, flags);
 		if (pkg_size < 0) {
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"Q%d Rx:rbf readable ret=%d\n",
-				queue->index, pkg_size);
+			((void)0);
 			ret = 0;
 			goto OUT;
 		}
@@ -850,9 +651,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 		skb = ccci_alloc_skb(pkg_size, from_pool, blocking);
 
 		if (skb == NULL) {
-			CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-				       "Q%d Rx:ccci_alloc_skb pkg_size=%d failed,count=%d\n",
-				       queue->index, pkg_size, count);
+			((void)0);
 			ret = -ENOMEM;
 			goto OUT;
 		}
@@ -882,17 +681,13 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 			 * we hack the channel ID here.
 			 */
 			if (ccci_h->channel == CCCI_C2K_LB_DL) {
-				CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-					"Q%d Rx lb_dl\n", queue->index);
+				((void)0);
 				c2k_mem_dump(data_ptr, pkg_size);
 			}
 		}
 		if (atomic_cmpxchg(&md_ctrl->wakeup_src, 1, 0) == 1) {
 			md_ctrl->wakeup_count++;
-			CCCI_NOTICE_LOG(md_ctrl->md_id, TAG,
-				"CCIF_MD wakeup source:(%d/%d/%x)(%u)\n",
-				queue->index, ccci_h->channel,
-				ccci_h->reserved, md_ctrl->wakeup_count);
+			((void)0);
 		}
 		if (ccci_h->channel == CCCI_C2K_LB_DL)
 			atomic_set(&lb_dl_q, queue->index);
@@ -915,9 +710,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 				&ccci_hdr);
 
 			if (queue->debug_id) {
-				CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-					"Q%d Rx recv req ret=%d\n",
-					queue->index, ret);
+				((void)0);
 				queue->debug_id = 0;
 			}
 			spin_lock_irqsave(&queue->rx_lock, flags);
@@ -931,12 +724,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 			if (ccci_hdr.channel == CCCI_MD_LOG_RX) {
 				rx_data_cnt += pkg_size - 16;
 				pkg_num++;
-				CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-					    "Q%d Rx buf read=%d, write=%d, pkg_size=%d, log_cnt=%ld, pkg_num=%d\n",
-					    queue->index,
-					    rx_buf->rx_control.read,
-					    rx_buf->rx_control.write, pkg_size,
-						rx_data_cnt, pkg_num);
+				((void)0);
 			}
 			ret = 0;
 		} else {
@@ -947,17 +735,13 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
 
 			if (queue->debug_id == 0) {
 				queue->debug_id = 1;
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"Q%d Rx err, ret = 0x%x\n",
-					queue->index, ret);
+				((void)0);
 			}
 
 			goto OUT;
 		}
 		if (count > budget) {
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"Q%d count > budget, exit now\n",
-				queue->index);
+			((void)0);
 			goto OUT;
 		}
 	}
@@ -965,9 +749,7 @@ static int ccif_rx_collect(struct md_ccif_queue *queue, int budget,
  OUT:
 	atomic_set(&queue->rx_on_going, 0);
 	*result = count;
-	CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-		"Q%d rx %d pkg,ret=%d\n",
-		queue->index, count, ret);
+	((void)0);
 	spin_lock_irqsave(&queue->rx_lock, flags);
 	if (ret != -CCCI_ERR_PORT_RX_FULL
 		&& ret != -EAGAIN) {
@@ -989,8 +771,7 @@ static void ccif_rx_work(struct work_struct *work)
 
 	ret = ccif_rx_collect(queue, queue->budget, 1, &result);
 	if (ret == -EAGAIN) {
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-			"Q%u queue again\n", queue->index);
+		((void)0);
 		queue_work(queue->worker, &queue->qwork);
 	} else {
 		ccci_port_queue_status_notify(md_ctrl->md_id, queue->hif_id,
@@ -1011,16 +792,13 @@ void ccif_polling_ready(unsigned char hif_id, int step)
 	while (cnt > 0) {
 		if (md_ctrl->channel_id & (1 << step)) {
 			clear_bit(step, &md_ctrl->channel_id);
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"poll RCHNUM %ld\n", md_ctrl->channel_id);
+			((void)0);
 			return;
 		}
 		msleep(time_once);
 		cnt--;
 	}
-	CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-		"poll EE HS timeout, RCHNUM %ld\n",
-		md_ctrl->channel_id);
+	((void)0);
 }
 
 static int md_ccif_send(unsigned char hif_id, int channel_id)
@@ -1031,17 +809,13 @@ static int md_ccif_send(unsigned char hif_id, int channel_id)
 
 	busy = ccif_read32(md_ctrl->ccif_ap_base, APCCIF_BUSY);
 	if (busy & (1 << channel_id)) {
-		CCCI_REPEAT_LOG(md_ctrl->md_id, TAG,
-			"CCIF channel %d busy\n", channel_id);
+		((void)0);
 	} else {
 		ccif_write32(md_ctrl->ccif_ap_base,
 			APCCIF_BUSY, 1 << channel_id);
 		ccif_write32(md_ctrl->ccif_ap_base,
 			APCCIF_TCHNUM, channel_id);
-		CCCI_REPEAT_LOG(md_ctrl->md_id, TAG,
-			"CCIF start=0x%x\n",
-			ccif_read32(md_ctrl->ccif_ap_base,
-				APCCIF_START));
+		((void)0);
 	}
 	return 0;
 }
@@ -1067,8 +841,7 @@ void md_ccif_sram_reset(unsigned char hif_id)
 	struct md_ccif_ctrl *md_ctrl =
 		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
 
-	CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-		"%s\n", __func__);
+	((void)0);
 	for (idx = 0; idx < md_ctrl->sram_size / sizeof(u32);
 		 idx += 1)
 		ccif_write32(md_ctrl->ccif_ap_base + APCCIF_CHDATA,
@@ -1096,7 +869,7 @@ void md_ccif_reset_queue(unsigned char hif_id, unsigned char for_start)
 			md_ctrl->ccif_md_base, md_ctrl);
 	}
 
-	CCCI_NORMAL_LOG(md_ctrl->md_id, TAG, "%s\n", __func__);
+	((void)0);
 	for (i = 0; i < QUEUE_NUM; ++i) {
 		flush_work(&md_ctrl->rxq[i].qwork);
 		spin_lock_irqsave(&md_ctrl->rxq[i].rx_lock, flags);
@@ -1125,7 +898,7 @@ void md_ccif_switch_ringbuf(unsigned char hif_id, enum ringbuf_id rb_id)
 		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
 	unsigned long flags;
 
-	CCCI_NORMAL_LOG(md_ctrl->md_id, TAG, "%s\n", __func__);
+	((void)0);
 	for (i = 0; i < QUEUE_NUM; ++i) {
 		spin_lock_irqsave(&md_ctrl->rxq[i].rx_lock, flags);
 		md_ctrl->rxq[i].ringbuf = md_ctrl->rxq[i].ringbuf_bak[rb_id];
@@ -1144,9 +917,7 @@ static void md_ccif_check_ringbuf(struct md_ccif_ctrl *md_ctrl, int qno)
 	int data_to_read;
 
 	if (atomic_read(&md_ctrl->rxq[qno].rx_on_going)) {
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG, "Q%d rx is on-going(%d)3\n",
-			     md_ctrl->rxq[qno].index,
-			     atomic_read(&md_ctrl->rxq[qno].rx_on_going));
+		((void)0);
 		return;
 	}
 	spin_lock_irqsave(&md_ctrl->rxq[qno].rx_lock, flags);
@@ -1157,8 +928,7 @@ static void md_ccif_check_ringbuf(struct md_ccif_ctrl *md_ctrl, int qno)
 	if (unlikely(data_to_read > 0)
 		&& ccci_md_napi_check_and_notice(md, qno) == 0
 		&& ccci_fsm_get_md_state(md_ctrl->md_id) != EXCEPTION) {
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-			"%d data remain in q%d\n", data_to_read, qno);
+		((void)0);
 		queue_work(md_ctrl->rxq[qno].worker,
 			&md_ctrl->rxq[qno].qwork);
 	}
@@ -1168,16 +938,11 @@ static void md_ccif_check_ringbuf(struct md_ccif_ctrl *md_ctrl, int qno)
 /*exception and SRAM channel handler*/
 static void md_ccif_handle_exception(struct md_ccif_ctrl *md_ctrl)
 {
-	CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-		"ccif_irq_tasklet1: ch %lx\n", md_ctrl->channel_id);
+	((void)0);
 	if (md_ctrl->channel_id & CCIF_HW_CH_RX_RESERVED) {
-		CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"Interrupt from reserved ccif ch(%ld)\n",
-			md_ctrl->channel_id);
+		((void)0);
 		md_ctrl->channel_id &= ~CCIF_HW_CH_RX_RESERVED;
-		CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"After cleared reserved ccif ch(%ld)\n",
-			md_ctrl->channel_id);
+		((void)0);
 	}
 	if (md_ctrl->channel_id & (1 << D2H_EXCEPTION_INIT)) {
 		clear_bit(D2H_EXCEPTION_INIT, &md_ctrl->channel_id);
@@ -1186,8 +951,7 @@ static void md_ccif_handle_exception(struct md_ccif_ctrl *md_ctrl)
 
 	if (md_ctrl->channel_id & (1 << AP_MD_SEQ_ERROR)) {
 		clear_bit(AP_MD_SEQ_ERROR, &md_ctrl->channel_id);
-		CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"MD check seq fail\n");
+		((void)0);
 		ccci_md_dump_info(md_ctrl->md_id,
 			DUMP_FLAG_CCIF, NULL, 0);
 	}
@@ -1195,8 +959,7 @@ static void md_ccif_handle_exception(struct md_ccif_ctrl *md_ctrl)
 		clear_bit(D2H_SRAM, &md_ctrl->channel_id);
 		schedule_work(&md_ctrl->ccif_sram_work);
 	}
-	CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-		"ccif_irq_tasklet2: ch %ld\n", md_ctrl->channel_id);
+	((void)0);
 }
 
 static void md_ccif_launch_work(struct md_ccif_ctrl *md_ctrl)
@@ -1210,12 +973,10 @@ static void md_ccif_launch_work(struct md_ccif_ctrl *md_ctrl)
 
 	if (md_ctrl->channel_id & (1 << AP_MD_CCB_WAKEUP)) {
 		clear_bit(AP_MD_CCB_WAKEUP, &md_ctrl->channel_id);
-		CCCI_DEBUG_LOG(md_ctrl->md_id, TAG, "CCB wakeup\n");
+		((void)0);
 		if (atomic_cmpxchg(&md_ctrl->wakeup_src, 1, 0) == 1) {
 			md_ctrl->wakeup_count++;
-			CCCI_NOTICE_LOG(md_ctrl->md_id, TAG,
-			"CCIF_MD wakeup source:(CCB)(%u)\n",
-			md_ctrl->wakeup_count);
+			((void)0);
 		}
 #ifdef DEBUG_FOR_CCB
 		md_ctrl->traffic_info.latest_ccb_isr_time
@@ -1230,10 +991,7 @@ static void md_ccif_launch_work(struct md_ccif_ctrl *md_ctrl)
 				= local_clock();
 			clear_bit(i + D2H_RINGQ0, &md_ctrl->channel_id);
 			if (atomic_read(&md_ctrl->rxq[i].rx_on_going)) {
-				CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"Q%d rx is on-going(%d)2\n",
-				md_ctrl->rxq[i].index,
-				atomic_read(&md_ctrl->rxq[i].rx_on_going));
+				((void)0);
 				continue;
 			}
 			queue_work(md_ctrl->rxq[i].worker,
@@ -1263,8 +1021,7 @@ static irqreturn_t md_ccif_isr(int irq, void *data)
 	 */
 	ccif_write32(md_ctrl->ccif_ap_base,
 		APCCIF_ACK, ch_id & 0xFFFF);
-	CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-		"%s ch_id = 0x%lX\n", __func__, md_ctrl->channel_id);
+	((void)0);
 	/* igore exception queue */
 	if (ch_id >> RINGQ_BASE) {
 		md_ctrl->traffic_info.latest_isr_time
@@ -1339,8 +1096,7 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 		qno = atomic_read(&lb_dl_q);
 	if (md_ctrl->plat_val.md_gen < 6295) {
 		if (qno > 7) {
-			CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-				"qno error (%d)\n", qno);
+			((void)0);
 			return -CCCI_ERR_INVALID_QUEUE_INDEX;
 		}
 	}
@@ -1354,8 +1110,7 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 	if (ccci_ringbuf_writeable(md_ctrl->md_id,
 			queue->ringbuf, skb->len) > 0) {
 		if (ccci_h->channel == CCCI_C2K_LB_DL) {
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"Q%d Tx lb_dl\n", queue->index);
+			((void)0);
 			c2k_mem_dump(skb->data, skb->len);
 		}
 		ccci_md_inc_tx_seq_num(md_ctrl->md_id,
@@ -1392,23 +1147,18 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 				ccci_h->channel = (u16) ccci_to_c2k_ch;
 			else {
 				ret = -CCCI_ERR_INVALID_LOGIC_CHANNEL_ID;
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"channel num error (%d)\n",
-					ccci_to_c2k_ch);
+				((void)0);
 				spin_unlock_irqrestore(&queue->tx_lock, flags);
 				return ret;
 			}
 			if (ccci_h->data[1] == C2K_HB_MSG)
-				CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-					"hb: 0x%x\n", ccci_h->channel);
+				((void)0);
 		}
 		/* copy skb to ringbuf */
 		ret = ccci_ringbuf_write(md_ctrl->md_id,
 				queue->ringbuf, skb->data, skb->len);
 		if (ret != skb->len)
-			CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-				"TX:ERR rbf write: ret(%d)!=req(%d)\n",
-				ret, skb->len);
+			((void)0);
 		ccci_md_add_log_history(&md_ctrl->traffic_info, OUT,
 			(int)queue->index, ccci_h, 0);
 		/* free request */
@@ -1431,24 +1181,18 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 				spin_unlock_irqrestore(&queue->tx_lock, flags);
 				goto retry;
 			} else {
-				CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-					"flow ctrl: TX busy on Q%d\n",
-					queue->index);
+				((void)0);
 				ccci_port_queue_status_notify(md_ctrl->md_id,
 					hif_id, queue->index, OUT, TX_FULL);
 			}
 		} else
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"flow ctrl is invalid, cap = %d, md_flow_ctrl = %d\n",
-				md_cap, md_flow_ctrl);
+			((void)0);
 
 		spin_unlock_irqrestore(&queue->tx_lock, flags);
 
 		if (blocking) {
 			if (md_flow_ctrl > 0) {
-				CCCI_NORMAL_LOG(md_ctrl->md_id, TAG,
-					"flow ctrl: Q%d is blocking, skb->len = %d\n",
-					queue->index, skb->len);
+				((void)0);
 				ret = wait_event_interruptible_exclusive(
 					queue->req_wq,
 					(queue->wakeup != 0));
@@ -1456,17 +1200,14 @@ static int md_ccif_op_send_skb(unsigned char hif_id, int qno,
 				if (ret == -ERESTARTSYS)
 					return -EINTR;
 			}
-			CCCI_REPEAT_LOG(md_ctrl->md_id, TAG,
-				"tx retry for Q%d, ch %d\n",
-				queue->index, ccci_h->channel);
+			((void)0);
 				goto retry;
 		} else {
 			if (per_md_data->data_usb_bypass)
 				return -ENOMEM;
 			else
 				return -EBUSY;
-			CCCI_DEBUG_LOG(md_ctrl->md_id, TAG,
-				"tx fail on q%d\n", qno);
+			((void)0);
 		}
 	}
 	return 0;
@@ -1548,8 +1289,7 @@ int md_ccif_exp_ring_buf_init(struct md_ccif_ctrl *md_ctrl)
 				rx_exp_buffer_size_up_95[i],
 				tx_exp_buffer_size_up_95[i]);
 			if (ringbuf == NULL) {
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"ccci_create_ringbuf %d failed\n", i);
+				((void)0);
 				return -1;
 			}
 
@@ -1561,8 +1301,7 @@ int md_ccif_exp_ring_buf_init(struct md_ccif_ctrl *md_ctrl)
 					rx_exp_buffer_size[i],
 					tx_exp_buffer_size[i]);
 			if (ringbuf == NULL) {
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"ccci_create_ringbuf %d failed\n", i);
+				((void)0);
 				return -1;
 			}
 		}
@@ -1603,9 +1342,7 @@ int md_ccif_ring_buf_init(unsigned char hif_id)
 			+ tx_queue_buffer_size_up_95[i];
 
 			if (md_ctrl->total_smem_size + bufsize > ccism->size) {
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"share memory too small,please check configure,smem_size=%d\n",
-					ccism->size);
+				((void)0);
 				return -1;
 			}
 			ringbuf =
@@ -1616,9 +1353,7 @@ int md_ccif_ring_buf_init(unsigned char hif_id)
 			bufsize = CCCI_RINGBUF_CTL_LEN + rx_queue_buffer_size[i]
 				+ tx_queue_buffer_size[i];
 			if (md_ctrl->total_smem_size + bufsize > ccism->size) {
-				CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-					"share memory too small,please check configure,smem_size=%d\n",
-					ccism->size);
+				((void)0);
 				return -1;
 			}
 			ringbuf =
@@ -1628,8 +1363,7 @@ int md_ccif_ring_buf_init(unsigned char hif_id)
 		}
 
 		if (ringbuf == NULL) {
-			CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-				"ccci_create_ringbuf %d failed\n", i);
+			((void)0);
 			return -1;
 		}
 		/*rx */
@@ -1666,11 +1400,11 @@ int md_ccif_ring_buf_init(unsigned char hif_id)
 		md_ctrl->total_smem_size += sizeof(struct ccif_flow_control);
 	} else {
 		md_ctrl->flow_ctrl = NULL;
-		CCCI_INIT_LOG(md_ctrl->md_id, TAG, "No flow control for AP\n");
+		((void)0);
 	}
 #else
 	md_ctrl->flow_ctrl = NULL;
-	CCCI_INIT_LOG(md_ctrl->md_id, TAG, "flow control is disabled\n");
+	((void)0);
 #endif
 	ccism->size = md_ctrl->total_smem_size;
 	return 0;
@@ -1766,8 +1500,7 @@ static irqreturn_t md_cd_ccif_isr(int irq, void *data)
 	/* must ack first, otherwise IRQ will rush in */
 	channel_id = ccif_read32(ccif_ctrl->ccif_ap_base,
 		APCCIF_RCHNUM);
-	CCCI_DEBUG_LOG(ccif_ctrl->md_id, TAG,
-		"MD CCIF IRQ 0x%X\n", channel_id);
+	((void)0);
 	/*don't ack data queue to avoid missing rx intr*/
 	ccif_write32(ccif_ctrl->ccif_ap_base, APCCIF_ACK,
 		channel_id & (0xFFFF << RINGQ_EXP_BASE));
@@ -1783,7 +1516,7 @@ static int ccif_late_init(unsigned char hif_id)
 		(struct md_ccif_ctrl *)ccci_hif_get_by_id(hif_id);
 	int ret = 0;
 
-	CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG, "%s\n", __func__);
+	((void)0);
 
 	/* IRQ is enabled after requested, so call enable_irq after
 	 * request_irq will get a unbalance warning
@@ -1792,9 +1525,7 @@ static int ccif_late_init(unsigned char hif_id)
 			ccif_ctrl->ap_ccif_irq1_flags, "CCIF_AP_DATA",
 			ccif_ctrl);
 	if (ret) {
-		CCCI_ERROR_LOG(ccif_ctrl->md_id, TAG,
-			"request CCIF_AP_DATA IRQ1(%d) error %d\n",
-			ccif_ctrl->ap_ccif_irq1_id, ret);
+		((void)0);
 		return -1;
 	}
 	md_ccif_ring_buf_init(CCIF_HIF_ID);
@@ -1809,7 +1540,7 @@ static void ccif_set_clk_cg(unsigned char hif_id, unsigned int on)
 	int idx = 0;
 	int ret = 0;
 
-	CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG, "%s: on=%d\n", __func__, on);
+	((void)0);
 
 	/* Clean MD_PCCIF4_SW_READY and MD_PCCIF4_PWR_ON */
 
@@ -1823,17 +1554,13 @@ static void ccif_set_clk_cg(unsigned char hif_id, unsigned int on)
 		if (on) {
 			ret = clk_prepare_enable(ccif_clk_table[idx].clk_ref);
 			if (ret)
-				CCCI_ERROR_LOG(ccif_ctrl->md_id, TAG,
-					"%s: on=%d,ret=%d\n",
-					__func__, on, ret);
+				((void)0);
 			devapc_check_flag = 1;
 		} else {
 			if (strcmp(ccif_clk_table[idx].clk_name,
 				"infra-ccif4-md") == 0) {
 				udelay(1000);
-				CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG,
-					"ccif4 %s: after 1ms, set 0x%p + 0x14 = 0xFF\n",
-					__func__, ccif_ctrl->md_ccif4_base);
+				((void)0);
 				ccci_write32(ccif_ctrl->md_ccif4_base, 0x14,
 					0xFF); /* special use ccci_write32 */
 			}
@@ -1843,10 +1570,7 @@ static void ccif_set_clk_cg(unsigned char hif_id, unsigned int on)
 	}
 	/* Set MD_PCCIF4_PWR_ON */
 	if (on) {
-		CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG,
-			"ccif4 %s:  set 0x%px + 0x22C = 0x1\n",
-			__func__,
-			ccif_ctrl->plat_val.infra_ao_base);
+		((void)0);
 		regmap_write(ccif_ctrl->plat_val.infra_ao_base,
 			0x22C, 0x1);
 	}
@@ -1862,8 +1586,7 @@ static int ccif_start(unsigned char hif_id)
 	if (ccif_ctrl->ccif_state == HIFCCIF_STATE_MIN)
 		ccif_late_init(hif_id);
 	if (hif_id != CCIF_HIF_ID)
-		CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG, "%s but %d\n",
-			__func__, hif_id);
+		((void)0);
 	ccif_set_clk_cg(hif_id, 1);
 	md_ccif_sram_reset(CCIF_HIF_ID);
 	md_ccif_switch_ringbuf(CCIF_HIF_ID, RB_EXP);
@@ -1876,7 +1599,7 @@ static int ccif_start(unsigned char hif_id)
 		ccif_ctrl->ccif_ap_base,
 		ccif_ctrl->ccif_md_base, ccif_ctrl);
 	ccif_ctrl->ccif_state = HIFCCIF_STATE_PWRON;
-	CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG, "%s\n", __func__);
+	((void)0);
 	return 0;
 }
 
@@ -1896,7 +1619,7 @@ static int ccif_stop(unsigned char hif_id)
 		ccif_ctrl->ccif_ap_base, ccif_ctrl->ccif_md_base, ccif_ctrl);
 	/*disable ccif clk*/
 	ccif_set_clk_cg(hif_id, 0);
-	CCCI_NORMAL_LOG(ccif_ctrl->md_id, TAG, "%s\n", __func__);
+	((void)0);
 	return 0;
 }
 
@@ -1954,20 +1677,20 @@ static int ccif_hif_hw_init(struct device *dev, struct md_ccif_ctrl *md_ctrl)
 	int ret;
 
 	if (!dev) {
-		CCCI_ERROR_LOG(-1, TAG, "No ccif driver in dtsi\n");
+		((void)0);
 		ret = -3;
 		return ret;
 	}
 
 	if (!md_ctrl->plat_val.infra_ao_base) {
-		CCCI_ERROR_LOG(-1, TAG, "No infra_ao register in dtsi\n");
+		((void)0);
 		ret = -4;
 		return ret;
 	}
 
 	node = dev->of_node;
 	if (!node) {
-		CCCI_ERROR_LOG(-1, TAG, "No ccif node in dtsi\n");
+		((void)0);
 		ret = -3;
 		return ret;
 	}
@@ -1979,7 +1702,7 @@ static int ccif_hif_hw_init(struct device *dev, struct md_ccif_ctrl *md_ctrl)
 
 	md_ctrl->md_pcore_pccif_base =
 		ioremap_nocache(MD_PCORE_PCCIF_BASE, 0x20);
-	CCCI_BOOTUP_LOG(-1, TAG, "pccif:%x\n", MD_PCORE_PCCIF_BASE);
+	((void)0);
 
 	/* Device tree using none flag to register irq,
 	 * sensitivity has set at "irq_of_parse_and_map"
@@ -1997,9 +1720,7 @@ static int ccif_hif_hw_init(struct device *dev, struct md_ccif_ctrl *md_ctrl)
 		ccif_clk_table[idx].clk_ref = devm_clk_get(dev,
 			ccif_clk_table[idx].clk_name);
 		if (IS_ERR(ccif_clk_table[idx].clk_ref)) {
-			CCCI_ERROR_LOG(-1, TAG,
-				 "ccif get %s failed\n",
-					ccif_clk_table[idx].clk_name);
+			((void)0);
 			ccif_clk_table[idx].clk_ref = NULL;
 		}
 	}
@@ -2011,41 +1732,28 @@ static int ccif_hif_hw_init(struct device *dev, struct md_ccif_ctrl *md_ctrl)
 	if (node) {
 		md_ctrl->md_ccif4_base = of_iomap(node, 0);
 		if (!md_ctrl->md_ccif4_base) {
-			CCCI_ERROR_LOG(-1, TAG,
-				"ccif4_base fail: 0x%p!\n",
-				md_ctrl->md_ccif4_base);
+			((void)0);
 			return -2;
 		}
 	}
 
 	if (md_ctrl->ccif_ap_base == 0 ||
 		md_ctrl->ccif_md_base == 0) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"ap_ccif_base:0x%p, ccif_md_base:0x%p\n",
-			md_ctrl->ccif_ap_base,
-			md_ctrl->ccif_md_base);
+		((void)0);
 		return -2;
 	}
 	if (md_ctrl->ap_ccif_irq0_id == 0 ||
 		md_ctrl->ap_ccif_irq1_id == 0) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"ccif_irq0:%d,ccif_irq1:%d\n",
-			md_ctrl->ap_ccif_irq0_id, md_ctrl->ap_ccif_irq1_id);
+		((void)0);
 		return -2;
 	}
 
-	CCCI_DEBUG_LOG(-1, TAG,
-		"ap_ccif_base:0x%p, ccif_md_base:0x%p\n",
-		md_ctrl->ccif_ap_base,
-		md_ctrl->ccif_md_base);
-	CCCI_DEBUG_LOG(-1, TAG, "ccif_irq0:%d,ccif_irq1:%d\n",
-		md_ctrl->ap_ccif_irq0_id, md_ctrl->ap_ccif_irq1_id);
+	((void)0);
+	((void)0);
 	ret = request_irq(md_ctrl->ap_ccif_irq0_id, md_ccif_isr,
 			md_ctrl->ap_ccif_irq0_flags, "CCIF_AP_DATA", md_ctrl);
 	if (ret) {
-		CCCI_ERROR_LOG(md_ctrl->md_id, TAG,
-			"request CCIF_AP_DATA IRQ0(%d) error %d\n",
-			md_ctrl->ap_ccif_irq0_id, ret);
+		((void)0);
 		return -1;
 	}
 	return 0;
@@ -2069,8 +1777,7 @@ static void ccci_ccif_sysresume(void)
 		ccif_write32(md_info->ap_ccif_base, APCCIF_CON, 0x01);
 
 	} else
-		CCCI_ERROR_LOG(-1, TAG,
-			"[%s] error: get modem1 failed.", __func__);
+		((void)0);
 }
 
 static struct syscore_ops ccci_ccif_sysops = {
@@ -2087,8 +1794,7 @@ int ccci_ccif_hif_init(struct platform_device *pdev,
 
 	md_ctrl = kzalloc(sizeof(struct md_ccif_ctrl), GFP_KERNEL);
 	if (!md_ctrl) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:alloc hif_ctrl fail\n", __func__);
+		((void)0);
 		return -1;
 	}
 	/* ccif_ctrl = md_ctrl; */
@@ -2127,7 +1833,7 @@ int ccci_ccif_hif_init(struct platform_device *pdev,
 	md_ctrl->plat_dev = pdev;
 	ret = ccif_hif_hw_init(&pdev->dev, md_ctrl);
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci ccif hw init fail");
+		((void)0);
 		return ret;
 	}
 
@@ -2145,7 +1851,7 @@ int ccci_hif_ccif_probe(struct platform_device *pdev)
 
 	ret = ccci_ccif_hif_init(pdev, CCIF_HIF_ID, MD_SYS1);
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci ccif init fail");
+		((void)0);
 		return ret;
 	}
 
@@ -2173,8 +1879,7 @@ static int __init ccci_hif_ccif_init(void)
 
 	ret = platform_driver_register(&ccci_hif_ccif_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci hif_ccif driver init fail %d",
-			ret);
+		((void)0);
 		return ret;
 	}
 	return 0;

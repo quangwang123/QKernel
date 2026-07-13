@@ -23,9 +23,7 @@ static int ccci_scp_ipi_send(int md_id, int op_id, void *data)
 	int ret = 0;
 
 	if (atomic_read(&scp_state) == SCP_CCCI_STATE_INVALID) {
-		CCCI_ERROR_LOG(md_id, FSM,
-			"ignore IPI %d, SCP state %d!\n",
-			op_id, atomic_read(&scp_state));
+		((void)0);
 		return -CCCI_ERR_MD_NOT_READY;
 	}
 
@@ -34,13 +32,10 @@ static int ccci_scp_ipi_send(int md_id, int op_id, void *data)
 	scp_ipi_tx_msg.md_id = md_id;
 	scp_ipi_tx_msg.op_id = op_id;
 	scp_ipi_tx_msg.data[0] = *((u32 *)data);
-	CCCI_NORMAL_LOG(scp_ipi_tx_msg.md_id, FSM,
-		"IPI send %d/0x%x, %d\n",
-		scp_ipi_tx_msg.op_id, scp_ipi_tx_msg.data[0],
-		(int)sizeof(struct ccci_ipi_msg));
+	((void)0);
 	if (scp_ipi_send(IPI_APCCCI, &scp_ipi_tx_msg,
 			sizeof(scp_ipi_tx_msg), 1, SCP_A_ID) != SCP_IPI_DONE) {
-		CCCI_ERROR_LOG(md_id, FSM, "IPI send fail!\n");
+		((void)0);
 		ret = -CCCI_ERR_MD_NOT_READY;
 	}
 	mutex_unlock(&scp_ipi_tx_mutex);
@@ -68,24 +63,19 @@ static void ccci_scp_md_state_sync_work(struct work_struct *work)
 				msleep(EVENT_POLL_INTEVAL);
 			}
 			if (count == SCP_BOOT_TIMEOUT/EVENT_POLL_INTEVAL)
-				CCCI_ERROR_LOG(scp_ctl->md_id, FSM,
-					"SCP init not ready!\n");
+				((void)0);
 			else {
 				ret = ccci_port_send_msg_to_md(scp_ctl->md_id,
 					CCCI_SYSTEM_TX, CCISM_SHM_INIT, 0, 1);
 				if (ret < 0)
-					CCCI_ERROR_LOG(scp_ctl->md_id, FSM,
-						"fail to send CCISM_SHM_INIT %d\n",
-						ret);
+					((void)0);
 			}
 			break;
 		case MD_SYS3:
 			ret = ccci_port_send_msg_to_md(scp_ctl->md_id,
 				CCCI_CONTROL_TX, C2K_CCISM_SHM_INIT, 0, 1);
 			if (ret < 0)
-				CCCI_ERROR_LOG(scp_ctl->md_id, CORE,
-					"fail to send CCISM_SHM_INIT %d\n",
-					ret);
+				((void)0);
 			break;
 		};
 		break;
@@ -107,14 +97,12 @@ static void ccci_scp_ipi_rx_work(struct work_struct *work)
 	while (!skb_queue_empty(&scp_ipi_rx_skb_list.skb_list)) {
 		skb = ccci_skb_dequeue(&scp_ipi_rx_skb_list);
 		if (skb == NULL) {
-			CCCI_ERROR_LOG(-1, CORE,
-				"ccci_skb_dequeue fail\n");
+			((void)0);
 			return;
 		}
 		ipi_msg_ptr = (struct ccci_ipi_msg *)skb->data;
 		if (!get_modem_is_enabled(ipi_msg_ptr->md_id)) {
-			CCCI_ERROR_LOG(ipi_msg_ptr->md_id,
-				CORE, "MD not exist\n");
+			((void)0);
 			return;
 		}
 		switch (ipi_msg_ptr->op_id) {
@@ -123,16 +111,14 @@ static void ccci_scp_ipi_rx_work(struct work_struct *work)
 			case SCP_CCCI_STATE_BOOTING:
 				if (atomic_read(&scp_state) ==
 					SCP_CCCI_STATE_RBREADY) {
-					CCCI_NORMAL_LOG(ipi_msg_ptr->md_id, FSM,
-						"SCP reset detected\n");
+					((void)0);
 					ccci_port_send_msg_to_md(MD_SYS1,
 					CCCI_SYSTEM_TX, CCISM_SHM_INIT, 0, 1);
 					ccci_port_send_msg_to_md(MD_SYS3,
 					CCCI_CONTROL_TX,
 					C2K_CCISM_SHM_INIT, 0, 1);
 				} else {
-					CCCI_NORMAL_LOG(ipi_msg_ptr->md_id, FSM,
-						"SCP boot up\n");
+					((void)0);
 				}
 				/* too early to init share memory here,
 				 * EMI MPU may not be ready yet
@@ -175,15 +161,10 @@ static void ccci_scp_ipi_handler(int id, void *data, unsigned int len)
 	struct sk_buff *skb = NULL;
 
 	if (len != sizeof(struct ccci_ipi_msg)) {
-		CCCI_ERROR_LOG(-1, CORE,
-		"IPI handler, data length wrong %d vs. %d\n",
-		len, (int)sizeof(struct ccci_ipi_msg));
+		((void)0);
 		return;
 	}
-	CCCI_NORMAL_LOG(ipi_msg_ptr->md_id, CORE,
-		"IPI handler %d/0x%x, %d\n",
-		ipi_msg_ptr->op_id,
-		ipi_msg_ptr->data[0], len);
+	((void)0);
 
 	skb = ccci_alloc_skb(len, 0, 0);
 	if (!skb)
@@ -228,10 +209,10 @@ static int fsm_sim_type_handler(int md_id, int data)
 void fsm_scp_init0(void)
 {
 	mutex_init(&scp_ipi_tx_mutex);
-	CCCI_NORMAL_LOG(-1, FSM, "register IPI\n");
+	((void)0);
 	if (scp_ipi_registration(IPI_APCCCI, ccci_scp_ipi_handler,
 		"AP CCCI") != SCP_IPI_DONE)
-		CCCI_ERROR_LOG(-1, FSM, "register IPI fail!\n");
+		((void)0);
 	INIT_WORK(&scp_ipi_rx_work, ccci_scp_ipi_rx_work);
 	init_waitqueue_head(&scp_ipi_rx_wq);
 	ccci_skb_queue_init(&scp_ipi_rx_skb_list, 16, 16, 0);

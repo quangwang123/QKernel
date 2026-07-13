@@ -49,9 +49,7 @@ static atomic_t hwp_enable = ATOMIC_INIT(0);
 
 static int my_wp_handler(phys_addr_t addr)
 {
-	CCCI_NORMAL_LOG(-1, BM,
-		"[ccci/WP_LCH_DEBUG] access from 0x%p, call bug\n",
-		(void *)addr);
+	((void)0);
 	dump_stack();
 	/*BUG();*/
 
@@ -74,9 +72,7 @@ static void enable_watchpoint(void *address)
 		atomic_set(&hwp_enable, 1);
 		wp_err = add_hw_watchpoint(&wp_event);
 		if (wp_err)
-			CCCI_NORMAL_LOG(-1, BM,
-				"[mydebug]watchpoint init fail,addr=%p\n",
-				address);
+			((void)0);
 	}
 }
 #endif
@@ -91,9 +87,7 @@ static int is_in_ccci_skb_pool(struct sk_buff *skb)
 			(struct sk_buff *)&skb_pool_16.skb_list;
 		skb_p = skb_p->next) {
 		if (skb == skb_p) {
-			CCCI_NORMAL_LOG(-1, BM,
-				"WARN:skb=%p pointer linked in skb_pool_1_5K!\n",
-				skb);
+			((void)0);
 			return 1;
 		}
 	}
@@ -102,9 +96,7 @@ static int is_in_ccci_skb_pool(struct sk_buff *skb)
 			(struct sk_buff *)&skb_pool_4K.skb_list;
 		skb_p = skb_p->next) {
 		if (skb == skb_p) {
-			CCCI_NORMAL_LOG(-1, BM,
-				"WARN:skb=%p pointer linked in skb_pool_1_5K!\n",
-				skb);
+			((void)0);
 			return 1;
 		}
 	}
@@ -129,13 +121,8 @@ static int ccci_skb_addr_checker(struct sk_buff *skb)
 			&& skb_addr_value <
 			queue4k_addr_value + sizeof(struct ccci_skb_queue))
 		) {
-		CCCI_NORMAL_LOG(-1, BM,
-			"WARN:Free wrong skb=%lx pointer in skb poool!\n",
-			skb_addr_value);
-		CCCI_NORMAL_LOG(-1, BM,
-			"skb=%lx, skb_pool_16=%lx, skb_pool_4K=%lx!\n",
-			skb_addr_value, queue16_addr_value,
-			queue4k_addr_value);
+		((void)0);
+		((void)0);
 
 		return 1;
 	}
@@ -146,7 +133,7 @@ void ccci_magic_checker(void)
 {
 	if (skb_pool_16.magic_header != SKB_MAGIC_HEADER ||
 		skb_pool_16.magic_footer != SKB_MAGIC_FOOTER) {
-		CCCI_NORMAL_LOG(-1, BM, "skb_pool_16 magic error!\n");
+		((void)0);
 		ccci_mem_dump(-1, &skb_pool_16,
 			sizeof(struct ccci_skb_queue));
 		dump_stack();
@@ -154,7 +141,7 @@ void ccci_magic_checker(void)
 
 	if (skb_pool_4K.magic_header != SKB_MAGIC_HEADER ||
 		skb_pool_4K.magic_footer != SKB_MAGIC_FOOTER) {
-		CCCI_NORMAL_LOG(-1, BM, "skb_pool_4K magic error!\n");
+		((void)0);
 		ccci_mem_dump(-1, &skb_pool_4K,
 			sizeof(struct ccci_skb_queue));
 		dump_stack();
@@ -195,13 +182,11 @@ void ccci_print_back_trace(struct ccci_stack_trace *trace)
 	int i;
 
 	if (trace->who != NULL) {
-		CCCI_ERROR_LOG(-1, BM, "<<<<<who:%p when:%lld cpu:%d pid:%d\n",
-			trace->who,	trace->when, trace->cpu, trace->pid);
+		((void)0);
 	}
 	for (i = 0; i < CCCI_TRACK_ADDRS_COUNT; i++) {
 		if (trace->addrs[i] != 0)
-			CCCI_ERROR_LOG(-1, BM, "[<%p>] %pS\n",
-			(void *)trace->addrs[i], (void *)trace->addrs[i]);
+			((void)0);
 	}
 }
 
@@ -221,7 +206,7 @@ static void ccci_print_bt_history(char *info)
 {
 	int i, k;
 
-	CCCI_ERROR_LOG(-1, BM, "<<<<<%s>>>>>\n", info);
+	((void)0);
 	for (i = 0, k = backtrace_idx; i < CCCI_TRACK_HISTORY_COUNT; i++) {
 		if (k == CCCI_TRACK_HISTORY_COUNT)
 			k = 0;
@@ -253,9 +238,7 @@ static inline struct sk_buff *__alloc_skb_from_kernel(int size, gfp_t gfp_mask)
 	else if (size > 0)
 		skb = __dev_alloc_skb(SKB_16, gfp_mask);
 	if (!skb)
-		CCCI_ERROR_LOG(-1, BM,
-			"%ps alloc skb from kernel fail, size=%d\n",
-			__builtin_return_address(0), size);
+		((void)0);
 	return skb;
 }
 
@@ -304,9 +287,7 @@ void ccci_skb_queue_init(struct ccci_skb_queue *queue, unsigned int skb_size,
 	queue->magic_footer = SKB_MAGIC_FOOTER;
 #ifdef CCCI_WP_DEBUG
 	if (((unsigned long)queue) == ((unsigned long)(&skb_pool_16))) {
-		CCCI_NORMAL_LOG(-1, BM,
-		"%s: add hwp skb_pool_16.magic_footer=%p!\n", __func__,
-		&queue->magic_footer);
+		((void)0);
 		enable_watchpoint(&queue->magic_footer);
 	}
 #endif
@@ -345,10 +326,7 @@ struct sk_buff *ccci_alloc_skb(int size, unsigned char from_pool,
  slow_retry:
 		skb = __alloc_skb_from_pool(size);
 		if (unlikely(!skb && blocking)) {
-			CCCI_NORMAL_LOG(-1, BM,
-				"%s from %ps skb pool is empty! size=%d (%d)\n",
-				__func__, __builtin_return_address(0),
-				size, count++);
+			((void)0);
 			msleep(100);
 			goto slow_retry;
 		}
@@ -359,14 +337,10 @@ struct sk_buff *ccci_alloc_skb(int size, unsigned char from_pool,
 			buf_ctrl->policy = RECYCLE;
 			buf_ctrl->ioc_override = 0x0;
 			skb_pull(skb, sizeof(struct ccci_buffer_ctrl));
-			CCCI_DEBUG_LOG(-1, BM,
-				"%ps alloc skb %p done, policy=%d, skb->data = %p, size=%d\n",
-				__builtin_return_address(0), skb,
-				buf_ctrl->policy, skb->data, size);
+			((void)0);
 
 		} else {
-			CCCI_ERROR_LOG(-1, BM,
-				"skb %p: fill headroom fail!\n", skb);
+			((void)0);
 		}
 	} else {
 		if (blocking) {
@@ -380,8 +354,7 @@ struct sk_buff *ccci_alloc_skb(int size, unsigned char from_pool,
 	}
  err_exit:
 	if (unlikely(!skb))
-		CCCI_ERROR_LOG(-1, BM, "%ps alloc skb fail, size=%d\n",
-			__builtin_return_address(0), size);
+		((void)0);
 
 	return skb;
 }
@@ -403,10 +376,7 @@ void ccci_free_skb(struct sk_buff *skb)
 		skb_size(skb) < NET_SKB_PAD + SKB_16)
 		policy = FREE;
 
-	CCCI_DEBUG_LOG(-1, BM,
-		"%ps free skb %p, policy=%d, skb->data = %p, len=%d\n",
-		__builtin_return_address(0), skb, policy,
-		skb->data, skb_size(skb));
+	((void)0);
 	switch (policy) {
 	case RECYCLE:
 		/* 1. reset sk_buff (take __alloc_skb as ref.) */
@@ -434,14 +404,8 @@ EXPORT_SYMBOL(ccci_free_skb);
 
 void ccci_dump_skb_pool_usage(int md_id)
 {
-	CCCI_REPEAT_LOG(md_id, BM,
-		"skb_pool_4K: \t\tmax_occupied %04d, enq_count %08d, deq_count %08d\n",
-		skb_pool_4K.max_occupied, skb_pool_4K.enq_count,
-		skb_pool_4K.deq_count);
-	CCCI_REPEAT_LOG(md_id, BM,
-		"skb_pool_16: \t\tmax_occupied %04d, enq_count %08d, deq_count %08d\n",
-		skb_pool_16.max_occupied, skb_pool_16.enq_count,
-		skb_pool_16.deq_count);
+	((void)0);
+	((void)0);
 	skb_pool_4K.max_occupied = 0;
 	skb_pool_4K.enq_count = 0;
 	skb_pool_4K.deq_count = 0;
@@ -454,13 +418,13 @@ static void __4K_reload_work(struct work_struct *work)
 {
 	struct sk_buff *skb;
 
-	CCCI_DEBUG_LOG(-1, BM, "refill 4KB skb pool\n");
+	((void)0);
 	while (skb_pool_4K.skb_list.qlen < SKB_POOL_SIZE_4K) {
 		skb = __alloc_skb_from_kernel(SKB_4K, GFP_KERNEL);
 		if (skb)
 			skb_queue_tail(&skb_pool_4K.skb_list, skb);
 		else
-			CCCI_ERROR_LOG(-1, BM, "fail to reload 4KB pool\n");
+			((void)0);
 	}
 }
 
@@ -468,13 +432,13 @@ static void __16_reload_work(struct work_struct *work)
 {
 	struct sk_buff *skb;
 
-	CCCI_DEBUG_LOG(-1, BM, "refill 16B skb pool\n");
+	((void)0);
 	while (skb_pool_16.skb_list.qlen < SKB_POOL_SIZE_16) {
 		skb = __alloc_skb_from_kernel(SKB_16, GFP_KERNEL);
 		if (skb)
 			skb_queue_tail(&skb_pool_16.skb_list, skb);
 		else
-			CCCI_ERROR_LOG(-1, BM, "fail to reload 16B pool\n");
+			((void)0);
 	}
 }
 
@@ -505,20 +469,18 @@ void ccci_mem_dump(int md_id, void *start_addr, int len)
 	int i, j;
 
 	if (curr_p == NULL) {
-		CCCI_NORMAL_LOG(md_id, BM, "NULL point to dump!\n");
+		((void)0);
 		return;
 	}
 	if (len == 0) {
-		CCCI_NORMAL_LOG(md_id, BM, "Not need to dump\n");
+		((void)0);
 		return;
 	}
 
-	CCCI_NORMAL_LOG(md_id, BM, "Base: %p\n", start_addr);
+	((void)0);
 	/* Fix section */
 	for (i = 0; i < _16_fix_num; i++) {
-		CCCI_NORMAL_LOG(md_id, BM, "%03X: %08X %08X %08X %08X\n",
-			i * 16, *curr_p, *(curr_p + 1),
-			*(curr_p + 2), *(curr_p + 3));
+		((void)0);
 		curr_p += 4;
 	}
 
@@ -532,9 +494,7 @@ void ccci_mem_dump(int md_id, void *start_addr, int len)
 		for (; j < 16; j++)
 			buf[j] = 0;
 		curr_p = (unsigned int *)buf;
-		CCCI_NORMAL_LOG(md_id, BM, "%03X: %08X %08X %08X %08X\n",
-			i * 16, *curr_p, *(curr_p + 1),
-			*(curr_p + 2), *(curr_p + 3));
+		((void)0);
 	}
 }
 
@@ -548,25 +508,17 @@ void ccci_cmpt_mem_dump(int md_id, void *start_addr, int len)
 	int i, j;
 
 	if (curr_p == NULL) {
-		CCCI_NORMAL_LOG(md_id, BM, "NULL point to dump!\n");
+		((void)0);
 		return;
 	}
 	if (len == 0) {
-		CCCI_NORMAL_LOG(md_id, BM, "Not need to dump\n");
+		((void)0);
 		return;
 	}
 
 	/* Fix section */
 	for (i = 0; i < _64_fix_num; i++) {
-		CCCI_MEM_LOG(md_id, BM,
-			"%03X: %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X\n",
-			i * 64,
-			*curr_p, *(curr_p + 1), *(curr_p + 2),
-			*(curr_p + 3), *(curr_p + 4), *(curr_p + 5),
-			*(curr_p + 6), *(curr_p + 7), *(curr_p + 8),
-			*(curr_p + 9), *(curr_p + 10), *(curr_p + 11),
-			*(curr_p + 12), *(curr_p + 13), *(curr_p + 14),
-			*(curr_p + 15));
+		((void)0);
 		curr_p += 64/4;
 	}
 
@@ -580,15 +532,7 @@ void ccci_cmpt_mem_dump(int md_id, void *start_addr, int len)
 		for (; j < 64; j++)
 			buf[j] = 0;
 		curr_p = (unsigned int *)buf;
-		CCCI_MEM_LOG(md_id, BM,
-			"%03X: %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X %X\n",
-			i * 64,
-			*curr_p, *(curr_p + 1), *(curr_p + 2),
-			*(curr_p + 3), *(curr_p + 4), *(curr_p + 5),
-			*(curr_p + 6), *(curr_p + 7), *(curr_p + 8),
-			*(curr_p + 9), *(curr_p + 10), *(curr_p + 11),
-			*(curr_p + 12), *(curr_p + 13), *(curr_p + 14),
-			*(curr_p + 15));
+		((void)0);
 	}
 }
 
@@ -601,9 +545,7 @@ int ccci_subsys_bm_init(void)
 {
 	/* init ccci_request */
 
-	CCCI_INIT_LOG(-1, BM,
-		"MTU=%d/%d, pool size %d/%d\n", CCCI_MTU, CCCI_NET_MTU,
-		SKB_POOL_SIZE_4K, SKB_POOL_SIZE_16);
+	((void)0);
 	/* init skb pool */
 	ccci_skb_queue_init(&skb_pool_4K, SKB_4K, SKB_POOL_SIZE_4K, 1);
 	ccci_skb_queue_init(&skb_pool_16, SKB_16, SKB_POOL_SIZE_16, 1);

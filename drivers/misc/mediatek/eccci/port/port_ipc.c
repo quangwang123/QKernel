@@ -81,9 +81,7 @@ int port_ipc_recv_match(struct port_t *port, struct sk_buff *skb)
 	if (port->rx_ch != CCCI_IPC_RX)
 		return 1;
 
-	CCCI_DEBUG_LOG(port->md_id, IPC,
-		"task_id matching: (%x/%x)\n",
-		ipc_ctrl->task_id, ccci_h->reserved);
+	((void)0);
 	id_map = unify_AP_id_2_local_id(ccci_h->reserved);
 	if (id_map == NULL)
 		return 0;
@@ -129,25 +127,20 @@ long port_ipc_ioctl(struct file *file, unsigned int cmd,
 		break;
 
 	case CCCI_IPC_UPDATE_TIME:
-		CCCI_REPEAT_LOG(port->md_id, IPC,
-			"CCCI_IPC_UPDATE_TIME 0x%x\n", (unsigned int)arg);
+		((void)0);
 		current_time_zone = (int)arg;
 		ret = send_new_time_to_md(port->md_id, (int)arg);
 		break;
 
 	case CCCI_IPC_WAIT_TIME_UPDATE:
-		CCCI_DEBUG_LOG(port->md_id, IPC,
-			"CCCI_IPC_WAIT_TIME_UPDATE\n");
+		((void)0);
 		ret = wait_time_update_notify();
-		CCCI_DEBUG_LOG(port->md_id, IPC,
-			"CCCI_IPC_WAIT_TIME_UPDATE wakeup\n");
+		((void)0);
 		break;
 
 
 	case CCCI_IPC_UPDATE_TIMEZONE:
-		CCCI_REPEAT_LOG(port->md_id, IPC,
-			"CCCI_IPC_UPDATE_TIMEZONE keep 0x%x\n",
-			(unsigned int)arg);
+		((void)0);
 		current_time_zone = (int)arg;
 		break;
 	default:
@@ -184,8 +177,7 @@ int port_ipc_write_check_id(struct port_t *port, struct sk_buff *skb)
 
 	id_map = local_MD_id_2_unify_id(ilm->dest_mod_id);
 	if (id_map == NULL) {
-		CCCI_ERROR_LOG(port->md_id, IPC,
-		"Invalid Dest MD ID (%d)\n", ilm->dest_mod_id);
+		((void)0);
 		return -CCCI_ERR_IPC_ID_ERROR;
 	}
 	return id_map->extq_id;
@@ -240,27 +232,21 @@ static int port_ipc_kernel_write(int md_id, struct ipc_ilm *in_ilm)
 	task_id = in_ilm->src_mod_id & (~AP_UNIFY_ID_FLAG);
 	port = find_ipc_port_by_task_id(md_id, task_id);
 	if (!port) {
-		CCCI_ERROR_LOG(-1, IPC, "invalid task ID %x\n",
-		in_ilm->src_mod_id);
+		((void)0);
 		return -EINVAL;
 	}
 	if (in_ilm->local_para_ptr == NULL) {
-		CCCI_ERROR_LOG(-1, IPC,
-			"invalid ILM local parameter pointer %p for task %d\n",
-			in_ilm, task_id);
+		((void)0);
 		return -EINVAL;
 	}
 
 	count = sizeof(struct ccci_ipc_ilm) +
 		in_ilm->local_para_ptr->msg_len;
 	if (count > CCCI_MTU) {
-		CCCI_ERROR_LOG(port->md_id, IPC,
-			"reject packet(size=%d ), lager than MTU on %s\n",
-			count, port->name);
+		((void)0);
 		return -ENOMEM;
 	}
-	CCCI_DEBUG_LOG(port->md_id, IPC, "write on %s for %d\n",
-		port->name, in_ilm->local_para_ptr->msg_len);
+	((void)0);
 
 	actual_count = count + sizeof(struct ccci_header);
 	skb = ccci_alloc_skb(actual_count, 1, 1);
@@ -329,8 +315,7 @@ static int port_ipc_kernel_thread(void *arg)
 	struct ipc_ilm out_ilm;
 	struct ipc_task_id_map *id_map;
 
-	CCCI_DEBUG_LOG(port->md_id, IPC,
-		"port %s's thread running\n", port->name);
+	((void)0);
 
 	while (1) {
 retry:
@@ -342,8 +327,7 @@ retry:
 		}
 		if (kthread_should_stop())
 			break;
-		CCCI_DEBUG_LOG(port->md_id, IPC,
-			"read on %s\n", port->name);
+		((void)0);
 		/* 1. dequeue */
 		spin_lock_irqsave(&port->rx_skb_list.lock, flags);
 		skb = __skb_dequeue(&port->rx_skb_list);
@@ -386,19 +370,13 @@ retry:
 #endif
 				break;
 			default:
-				CCCI_ERROR_LOG(port->md_id, IPC,
-					"recv unknown task ID %d\n",
-					id_map->task_id);
+				((void)0);
 				break;
 			}
 		} else {
-			CCCI_ERROR_LOG(port->md_id, IPC,
-				"recv unknown module ID %d\n",
-				ccci_h->reserved);
+			((void)0);
 		}
-		CCCI_DEBUG_LOG(port->md_id, IPC,
-			"read done on %s l=%d\n", port->name,
-			out_ilm.local_para_ptr->msg_len);
+		((void)0);
 		ccci_free_skb(skb);
 	}
 	return 0;
@@ -411,7 +389,7 @@ int port_ipc_init(struct port_t *port)
 		kmalloc(sizeof(struct ccci_ipc_ctrl), GFP_KERNEL);
 
 	if (unlikely(!ipc_ctrl)) {
-		CCCI_ERROR_LOG(port->md_id, IPC, "alloc ipc_ctrl fail!!\n");
+		((void)0);
 		return -1;
 	}
 
@@ -431,8 +409,7 @@ int port_ipc_init(struct port_t *port)
 	if (port->flags & PORT_F_WITH_CHAR_NODE) {
 		dev = kmalloc(sizeof(struct cdev), GFP_KERNEL);
 		if (unlikely(!dev)) {
-			CCCI_ERROR_LOG(port->md_id, IPC,
-				"alloc ipc char dev fail!!\n");
+			((void)0);
 			kfree(ipc_ctrl);
 			return -1;
 		}
@@ -492,17 +469,13 @@ int send_new_time_to_md(int md_id, int tz)
 	in_ilm.local_para_ptr->msg_len = 20;
 	memcpy(in_ilm.local_para_ptr->data, timeinfo, 16);
 
-	CCCI_DEBUG_LOG(md_id, IPC,
-		"Update time(R): [sec=0x%lx][timezone=0x%08x][des=0x%08x]\n",
-		tv.tv_sec, sys_tz.tz_minuteswest, sys_tz.tz_dsttime);
-	CCCI_DEBUG_LOG(md_id, IPC,
-		"Update time(A): [L:0x%08x][H:0x%08x][0x%08x][0x%08x]\n",
-		timeinfo[0], timeinfo[1], timeinfo[2], timeinfo[3]);
+	((void)0);
+	((void)0);
 	if (port_ipc_kernel_write(md_id, &in_ilm) < 0) {
-		CCCI_NORMAL_LOG(md_id, IPC, "Update fail\n");
+		((void)0);
 		return -1;
 	}
-	CCCI_REPEAT_LOG(md_id, IPC, "Update success\n");
+	((void)0);
 	return 0;
 }
 
@@ -514,8 +487,7 @@ int ccci_get_emi_info(int md_id, struct ccci_emi_info *emi_info)
 		return -EINVAL;
 	mem_layout = ccci_md_get_mem(md_id);
 	if (!mem_layout) {
-		CCCI_ERROR_LOG(md_id, IPC, "%s:ccci_md_get_mem fail\n",
-		__func__);
+		((void)0);
 		return -1;
 	}
 

@@ -40,7 +40,7 @@ static int swtp_send_tx_power(struct swtp_t *swtp)
 	int power_mode, ret = 0;
 
 	if (swtp == NULL) {
-		CCCI_LEGACY_ERR_LOG(-1, SYS, "%s:swtp is null\n", __func__);
+		((void)0);
 		return -1;
 	}
 
@@ -52,9 +52,7 @@ static int swtp_send_tx_power(struct swtp_t *swtp)
 	spin_unlock_irqrestore(&swtp->spinlock, flags);
 
 	if (ret != 0)
-		CCCI_LEGACY_ERR_LOG(swtp->md_id, SYS,
-			"%s to MD%d,state=%d,ret=%d\n",
-			__func__, swtp->md_id + 1, power_mode, ret);
+		((void)0);
 
 	return ret;
 }
@@ -65,7 +63,7 @@ static int swtp_switch_state(int irq, struct swtp_t *swtp)
 	int i;
 
 	if (swtp == NULL) {
-		CCCI_LEGACY_ERR_LOG(-1, SYS, "%s:data is null\n", __func__);
+		((void)0);
 		return -1;
 	}
 
@@ -76,8 +74,7 @@ static int swtp_switch_state(int irq, struct swtp_t *swtp)
 	}
 	if (i == MAX_PIN_NUM) {
 		spin_unlock_irqrestore(&swtp->spinlock, flags);
-		CCCI_LEGACY_ERR_LOG(-1, SYS,
-			"%s:can't find match irq\n", __func__);
+		((void)0);
 		return -1;
 	}
 
@@ -124,22 +121,18 @@ static void swtp_send_tx_power_state(struct swtp_t *swtp)
 	int ret = 0;
 
 	if (!swtp) {
-		CCCI_LEGACY_ERR_LOG(-1, SYS,
-			"%s:swtp is null\n", __func__);
+		((void)0);
 		return;
 	}
 
 	if (swtp->md_id == 0) {
 		ret = swtp_send_tx_power(swtp);
 		if (ret < 0) {
-			CCCI_LEGACY_ERR_LOG(swtp->md_id, SYS,
-				"%s send tx power failed, ret=%d, schedule delayed work\n",
-				__func__, ret);
+			((void)0);
 			schedule_delayed_work(&swtp->delayed_work, 5 * HZ);
 		}
 	} else
-		CCCI_LEGACY_ERR_LOG(swtp->md_id, SYS,
-			"%s:md is no support\n", __func__);
+		((void)0);
 
 }
 
@@ -150,9 +143,7 @@ static irqreturn_t swtp_irq_handler(int irq, void *data)
 
 	ret = swtp_switch_state(irq, swtp);
 	if (ret < 0) {
-		CCCI_LEGACY_ERR_LOG(swtp->md_id, SYS,
-			"%s swtp_switch_state failed in irq, ret=%d\n",
-			__func__, ret);
+		((void)0);
 	} else
 		swtp_send_tx_power_state(swtp);
 
@@ -180,9 +171,7 @@ int swtp_md_tx_power_req_hdlr(int md_id, int data)
 	struct swtp_t *swtp = NULL;
 
 	if (md_id < 0 || md_id >= SWTP_MAX_SUPPORT_MD) {
-		CCCI_LEGACY_ERR_LOG(md_id, SYS,
-		"%s:md_id=%d not support\n",
-		__func__, md_id);
+		((void)0);
 		return -1;
 	}
 
@@ -204,8 +193,7 @@ int swtp_init(int md_id)
 	struct device_node *node = NULL;
 
 	if (md_id < 0 || md_id >= SWTP_MAX_SUPPORT_MD) {
-		CCCI_LEGACY_ERR_LOG(-1, SYS,
-			"invalid md_id = %d\n", md_id);
+		((void)0);
 		return -1;
 	}
 
@@ -243,18 +231,14 @@ int swtp_init(int md_id)
 			ret = of_property_read_u32_array(node, "debounce",
 				ints, ARRAY_SIZE(ints));
 			if (ret) {
-				CCCI_LEGACY_ERR_LOG(md_id, SYS,
-					"%s:swtp%d get debounce fail\n",
-					__func__, i);
+				((void)0);
 				break;
 			}
 
 			ret = of_property_read_u32_array(node, "interrupts",
 				ints1, ARRAY_SIZE(ints1));
 			if (ret) {
-				CCCI_LEGACY_ERR_LOG(md_id, SYS,
-					"%s:swtp%d get interrupts fail\n",
-					__func__, i);
+				((void)0);
 				break;
 			}
 #ifdef CONFIG_MTK_EIC /* for chips before mt6739 */
@@ -275,15 +259,11 @@ int swtp_init(int md_id)
 				(i == 0 ? "swtp0-eint" : "swtp1-eint"),
 				&swtp_data[md_id]);
 			if (ret) {
-				CCCI_LEGACY_ERR_LOG(md_id, SYS,
-					"swtp%d-eint IRQ LINE NOT AVAILABLE\n",
-					i);
+				((void)0);
 				break;
 			}
 		} else {
-			CCCI_LEGACY_ERR_LOG(md_id, SYS,
-				"%s:can't find swtp%d compatible node\n",
-				__func__, i);
+			((void)0);
 			input_unregister_device(swtp_ipdev);
 			ret = -1;
 		}

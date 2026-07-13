@@ -20,22 +20,9 @@
 
 static int g_ccci_rtc_val;
 
-#ifdef CCCI_KMODULE_ENABLE
-/*
- * for debug log:
- * 0 to disable; 1 for print to ram; 2 for print to uart
- * other value to desiable all log
- */
-#ifndef CCCI_LOG_LEVEL /* for platform override */
-#define CCCI_LOG_LEVEL CCCI_LOG_CRITICAL_UART
-#endif
-unsigned int ccci_debug_enable = CCCI_LOG_LEVEL;
-#endif
-
 int mtk_crystal_exist_status(void)
 {
-	CCCI_ERROR_LOG(-1, TAG, "[%s] g_ccci_rtc_val : %d.",
-			__func__, g_ccci_rtc_val);
+	((void)0);
 
 	return g_ccci_rtc_val;
 }
@@ -49,13 +36,11 @@ static int ccci_get_rtc_info(struct platform_device *pdev)
 
 	cell = nvmem_cell_get(&pdev->dev, "external-32k");
 	if (!cell) {
-		CCCI_ERROR_LOG(-1, TAG, "[%s] nvmem_cell_get fail: %zu",
-			__func__, PTR_ERR(cell));
+		((void)0);
 		return -1;
 	}
 	if (IS_ERR(cell)) {
-		CCCI_ERROR_LOG(-1, TAG, "[%s] nvmem_cell_get fail: %zu",
-				__func__, PTR_ERR(cell));
+		((void)0);
 
 		if (PTR_ERR(cell) == -EPROBE_DEFER)
 			return PTR_ERR(cell);
@@ -67,8 +52,7 @@ static int ccci_get_rtc_info(struct platform_device *pdev)
 	nvmem_cell_put(cell);
 
 	if (IS_ERR(buf)) {
-		CCCI_ERROR_LOG(-1, TAG, "[%s] nvmem_cell_read fail: %zu\n",
-				__func__, PTR_ERR(buf));
+		((void)0);
 		goto fail;
 	}
 
@@ -76,8 +60,7 @@ static int ccci_get_rtc_info(struct platform_device *pdev)
 
 	kfree(buf);
 
-	CCCI_NORMAL_LOG(-1, TAG, "[%s] g_ccci_rtc_val = %d; len = %zu\n",
-			__func__, g_ccci_rtc_val, len);
+	((void)0);
 
 	return 0;
 
@@ -110,7 +93,7 @@ static int __init ccci_rtc_init(void)
 
 	ret = platform_driver_register(&ccci_rtc_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci rtc driver init fail %d", ret);
+		((void)0);
 		return ret;
 	}
 	return 0;

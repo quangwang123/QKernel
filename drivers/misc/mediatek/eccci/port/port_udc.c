@@ -50,16 +50,12 @@ int udc_resp_msg_to_md(struct port_t *port,
 	data_len = sizeof(*udc_cmd_rsp);
 	if (handle_udc_ret < 0) {
 		udc_cmd_rsp->rslt = UDC_CMD_RSLT_ERROR;
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"rsp ins%d cmd:0x%x,rslt:%d\n",
-			udc_cmd_rsp->udc_inst_id,
-			udc_cmd_rsp->udc_cmd, udc_cmd_rsp->rslt);
+		((void)0);
 	} else
 		udc_cmd_rsp->rslt = UDC_CMD_RSLT_OK;
 
 	/* resize skb */
-	CCCI_DEBUG_LOG(md_id, UDC,
-		"data_len:%d,skb->len:%d\n", data_len, skb->len);
+	((void)0);
 	if (data_len > skb->len)
 		skb_put(skb, data_len - skb->len);
 	else if (data_len < skb->len)
@@ -67,18 +63,11 @@ int udc_resp_msg_to_md(struct port_t *port,
 	/* update CCCI header */
 	udc_cmd_rsp->header.channel = CCCI_UDC_TX;
 	udc_cmd_rsp->header.data[1] = data_len;
-	CCCI_DEBUG_LOG(md_id, UDC,
-		"Write %d/%d, %08X, %08X, %08X, %08X, op_id=0x%x\n",
-		skb->len, data_len, udc_cmd_rsp->header.data[0],
-		udc_cmd_rsp->header.data[1], udc_cmd_rsp->header.channel,
-		udc_cmd_rsp->header.reserved, udc_cmd_rsp->udc_cmd);
+	((void)0);
 	/* switch to Tx request */
 	ret = port_send_skb_to_md(port, skb, 1);
 
-	CCCI_DEBUG_LOG(md_id, UDC,
-		"send_skb_to_md:%d,rsp ins%d cmd:0x%x,rslt:%d\n",
-		ret, udc_cmd_rsp->udc_inst_id,
-		udc_cmd_rsp->udc_cmd, udc_cmd_rsp->rslt);
+	((void)0);
 
 	return ret;
 }
@@ -115,15 +104,12 @@ void udc_cmd_check(struct port_t *port,
 			ctl->curr_state = UDC_IDLE;
 			break;
 		}
-		CCCI_DEBUG_LOG(md_id, UDC,
-			"high prio kick0 come in\n");
+		((void)0);
 		if (!skb_queue_empty(&port->rx_skb_list)) {
 			skb_len = (*skb)->len;
 			skb_tmp_len = (*skb_tmp)->len;
 			 /* resize skb */
-			 CCCI_DEBUG_LOG(md_id, UDC,
-				"skb_len:%d,skb_tmp_len:%d\n",
-				skb_len, skb_tmp_len);
+			 ((void)0);
 			if (skb_len > skb_tmp_len)
 				skb_put(*skb_tmp, skb_len - skb_tmp_len);
 			else if (skb_len < skb_tmp_len)
@@ -149,8 +135,7 @@ void udc_cmd_check(struct port_t *port,
 				skb_tmp1 = ccci_alloc_skb(
 					sizeof(*ccci_udc_actv), 1, 1);
 				if (unlikely(!skb_tmp1)) {
-					CCCI_ERROR_LOG(md_id, UDC,
-						"alloc skb_tmp1 fail\n");
+					((void)0);
 					return;
 				}
 				/* backup skb_tmp to skb_tmp1 */
@@ -161,9 +146,7 @@ void udc_cmd_check(struct port_t *port,
 			skb_len = (*skb)->len;
 			skb_tmp_len = (*skb_tmp)->len;
 			/* resize skb */
-			CCCI_DEBUG_LOG(md_id, UDC,
-				"skb_len:%d,skb_tmp_len:%d\n",
-				skb_len, skb_tmp_len);
+			((void)0);
 			if (skb_len > skb_tmp_len)
 				skb_put(*skb_tmp, skb_len - skb_tmp_len);
 			else if (skb_len < skb_tmp_len)
@@ -176,8 +159,7 @@ void udc_cmd_check(struct port_t *port,
 			/* dequeue */
 			*skb = __skb_dequeue(&port->rx_skb_list);
 			if ((*skb) == NULL) {
-				CCCI_ERROR_LOG(md_id, UDC,
-					"%s:__skb_dequeue fail\n", __func__);
+				((void)0);
 				spin_unlock_irqrestore(&port->rx_skb_list.lock, flags);
 				return;
 			}
@@ -225,9 +207,7 @@ void udc_cmd_check(struct port_t *port,
 			skb_len = (*skb)->len;
 			skb_tmp_len = (*skb_tmp)->len;
 			/* resize skb */
-			CCCI_DEBUG_LOG(md_id, UDC,
-				"skb_len:%d,skb_tmp_len:%d\n",
-				skb_len, skb_tmp_len);
+			((void)0);
 			if (skb_len > skb_tmp_len)
 				skb_put(*skb_tmp, skb_len - skb_tmp_len);
 			else if (skb_len < skb_tmp_len)
@@ -249,19 +229,14 @@ void udc_cmd_check(struct port_t *port,
 		break;
 	}
 	default:
-		CCCI_ERROR_LOG(md_id, UDC,
-			"[Error]Unknown UDC STATUS (0x%08X)\n",
-			atomic_read(&udc_status));
+		((void)0);
 		break;
 	}
 	if (ctl->last_state != ctl->curr_state)
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"udc_status:from %d to %d by %s\n",
-			ctl->last_state, ctl->curr_state, __func__);
+		((void)0);
 	return;
 err:
-	CCCI_ERROR_LOG(md_id, UDC,
-		"udc_status%d:skb list is empty\n", ctl->curr_state);
+	((void)0);
 	atomic_set(&udc_status, UDC_IDLE);
 	ctl->curr_state = UDC_IDLE;
 }
@@ -281,8 +256,7 @@ int udc_actv_handler(struct z_stream_s *zcpr, enum udc_dict_opt_e dic_option,
 		Z_DEFLATED, buffer_size, 8, Z_FIXED);
 
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, UDC,
-			"ins%d deflateInit2 fail ret:%d\n", inst_id, ret);
+		((void)0);
 		return ret;
 	}
 	if (dic_option == UDC_DICT_STD_FOR_SIP) {
@@ -290,9 +264,7 @@ int udc_actv_handler(struct z_stream_s *zcpr, enum udc_dict_opt_e dic_option,
 			get_dictionary_content(dic_option),
 			UDC_DICTIONARY_LENGTH);
 		if (ret < 0) {
-			CCCI_ERROR_LOG(-1, UDC,
-				"ins%d deflateSetDictionary fail ret:%d\n",
-				inst_id, ret);
+			((void)0);
 		}
 	}
 
@@ -341,19 +313,11 @@ int udc_deactv_handler(struct z_stream_s *zcpr, u32 inst_id)
 		/* md_write must be <=511 */
 		ap_read = (ap_read + 1) % 512;
 		/* dump req_des */
-		CCCI_NORMAL_LOG(-1, UDC,
-			"deactv req%d:sdu_idx(%d),sit_type(%d),rst(%d),ap_r(%d),md_w(%d),req_des(%p)\n",
-			inst_id, req_des->sdu_idx, req_des->sit_type,
-			req_des->rst, ap_read, md_write, req_des);
+		((void)0);
 		if (req_des->con == 0) {
 			if ((ap_write+1) == md_read) {
-				CCCI_ERROR_LOG(-1, UDC,
-					"%s:cmp_rslt table is full\n",
-					__func__);
-				CCCI_ERROR_LOG(-1, UDC,
-					"%s:ins%d md r:%d,md w:%d,ap r:%d,ap w:%d\n",
-					__func__, inst_id, ap_read,
-					md_write, md_read, ap_write);
+				((void)0);
+				((void)0);
 				break;
 			}
 			rslt_des = rslt_des_base + ap_write;
@@ -371,10 +335,7 @@ int udc_deactv_handler(struct z_stream_s *zcpr, u32 inst_id)
 				rw_index->md_des_ins1.read = ap_read;
 				rw_index->ap_resp_ins1.write = ap_write;
 			}
-			CCCI_NORMAL_LOG(-1, UDC,
-				"deactv rslt%d:sdu_idx(%d),sit_type(%d),udc(%d),rst(%d)\n",
-				inst_id, rslt_des->sdu_idx, rslt_des->sit_type,
-				rslt_des->udc, rslt_des->rst);
+			((void)0);
 		} else {
 			if (inst_id == 0)
 				rw_index->md_des_ins0.read = ap_read;
@@ -385,8 +346,7 @@ int udc_deactv_handler(struct z_stream_s *zcpr, u32 inst_id)
 	deflate_end_flag = deflateEnd_cb(zcpr);
 	udc_deinit(zcpr);
 
-	CCCI_NORMAL_LOG(-1, UDC, "deflateEnd_ins%d,ret:%d\n",
-		inst_id, deflate_end_flag);
+	((void)0);
 	if (deflate_end_flag < 0) {
 		/* the continuous input is unprocessed,
 		 *it maybe return -3
@@ -405,14 +365,13 @@ static void ccci_udc_req_data_dump(u32 inst_id,
 #ifdef UDC_DATA_DUMP
 	int j = 0;
 
-	CCCI_HISTORY_TAG_LOG(-1, UDC,
-		"req%d:uncomp_data:%p\n", inst_id, uncomp_data);
+	((void)0);
 	for (j = 0; j < 16; j++) {
 		if (j % 16 == 0)
-			CCCI_HISTORY_LOG(-1, UDC, "%04X:", j);
-		CCCI_MEM_LOG(-1, UDC, " %02X", uncomp_data[j]);
+			((void)0);
+		((void)0);
 		if (j == 15)
-			CCCI_HISTORY_LOG(-1, UDC, "\n");
+			((void)0);
 	}
 #endif
 }
@@ -436,23 +395,19 @@ static void ccci_udc_rslt_data_dump(u32 inst_id,
 		md_write = rw_index->md_des_ins1.write;
 	}
 
-	CCCI_HISTORY_TAG_LOG(-1, UDC,
-		"rst%d:comp_len:%d,comp_data:%p\n",
-		inst_id, comp_len, comp_data);
-	CCCI_HISTORY_TAG_LOG(-1, UDC,
-		"ins%d:md r:%d,md w:%d,ap r:%d,ap w:%d\n",
-		inst_id, ap_read, md_write, md_read, ap_write);
+	((void)0);
+	((void)0);
 
 	for (j = 0; j < comp_len; j++) {
 		if (j % 16 == 0) {
 			if (j > 0)
-				CCCI_HISTORY_LOG(-1, UDC, "\n%04X:", j);
+				((void)0);
 			else
-				CCCI_HISTORY_LOG(-1, UDC, "%04X:", j);
+				((void)0);
 		}
-		CCCI_HISTORY_LOG(-1, UDC, " %02X", *(comp_data + j));
+		((void)0);
 		if (j == (comp_len - 1))
-			CCCI_HISTORY_LOG(-1, UDC, "\n");
+			((void)0);
 	}
 #endif
 }
@@ -478,8 +433,7 @@ static int check_cmp_buf(u32 inst_id,
 		ap_write = rw_index->ap_resp_ins1.write;
 		md_read = rw_index->ap_resp_ins1.read;
 	} else {
-		CCCI_ERROR_LOG(-1, UDC,
-			"inst_id is error,rslt_des_base maybe null\n");
+		((void)0);
 		return -1;
 	}
 
@@ -488,12 +442,8 @@ static int check_cmp_buf(u32 inst_id,
 	if (total_comp_size < md_read_len) {
 		if ((total_comp_size + max_output_size)
 				>= md_read_len) {
-			CCCI_NORMAL_LOG(-1, UDC,
-				"%s:ins%d cmp_buf full,ap_w:%d,ap_r:%d\n",
-				__func__, inst_id, ap_write, md_read);
-			CCCI_NORMAL_LOG(-1, UDC,
-				"(total_comp_size:%d+max_output_size:%d)>md_read_len:%d\n",
-				total_comp_size, max_output_size, md_read_len);
+			((void)0);
+			((void)0);
 			req_des = req_des_base + ap_read;
 			rslt_des = rslt_des_base + ap_write;
 
@@ -532,17 +482,14 @@ static int cal_udc_param(struct z_stream_s *zcpr, u32 inst_id,
 		ap_read = rw_index->md_des_ins1.read;
 		md_write = rw_index->md_des_ins1.write;
 	} else {
-		CCCI_ERROR_LOG(-1, UDC,
-			"inst_id is error\n");
+		((void)0);
 		return -1;
 	}
 
 	if (*max_output_size == 0) {
 		req_des_tmp = req_des_base + ap_read;
 		if (!req_des_tmp) {
-			CCCI_ERROR_LOG(-1, UDC,
-				"%s:req_des_base&ap_read is null\n",
-				__func__);
+			((void)0);
 			return -1;
 		}
 		if (req_des_tmp->con == 0)
@@ -557,20 +504,14 @@ static int cal_udc_param(struct z_stream_s *zcpr, u32 inst_id,
 			}
 			*max_output_size =
 				deflateBound_cb(zcpr, uncomp_len_total);
-			CCCI_DEBUG_LOG(-1, UDC,
-				"req_des%d:deflateBound uncomp_len_total:%d,packet_count:%d\n",
-				inst_id, uncomp_len_total, j+1);
+			((void)0);
 			/* packet_count > 2*/
 			if (j > 1)
-				CCCI_ERROR_LOG(-1, UDC,
-					"req_des%d:packet_count:%d,md_r:%d,md_w:%d\n",
-					inst_id, j+1, ap_read, md_write);
+				((void)0);
 		}
 		/* calc chksum before call deflate */
 		*udc_chksum = udc_chksum_cb(zcpr);
-		CCCI_DEBUG_LOG(-1, UDC,
-			"ins%d:max_output_size:%d udc_chksum:%d\n",
-			inst_id, *max_output_size, *udc_chksum);
+		((void)0);
 	}
 
 	return 0;
@@ -593,28 +534,19 @@ int udc_deflate(struct z_stream_s *zcpr, u32 inst_id, u32 con,
 	deflate_st = deflate_cb(zcpr,
 		con ? Z_NO_FLUSH : Z_SYNC_FLUSH);
 	if (deflate_st < 0) {
-		CCCI_ERROR_LOG(-1, UDC,
-			"ins%d:deflate_st:%d\n", inst_id, deflate_st);
+		((void)0);
 		if (deflate_st == Z_BUF_ERROR)
-			CCCI_ERROR_LOG(-1, UDC,
-				"ins%d zcpr.avail_in:%d,zcpr.avail_out:%d\n",
-				inst_id, (*zcpr).avail_in, (*zcpr).avail_out);
+			((void)0);
 		return deflate_st;
 	}
 	if ((*zcpr).avail_in > 0)
-		CCCI_ERROR_LOG(-1, UDC,
-			"%d input bytes not processed!\n",
-			(*zcpr).avail_in);
+		((void)0);
 	bytes_processed = (*zcpr).total_in - prev_bytes_processed;
 	if (bytes_processed != uncomp_len)
-		CCCI_ERROR_LOG(-1, UDC,
-			"input %d bytes, only process %lu bytes\n",
-			uncomp_len, bytes_processed);
+		((void)0);
 	comp_len = udc_GetCmpLen_cb(zcpr, comp_data, (*zcpr).next_out);
 	total_comp_size += (*zcpr).next_out - comp_data;
-	CCCI_DEBUG_LOG(-1, UDC,
-		"ins%d total_comp_size:%d\n",
-		inst_id, total_comp_size);
+	((void)0);
 
 	return comp_len;
 }
@@ -652,32 +584,24 @@ int udc_kick_handler(struct port_t *port, struct z_stream_s *zcpr,
 		md_read = rw_index->ap_resp_ins1.read;
 		md_write = rw_index->md_des_ins1.write;
 	} else {
-		CCCI_ERROR_LOG(md_id, UDC,
-			"inst_id is error\n");
+		((void)0);
 		return -1;
 	}
 
 	/* check if cmp_rslt table is full */
 	if ((ap_write+1) == md_read) {
-		CCCI_ERROR_LOG(md_id, UDC,
-			"cmp_rslt table is full\n");
-		CCCI_ERROR_LOG(md_id, UDC,
-			"ins%d:md r:%d,md w:%d,ap r:%d,ap w:%d\n",
-			inst_id, ap_read, md_write, md_read, ap_write);
+		((void)0);
+		((void)0);
 		return -CMP_RSLT_FULL;
 	}
 	/* req_des table is only 4kb */
 	req_des = req_des_base + ap_read;
 	if (!req_des) {
-		CCCI_ERROR_LOG(md_id, UDC,
-			"inst_id is error\n");
+		((void)0);
 		return -1;
 	}
 	/* dump req_des */
-	CCCI_NORMAL_LOG(md_id, UDC,
-		"req%d:sdu_idx(%d),buf_type(%d),seg_len(%d),phy_offset(%#x)\n",
-		inst_id, req_des->sdu_idx, req_des->buf_type,
-		req_des->seg_len, req_des->seg_phy_addr);
+	((void)0);
 	uncomp_len = req_des->seg_len;
 	if (req_des->buf_type == 0)
 		uncomp_data = (unsigned char *)
@@ -692,9 +616,7 @@ int udc_kick_handler(struct port_t *port, struct z_stream_s *zcpr,
 
 	if (req_des->rst == 1) {
 		is_rst = 1;
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"kick req%d:rst(%d),sdu_idx(%d),md r(%d)\n",
-			inst_id, req_des->rst, req_des->sdu_idx, ap_read);
+		((void)0);
 		deflateReset_cb(zcpr);
 	}
 
@@ -712,9 +634,7 @@ int udc_kick_handler(struct port_t *port, struct z_stream_s *zcpr,
 	/* deinit comp_data to reduce memcpy */
 	if (total_comp_size >= rsvd_len ||
 		(total_comp_size + max_output_size) > max_packet_size) {
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"ins%d total_cmp_size:%d,deflateBound:%d,rsvd_len:%d\n",
-			inst_id, total_comp_size, max_output_size, rsvd_len);
+		((void)0);
 		*comp_data = comp_data_buf_base;
 		total_comp_size = 0;
 	}
@@ -741,15 +661,11 @@ int udc_kick_handler(struct port_t *port, struct z_stream_s *zcpr,
 		rslt_des->cmp_addr = *comp_data - comp_data_buf_base;
 		rslt_des->cmp_len = comp_len;
 
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"rslt%d:sdu_idx(%d),rst(%d),comp_len(%d),offset(%d),chsm(%d),ap_write(%d)\n",
-			inst_id, rslt_des->sdu_idx, rslt_des->rst,
-			comp_len, rslt_des->cmp_addr, rslt_des->cksm, ap_write);
+		((void)0);
 
 		if (comp_len == 0) {
 			/* if no check comp_len,ke will happen */
-			CCCI_ERROR_LOG(md_id, UDC,
-				"kick%d comp_len = 0\n", inst_id);
+			((void)0);
 			return -CMP_ZERO_LEN;
 		}
 
@@ -791,8 +707,7 @@ int udc_restore_skb(struct port_t *port,
 	{
 		*skb = ccci_alloc_skb(sizeof(*ccci_udc_actv), 1, 1);
 		if (unlikely(!(*skb))) {
-			CCCI_ERROR_LOG(md_id, UDC,
-				"%s:alloc skb fail\n", __func__);
+			((void)0);
 			return ret;
 		}
 
@@ -812,15 +727,11 @@ int udc_restore_skb(struct port_t *port,
 	case UDC_DEACTV:
 		break;
 	default:
-		CCCI_ERROR_LOG(md_id, UDC,
-			"[Error]%s:Unknown UDC STATUS (0x%08X)\n",
-			__func__, atomic_read(&udc_status));
+		((void)0);
 		break;
 	}
 	if (ctl->last_state != ctl->curr_state)
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"udc_status:from %d to %d by %s\n",
-			ctl->last_state, ctl->curr_state, __func__);
+		((void)0);
 	return ret;
 }
 
@@ -842,8 +753,7 @@ void udc_cmd_handler(struct port_t *port, struct sk_buff *skb)
 
 	skb_tmp = ccci_alloc_skb(sizeof(*ccci_udc_actv), 1, 1);
 	if (!skb_tmp) {
-		CCCI_ERROR_LOG(md_id, UDC,
-			"%s:alloc skb_tmp fail\n", __func__);
+		((void)0);
 		return;
 	}
 
@@ -851,8 +761,7 @@ void udc_cmd_handler(struct port_t *port, struct sk_buff *skb)
 
 	ccci_udc_actv = (struct ccci_udc_actv_param_t *)skb->data;
 	udc_cmd = ccci_udc_actv->udc_cmd;
-	CCCI_DEBUG_LOG(md_id, UDC,
-		"%s++ udc_cmd:%d\n", __func__, udc_cmd);
+	((void)0);
 
 	switch (udc_cmd) {
 	case UDC_CMD_ACTV:
@@ -861,9 +770,7 @@ void udc_cmd_handler(struct port_t *port, struct sk_buff *skb)
 		enum udc_dict_opt_e dic_option = ccci_udc_actv->dict_opt;
 		unsigned int inst_id  = ccci_udc_actv->udc_inst_id;
 
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"udc_actv ins%d:cmd:%d,buf_sz:%d,dict_opt:%d\n",
-			inst_id, udc_cmd, buffer_size, dic_option);
+		((void)0);
 
 		if (inst_id == 0)
 			ret = udc_actv_handler(&zcpr0, dic_option,
@@ -884,16 +791,10 @@ void udc_cmd_handler(struct port_t *port, struct sk_buff *skb)
 			rw_index = (struct ap_md_rw_index *)
 				(region->base_ap_view_vir + 0x500000);
 			comp_data = comp_data_buf_base;
-			CCCI_NORMAL_LOG(md_id, UDC,
-				"base_md_view_phy:0x%lx,base_ap_view_phy:0x%lx\n",
-				(unsigned long)region->base_md_view_phy,
-				(unsigned long)region->base_ap_view_phy);
-			CCCI_NORMAL_LOG(md_id, UDC,
-				"uncomp_base:%p,comp_base:%p\n",
-				uncomp_data_buf_base, comp_data_buf_base);
+			((void)0);
+			((void)0);
 		} else
-			CCCI_ERROR_LOG(md_id, UDC,
-				"can not find region:SMEM_USER_RAW_UDC_DATA\n");
+			((void)0);
 
 		region = ccci_md_get_smem_by_user_id(md_id,
 					SMEM_USER_RAW_UDC_DESCTAB);
@@ -909,11 +810,9 @@ void udc_cmd_handler(struct port_t *port, struct sk_buff *skb)
 				(region->base_ap_view_vir + 0xC000 + 0x2000);
 			rslt_des_1_base = (struct udc_comp_rslt_t *)
 				(region->base_ap_view_vir + 0xC000 + 0x3000);
-			CCCI_NORMAL_LOG(md_id, UDC, "uncomp_cache_base:%p\n",
-				uncomp_cache_data_base);
+			((void)0);
 		} else
-			CCCI_ERROR_LOG(md_id, UDC,
-				"can not find region:SMEM_USER_RAW_UDC_DESCTAB\n");
+			((void)0);
 		break;
 	}
 	case UDC_CMD_DEACTV:
@@ -926,9 +825,7 @@ deactive_exit:
 
 		udc_cmd = ccci_udc_deactv->udc_cmd;
 		inst_id = ccci_udc_deactv->udc_inst_id;
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"deactv ins%d:udc_cmd:%d\n",
-			inst_id, udc_cmd);
+		((void)0);
 
 		if (inst_id == 0) {
 			/* ret = udc_deactv_handler(&zcpr0, inst_id); */
@@ -944,8 +841,7 @@ deactive_exit:
 		/* the continuous input is unprocessed, it maybe return -3 */
 		if (deflate_end_flag < 0 && deflate_end_flag != -3) {
 			ret = deflate_end_flag;
-			CCCI_ERROR_LOG(md_id, UDC, "deflateEnd_ins%d,ret:%d\n",
-				inst_id, deflate_end_flag);
+			((void)0);
 		}
 
 		ctl->curr_state = atomic_read(&udc_status);
@@ -968,24 +864,18 @@ discard_req:
 		udc_cmd = ccci_udc_disc->udc_cmd;
 		new_req_r = ccci_udc_disc->new_req_r;
 		inst_id = ccci_udc_disc->udc_inst_id;
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"disc ins%d:udc_cmd:%d,new_req_r:%d\n",
-			inst_id, udc_cmd, new_req_r);
+		((void)0);
 
 		if (inst_id == 0) {
 			ap_read = rw_index->md_des_ins0.read;
 			rw_index->md_des_ins0.read =
 				ccci_udc_disc->new_req_r;
-			CCCI_NORMAL_LOG(md_id, UDC,
-				"ins%d update ap read:from %d to %d\n",
-				inst_id, ap_read, rw_index->md_des_ins0.read);
+			((void)0);
 		} else if (inst_id == 1) {
 			ap_read = rw_index->md_des_ins1.read;
 			rw_index->md_des_ins1.read =
 				ccci_udc_disc->new_req_r;
-			CCCI_NORMAL_LOG(md_id, UDC,
-				"ins%d update ap read:from %d to %d\n",
-				inst_id, ap_read, rw_index->md_des_ins1.read);
+			((void)0);
 		}
 		ctl->curr_state = atomic_read(&udc_status);
 		if (ctl->curr_state == UDC_DISCARD) {
@@ -1009,9 +899,7 @@ retry_kick:
 		/* to do exp_timer does not work now */
 		exp_timer = ccci_udc_kick->exp_tmr;
 
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"kick ins%d:udc_cmd:%d,exp_timer:%d\n",
-			inst_id, udc_cmd, exp_timer);
+		((void)0);
 		if (inst_id == 0) {
 			req_des_base = req_des_0_base;
 			ap_read = rw_index->md_des_ins0.read;
@@ -1028,8 +916,7 @@ retry_kick:
 				ret = udc_kick_handler(port, &zcpr0,
 						inst_id, &comp_data);
 				if (ret < 0) {
-					CCCI_ERROR_LOG(port->md_id, UDC,
-					"udc kick fail ret:%d!!\n", ret);
+					((void)0);
 					goto end;
 				}
 				if (req_des->con == 0) {
@@ -1039,15 +926,11 @@ retry_kick:
 						UDC_DEACTV_DONE ||
 						ctl->curr_state ==
 						UDC_KICKDEACTV) {
-						CCCI_NORMAL_LOG(md_id, UDC,
-						"ins%d:goto deactive_exit\n",
-						inst_id);
+						((void)0);
 						goto deactive_exit;
 					} else if (ctl->curr_state ==
 						UDC_DISC_DONE) {
-						CCCI_NORMAL_LOG(md_id, UDC,
-						"ins%d:goto discard_req\n",
-						inst_id);
+						((void)0);
 						goto discard_req;
 					}
 				}
@@ -1060,8 +943,7 @@ retry_kick:
 				ret = udc_kick_handler(port, &zcpr1,
 						inst_id, &comp_data);
 				if (ret < 0) {
-					CCCI_ERROR_LOG(port->md_id, UDC,
-					"udc kick fail ret:%d!!\n", ret);
+					((void)0);
 					goto end;
 				}
 				if (req_des->con == 0) {
@@ -1069,23 +951,17 @@ retry_kick:
 						&skb, inst_id, ctl);
 					if (ctl->curr_state ==
 						UDC_HandleHighKick) {
-						CCCI_NORMAL_LOG(md_id, UDC,
-						"ins%d:goto retry_kick\n",
-						inst_id);
+						((void)0);
 						goto retry_kick;
 					} else if (ctl->curr_state ==
 						UDC_DEACTV_DONE ||
 						ctl->curr_state ==
 						UDC_KICKDEACTV) {
-						CCCI_NORMAL_LOG(md_id, UDC,
-						"ins%d:goto deactive_exit\n",
-						inst_id);
+						((void)0);
 						goto deactive_exit;
 					} else if (ctl->curr_state ==
 						UDC_DISC_DONE) {
-						CCCI_NORMAL_LOG(md_id, UDC,
-						"ins%d:goto discard_req\n",
-						inst_id);
+						((void)0);
 						goto discard_req;
 					}
 				}
@@ -1099,29 +975,19 @@ retry_kick:
 		break;
 	}
 	default:
-		CCCI_ERROR_LOG(md_id, UDC,
-			"[Error]Unknown Operation ID (0x%08X)\n",
-			ccci_udc_actv->udc_cmd);
+		((void)0);
 		break;
 	}
 end:
 	/* resp_to_md */
 	ret = udc_resp_msg_to_md(port, skb, ret);
 	if (ret < 0)
-		CCCI_ERROR_LOG(port->md_id, UDC,
-			"send udc msg to md fail ret:%d!!\n", ret);
-	CCCI_DEBUG_LOG(md_id, UDC,
-		"%s-- udc_cmd:%d\n", __func__, udc_cmd);
+		((void)0);
+	((void)0);
 	/* dump read write index */
-	CCCI_NORMAL_LOG(md_id, UDC,
-		"ins0:md rw:%d %d,ap rw:%d %d,ins1:md rw:%d %d,ap rw:%d %d\n",
-		rw_index->md_des_ins0.read, rw_index->md_des_ins0.write,
-		rw_index->ap_resp_ins0.read, rw_index->ap_resp_ins0.write,
-		rw_index->md_des_ins1.read, rw_index->md_des_ins1.write,
-		rw_index->ap_resp_ins1.read, rw_index->ap_resp_ins1.write);
+	((void)0);
 	if (udc_restore_skb(port, ctl, &skb_tmp, &skb)) {
-		CCCI_NORMAL_LOG(md_id, UDC,
-			"restore_skb:goto retry_kick\n");
+		((void)0);
 		goto retry_kick;
 	}
 	ccci_free_skb(skb_tmp);
@@ -1130,8 +996,7 @@ end:
 
 static int port_udc_init(struct port_t *port)
 {
-	CCCI_DEBUG_LOG(port->md_id, PORT,
-		"kernel port %s is initializing\n", port->name);
+	((void)0);
 	port->skb_handler = &udc_cmd_handler;
 	port->private_data = kthread_run(port_kthread_handler,
 		port, "%s", port->name);

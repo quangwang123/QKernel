@@ -21,18 +21,6 @@ static struct platform_device *md_adc_pdev;
 static int adc_num;
 static int adc_val;
 
-#ifdef CCCI_KMODULE_ENABLE
-/*
- * for debug log:
- * 0 to disable; 1 for print to ram; 2 for print to uart
- * other value to desiable all log
- */
-#ifndef CCCI_LOG_LEVEL /* for platform override */
-#define CCCI_LOG_LEVEL CCCI_LOG_CRITICAL_UART
-#endif
-unsigned int ccci_debug_enable = CCCI_LOG_LEVEL;
-#endif
-
 static int ccci_get_adc_info(struct device *dev)
 {
 	int ret, val;
@@ -43,23 +31,22 @@ static int ccci_get_adc_info(struct device *dev)
 	ret = IS_ERR(md_channel);
 	if (ret) {
 		if (PTR_ERR(md_channel) == -EPROBE_DEFER) {
-			CCCI_ERROR_LOG(-1, TAG, "%s EPROBE_DEFER\r\n",
-					__func__);
+			((void)0);
 			return -EPROBE_DEFER;
 		}
-		CCCI_ERROR_LOG(-1, TAG, "fail to get iio channel (%d)", ret);
+		((void)0);
 		goto Fail;
 	}
 	adc_num = md_channel->channel->channel;
 	ret = iio_read_channel_raw(md_channel, &val);
 	iio_channel_release(md_channel);
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, TAG, "iio_read_channel_raw fail");
+		((void)0);
 		goto Fail;
 	}
 
 	adc_val = val;
-	CCCI_NORMAL_LOG(0, TAG, "md_ch = %d, val = %d\n", adc_num, adc_val);
+	((void)0);
 	return ret;
 Fail:
 	return -1;
@@ -89,17 +76,17 @@ signed int battery_get_bat_voltage(void)
 
 	ret = IS_ERR(channel);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG, "fail to get iio channel 1 (%d)", ret);
+		((void)0);
 		goto BAT_Fail;
 	}
 	number = channel->channel->channel;
 	ret = iio_read_channel_processed(channel, &val);
 	iio_channel_release(channel);
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, TAG, "iio_read_channel_processed fail");
+		((void)0);
 		goto BAT_Fail;
 	}
-	CCCI_NORMAL_LOG(0, TAG, "md_battery = %d, val = %d", number, val);
+	((void)0);
 
 	return val;
 BAT_Fail:
@@ -114,7 +101,7 @@ int get_auxadc_probe(struct platform_device *pdev)
 
 	ret = ccci_get_adc_info(&pdev->dev);
 	if (ret < 0) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci get adc info fail");
+		((void)0);
 		return ret;
 	}
 	md_adc_pdev = pdev;
@@ -144,7 +131,7 @@ static int __init ccci_auxadc_init(void)
 
 	ret = platform_driver_register(&ccci_auxadc_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG, "ccci auxadc driver init fail %d", ret);
+		((void)0);
 		return ret;
 	}
 	return 0;

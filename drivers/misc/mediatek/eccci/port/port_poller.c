@@ -29,14 +29,12 @@ static void status_msg_handler(struct port_t *port, struct sk_buff *skb)
 
 	ret = ccci_fsm_recv_status_packet(port->md_id, skb);
 	if (ret)
-		CCCI_ERROR_LOG(port->md_id, PORT,
-			"%s status poller gotten error: %d\n", port->name, ret);
+		((void)0);
 }
 
 static int port_poller_init(struct port_t *port)
 {
-	CCCI_DEBUG_LOG(port->md_id, PORT,
-		"kernel port %s is initializing\n", port->name);
+	((void)0);
 	port->rx_length_th = MAX_QUEUE_LENGTH;
 	port->skb_from_pool = 1;
 	port->skb_handler = &status_msg_handler;

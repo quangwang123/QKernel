@@ -52,8 +52,7 @@ static void sys_msg_MD_RF_Notify(int md_id, unsigned int bit_value,
 		data_send = (bit_value&(1<<notify_members[i].bit))
 			>> notify_members[i].bit;
 
-		CCCI_NORMAL_LOG(md_id, SYS, "0x121: notify to (%s)\n",
-			notify_members[i].module_name);
+		((void)0);
 
 		notify_members[i].notify_func(data_send, data_1);
 	}
@@ -72,18 +71,14 @@ static inline int port_sys_notify_md(struct port_t *port, unsigned int msg,
 
 static inline int port_sys_echo_test(struct port_t *port, int data)
 {
-	CCCI_DEBUG_LOG(port->md_id, SYS,
-		"system message: Enter ccci_sysmsg_echo_test data= %08x",
-		data);
+	((void)0);
 	port_sys_notify_md(port, TEST_MSG_ID_AP2MD, data);
 	return 0;
 }
 
 static inline int port_sys_echo_test_l1core(struct port_t *port, int data)
 {
-	CCCI_DEBUG_LOG(port->md_id, SYS,
-		"system message: Enter ccci_sysmsg_echo_test_l1core data= %08x",
-		data);
+	((void)0);
 	port_sys_notify_md(port, TEST_MSG_ID_L1CORE_AP2MD, data);
 	return 0;
 }
@@ -123,8 +118,7 @@ int register_ccci_sys_call_back(int md_id, unsigned int id,
 
 	md_index = ccci_sys_cb_md_index(md_id);
 	if (md_index < 0) {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"register_sys_call_back fail: invalid md id\n");
+		((void)0);
 		return -EINVAL;
 	}
 
@@ -133,9 +127,7 @@ int register_ccci_sys_call_back(int md_id, unsigned int id,
 	} else if ((id >= 0x1000) && ((id - 0x1000) < MAX_KERN_API)) {
 		info_ptr = &(ccci_sys_cb_table_1000[md_index][id - 0x1000]);
 	} else {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"register_sys_call_back fail: invalid func id(0x%x)\n",
-			id);
+		((void)0);
 		return -EINVAL;
 	}
 
@@ -143,9 +135,7 @@ int register_ccci_sys_call_back(int md_id, unsigned int id,
 		info_ptr->id = id;
 		info_ptr->func = func;
 	} else {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"register_sys_call_back fail: func(0x%x) registered! %ps\n",
-			id, info_ptr->func);
+		((void)0);
 	}
 
 	return ret;
@@ -160,15 +150,13 @@ void exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 
 	md_index = ccci_sys_cb_md_index(md_id);
 	if (md_index < 0) {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"exec_sys_cb fail: invalid md id\n");
+		((void)0);
 		return;
 	}
 
 	id = cb_id & 0xFF;
 	if (id >= MAX_KERN_API) {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"exec_sys_cb fail: invalid func id(0x%x)\n", cb_id);
+		((void)0);
 		return;
 	}
 
@@ -177,8 +165,7 @@ void exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 	} else if ((cb_id & (0x1000 | 0x100)) == 0x100) {
 		curr_table = ccci_sys_cb_table_100[md_index];
 	} else {
-		CCCI_ERROR_LOG(md_id, SYS,
-			"exec_sys_cb fail: invalid func id(0x%x)\n", cb_id);
+		((void)0);
 		return;
 	}
 
@@ -186,9 +173,7 @@ void exec_ccci_sys_call_back(int md_id, int cb_id, int data)
 	if (func != NULL)
 		func(md_id, data);
 	else
-		CCCI_ERROR_LOG(md_id, SYS,
-			"exec_sys_cb fail: func id(0x%x) not register!\n",
-			cb_id);
+		((void)0);
 }
 
 signed int __weak battery_get_bat_voltage(void)
@@ -202,7 +187,7 @@ static int sys_msg_send_battery(struct port_t *port)
 	int data;
 
 	data = (int)battery_get_bat_voltage();
-	CCCI_REPEAT_LOG(port->md_id, SYS, "get bat voltage %d\n", data);
+	((void)0);
 	port_send_msg_to_md(port, MD_GET_BATTERY_INFO, data, 1);
 	return 0;
 }
@@ -212,9 +197,7 @@ static void sys_msg_handler(struct port_t *port, struct sk_buff *skb)
 	struct ccci_header *ccci_h = (struct ccci_header *)skb->data;
 	int md_id = port->md_id;
 
-	CCCI_NORMAL_LOG(md_id, SYS, "system message (%x %x %x %x)\n",
-		ccci_h->data[0], ccci_h->data[1],
-		ccci_h->channel, ccci_h->reserved);
+	((void)0);
 	switch (ccci_h->data[1]) {
 	case MD_WDT_MONITOR:
 		/* abandoned */
@@ -263,8 +246,7 @@ static void sys_msg_handler(struct port_t *port, struct sk_buff *skb)
 
 static int port_sys_init(struct port_t *port)
 {
-	CCCI_DEBUG_LOG(port->md_id, SYS,
-		"kernel port %s is initializing\n", port->name);
+	((void)0);
 
 	if (port->md_id == MD_SYS1)
 		swtp_init(port->md_id);

@@ -34,8 +34,7 @@ static int ccci_md_low_power_notify(
 	unsigned int reserve = 0xFFFFFFFF;
 	int ret = 0;
 
-	CCCI_NORMAL_LOG(md->index, TAG,
-		"low power notification type=%d, level=%d\n", type, level);
+	((void)0);
 	/*
 	 * byte3 byte2 byte1 byte0
 	 *    0   4G   3G   2G
@@ -50,8 +49,7 @@ static int ccci_md_low_power_notify(
 		ret = port_proxy_send_msg_to_md(md->port_proxy,
 			CCCI_SYSTEM_TX, MD_LOW_BATTERY_LEVEL, reserve, 1);
 		if (ret)
-			CCCI_ERROR_LOG(md->index, TAG,
-			 "send low battery notification fail, ret=%d\n", ret);
+			((void)0);
 		break;
 	case BATTERY_PERCENT:
 		if (level == BATTERY_PERCENT_LEVEL_0)
@@ -61,8 +59,7 @@ static int ccci_md_low_power_notify(
 		ret = port_proxy_send_msg_to_md(md->port_proxy,
 			CCCI_SYSTEM_TX, MD_LOW_BATTERY_LEVEL, reserve, 1);
 		if (ret)
-			CCCI_ERROR_LOG(md->index, TAG,
-			"send battery percent info fail, ret=%d\n", ret);
+			((void)0);
 		break;
 	default:
 		break;
@@ -104,12 +101,10 @@ static int ccci_platform_init(struct ccci_modem *md)
 		"mediatek,mt6765-infracfg");
 	md_cd_plat_val_ptr.infra_ao_base = of_iomap(node, 0);
 	if (!md_cd_plat_val_ptr.infra_ao_base) {
-		CCCI_ERROR_LOG(md->index, TAG,
-			"%s: infra_ao_base of_iomap failed\n", node->full_name);
+		((void)0);
 		return -1;
 	}
-	CCCI_INIT_LOG(-1, TAG, "infra_ao_base:0x%p\n",
-		(void *)md_cd_plat_val_ptr.infra_ao_base);
+	((void)0);
 #ifdef FEATURE_LOW_BATTERY_SUPPORT
 	register_low_battery_notify(
 		&ccci_md_low_battery_cb, LOW_BATTERY_PRIO_MD);

@@ -20,8 +20,7 @@ void mdee_set_ex_start_str(struct ccci_fsm_ee *ee_ctl,
 		ret = snprintf(ee_ctl->ex_mpu_string, MD_EX_MPU_STR_LEN,
 			"EMI MPU VIOLATION: %s", str);
 		if (ret < 0 || ret >= MD_EX_MPU_STR_LEN) {
-			CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-				"%s-%d:snprintf fail,ret = %d\n", __func__, __LINE__, ret);
+			((void)0);
 			return;
 		}
 	}
@@ -31,12 +30,10 @@ void mdee_set_ex_start_str(struct ccci_fsm_ee *ee_ctl,
 		"AP detect MDEE time:%5lu.%06lu\n",
 		(unsigned long)ts_nsec, rem_nsec / 1000);
 	if (ret < 0 || ret >= MD_EX_START_TIME_LEN) {
-		CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-			"%s-%d:snprintf fail,ret = %d\n", __func__, __LINE__, ret);
+		((void)0);
 		return;
 	}
-	CCCI_MEM_LOG_TAG(ee_ctl->md_id, FSM, "%s\n",
-		ee_ctl->ex_start_time);
+	((void)0);
 }
 
 void fsm_md_bootup_timeout_handler(struct ccci_fsm_ee *ee_ctl)
@@ -45,26 +42,21 @@ void fsm_md_bootup_timeout_handler(struct ccci_fsm_ee *ee_ctl)
 		= ccci_md_get_mem(ee_ctl->md_id);
 
 	if (mem_layout == NULL) {
-		CCCI_NORMAL_LOG(ee_ctl->md_id, FSM,
-			"invalid  mem_layout\n");
+		((void)0);
 		return;
 	}
-	CCCI_NORMAL_LOG(ee_ctl->md_id, FSM,
-		"Dump MD image memory\n");
+	((void)0);
 	ccci_mem_dump(ee_ctl->md_id,
 		(void *)mem_layout->md_bank0.base_ap_view_vir,
 		MD_IMG_DUMP_SIZE);
-	CCCI_NORMAL_LOG(ee_ctl->md_id, FSM,
-		"Dump MD layout struct\n");
+	((void)0);
 	ccci_mem_dump(ee_ctl->md_id, mem_layout,
 		sizeof(struct ccci_mem_layout));
-	CCCI_NORMAL_LOG(ee_ctl->md_id, FSM,
-		"Dump queue 0 & 1\n");
+	((void)0);
 	ccci_md_dump_info(ee_ctl->md_id,
 		(DUMP_FLAG_QUEUE_0_1 | DUMP_MD_BOOTUP_STATUS
 		| DUMP_FLAG_REG | DUMP_FLAG_CCIF_REG), NULL, 0);
-	CCCI_NORMAL_LOG(ee_ctl->md_id, FSM,
-		"Dump MD ee boot failed info\n");
+	((void)0);
 
 	ee_ctl->ops->dump_ee_info(ee_ctl, MDEE_DUMP_LEVEL_BOOT_FAIL, 0);
 }
@@ -95,16 +87,14 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 		struct ccci_modem *md = ccci_md_get_modem_by_id(ee_ctl->md_id);
 
 		if (mem_layout == NULL) {
-			CCCI_ERROR_LOG(md_id, FSM, "ccci_md_get_mem fail!\n");
+			((void)0);
 			return;
 		}
-		CCCI_ERROR_LOG(md_id, FSM, "MD exception stage 1!\n");
+		((void)0);
 #if defined(CONFIG_MTK_AEE_FEATURE)
 		tracing_off();
 #endif
-		CCCI_MEM_LOG_TAG(md_id, FSM,
-			"MD exception stage 1! ee=%x\n",
-			ee_ctl->ee_info_flag);
+		((void)0);
 		spin_lock_irqsave(&ee_ctl->ctrl_lock, flags);
 		ee_info_flag = ee_ctl->ee_info_flag;
 		spin_unlock_irqrestore(&ee_ctl->ctrl_lock, flags);
@@ -114,14 +104,13 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 		    (MD_EE_SWINT_GET | MD_EE_MSG_GET
 			| MD_EE_OK_MSG_GET)) {
 			ee_case = MD_EE_CASE_NORMAL;
-			CCCI_DEBUG_LOG(md_id, FSM,
-				"Recv SWINT & MD_EX & MD_EX_REC_OK\n");
+			((void)0);
 		} else if (ee_info_flag & MD_EE_MSG_GET) {
 			ee_case = MD_EE_CASE_ONLY_EX;
-			CCCI_NORMAL_LOG(md_id, FSM, "Only recv MD_EX.\n");
+			((void)0);
 		} else if (ee_info_flag & MD_EE_SWINT_GET) {
 			ee_case = MD_EE_CASE_ONLY_SWINT;
-			CCCI_NORMAL_LOG(md_id, FSM, "Only recv SWINT.\n");
+			((void)0);
 		} else if (ee_info_flag & MD_EE_PENDING_TOO_LONG) {
 			ee_case = MD_EE_CASE_NO_RESPONSE;
 		} else if (ee_info_flag & MD_EE_WDT_GET) {
@@ -130,14 +119,13 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 			(1 << MD_DBG_DUMP_TOPSM) | (1 << MD_DBG_DUMP_MDRGU)
 			| (1 << MD_DBG_DUMP_OST);
 		} else {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"Invalid MD_EX, ee_info=%x\n", ee_info_flag);
+			((void)0);
 			goto _dump_done;
 		}
 		ee_ctl->ee_case = ee_case;
 
 		/* Dump MD EE info */
-		CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD EX log\n");
+		((void)0);
 		/*parse & dump md ee info*/
 		if (ee_ctl->ops->dump_ee_info)
 			ee_ctl->ops->dump_ee_info(ee_ctl,
@@ -159,13 +147,13 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 			CCCI_EE_SIZE_CCIF_SRAM);
 
 		/* Dump MD image memory */
-		CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD image memory\n");
+		((void)0);
 		print_hex_dump_debug(
 			"ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 			(void *)mem_layout->md_bank0.base_ap_view_vir,
 			MD_IMG_DUMP_SIZE, false);
 		/* Dump MD memory layout */
-		CCCI_MEM_LOG_TAG(md_id, FSM, "Dump MD layout struct\n");
+		((void)0);
 		print_hex_dump_debug("ccci: ", DUMP_PREFIX_OFFSET, 16, 4,
 				     mem_layout, sizeof(struct ccci_mem_layout),
 				     false);
@@ -174,7 +162,7 @@ void fsm_md_exception_stage(struct ccci_fsm_ee *ee_ctl, int stage)
 		ccci_md_dump_info(md_id,
 			DUMP_FLAG_SMEM_CCB_CTRL | DUMP_FLAG_SMEM_CCB_DATA,
 			NULL, 0);
-		CCCI_ERROR_LOG(md_id, FSM, "MD exception stage 1: end\n");
+		((void)0);
 _dump_done:
 		return;
 	} else if (stage == 2) { /* got MD_EX_PASS or second timeout */
@@ -186,9 +174,8 @@ _dump_done:
 			= ccci_md_get_smem_by_user_id(ee_ctl->md_id,
 				SMEM_USER_RAW_MDSS_DBG);
 
-		CCCI_ERROR_LOG(md_id, FSM, "MD exception stage 2!\n");
-		CCCI_MEM_LOG_TAG(md_id, FSM, "MD exception stage 2! ee=%x\n",
-			ee_ctl->ee_info_flag);
+		((void)0);
+		((void)0);
 
 		spin_lock_irqsave(&ee_ctl->ctrl_lock, flags);
 		if (MD_EE_WDT_GET & ee_ctl->ee_info_flag)
@@ -231,13 +218,11 @@ _dump_done:
 		spin_unlock_irqrestore(&ee_ctl->ctrl_lock, flags);
 
 		if (md_wdt_ee && md_id == MD_SYS3) {
-			CCCI_ERROR_LOG(md_id, FSM,
-				"trigger force assert after WDT EE\n");
+			((void)0);
 			ccci_md_force_assert(md_id,
 				MD_FORCE_ASSERT_BY_MD_WDT, NULL, 0);
 		}
-		CCCI_ERROR_LOG(md_id, FSM,
-			"MD exception stage 2:end\n");
+		((void)0);
 	}
 }
 
@@ -274,16 +259,12 @@ void fsm_ee_message_handler(struct ccci_fsm_ee *ee_ctl, struct sk_buff *skb)
 	enum MD_STATE md_state = ccci_fsm_get_md_state(ee_ctl->md_id);
 
 	if (md_state != EXCEPTION) {
-		CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-			"receive invalid MD_EX %x when MD state is %d\n",
-			ccci_h->reserved, md_state);
+		((void)0);
 		return;
 	}
 	if (ccci_h->data[1] == MD_EX) {
 		if (unlikely(ccci_h->reserved != MD_EX_CHK_ID)) {
-			CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-				"receive invalid MD_EX %x\n",
-				ccci_h->reserved);
+			((void)0);
 		} else {
 			spin_lock_irqsave(&ee_ctl->ctrl_lock, flags);
 			ee_ctl->ee_info_flag
@@ -295,9 +276,7 @@ void fsm_ee_message_handler(struct ccci_fsm_ee *ee_ctl, struct sk_buff *skb)
 		}
 	} else if (ccci_h->data[1] == MD_EX_REC_OK) {
 		if (unlikely(ccci_h->reserved != MD_EX_REC_OK_CHK_ID)) {
-			CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-				"receive invalid MD_EX_REC_OK %x\n",
-				ccci_h->reserved);
+			((void)0);
 		} else {
 			spin_lock_irqsave(&ee_ctl->ctrl_lock, flags);
 			ee_ctl->ee_info_flag
@@ -318,8 +297,7 @@ void fsm_ee_message_handler(struct ccci_fsm_ee *ee_ctl, struct sk_buff *skb)
 		spin_unlock_irqrestore(&ee_ctl->ctrl_lock, flags);
 		fsm_append_event(ctl, CCCI_EVENT_MD_EX_PASS, NULL, 0);
 	} else if (ccci_h->data[1] == CCCI_DRV_VER_ERROR) {
-		CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-			"AP/MD driver version mis-match\n");
+		((void)0);
 #ifdef CONFIG_MTK_AEE_FEATURE
 		aed_md_exception_api(NULL, 0, NULL,
 			0, "AP/MD driver version mis-match\n",
@@ -335,12 +313,11 @@ int fsm_check_ee_done(struct ccci_fsm_ee *ee_ctl, int timeout)
 	int time_step = 200; /*ms*/
 	int loop_max = timeout * 1000 / time_step;
 
-	CCCI_BOOTUP_LOG(ee_ctl->md_id, FSM, "checking EE status\n");
+	((void)0);
 	while (ccci_fsm_get_md_state(ee_ctl->md_id) == EXCEPTION) {
 		if (ccci_port_get_critical_user(ee_ctl->md_id,
 				CRIT_USR_MDLOG)) {
-			CCCI_DEBUG_LOG(ee_ctl->md_id, FSM,
-				"MD logger is running, waiting for EE dump done\n");
+			((void)0);
 			is_ee_done = !(ee_ctl->ee_info_flag & MD_EE_FLOW_START)
 				&& ee_ctl->mdlog_dump_done;
 		} else
@@ -352,8 +329,7 @@ int fsm_check_ee_done(struct ccci_fsm_ee *ee_ctl, int timeout)
 			break;
 
 		if (loop_max && (count > loop_max)) {
-			CCCI_ERROR_LOG(ee_ctl->md_id, FSM,
-				"wait EE done timeout\n");
+			((void)0);
 #ifdef DEBUG_FOR_CCB
 			/* Dump CCB memory */
 			ccci_port_dump_status(ee_ctl->md_id);
@@ -372,7 +348,7 @@ int fsm_check_ee_done(struct ccci_fsm_ee *ee_ctl, int timeout)
 			return -1;
 		}
 	}
-	CCCI_BOOTUP_LOG(ee_ctl->md_id, FSM, "check EE done\n");
+	((void)0);
 	return 0;
 }
 

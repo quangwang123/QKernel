@@ -216,8 +216,7 @@ int ccci_get_ccmni_channel(int md_id, int ccmni_idx, struct ccmni_ch *channel)
 		channel->multiq = 0;
 		break;
 	default:
-		CCCI_ERROR_LOG(md_id, NET,
-			"invalid ccmni index=%d\n", ccmni_idx);
+		((void)0);
 		ret = -1;
 		break;
 	}
@@ -255,7 +254,7 @@ int ccmni_send_pkt(int md_id, int ccmni_idx, void *data, int is_ack)
 	get_port_time = sched_clock() - get_port_time;
 #endif
 	if (!port) {
-		CCCI_ERROR_LOG(0, NET, "port is NULL for CCMNI%d\n", ccmni_idx);
+		((void)0);
 		return CCMNI_ERR_TX_INVAL;
 	}
 
@@ -268,10 +267,7 @@ int ccmni_send_pkt(int md_id, int ccmni_idx, void *data, int is_ack)
 	ccci_h->data[1] = skb->len;
 	ccci_h->reserved = 0;
 
-	CCCI_DEBUG_LOG(md_id, NET,
-		"port %s send: %08X, %08X, %08X, %08X\n", port->name,
-		ccci_h->data[0], ccci_h->data[1], ccci_h->channel,
-		ccci_h->reserved);
+	((void)0);
 #ifdef PORT_NET_TRACE
 	send_time = sched_clock();
 #endif
@@ -306,8 +302,7 @@ int ccmni_send_pkt(int md_id, int ccmni_idx, void *data, int is_ack)
 int ccmni_napi_poll(int md_id, int ccmni_idx,
 	struct napi_struct *napi, int weight)
 {
-	CCCI_ERROR_LOG(md_id, NET,
-		"ccmni%d NAPI is not supported\n", ccmni_idx);
+	((void)0);
 	return -ENODEV;
 }
 
@@ -342,7 +337,7 @@ int ccmni_send_mbim_skb(int md_id, struct sk_buff *skb)
 	int is_ack = 0;
 
 	if (md_id < 0 || md_id >= MAX_MD_NUM) {
-		CCCI_ERROR_LOG(md_id, NET, "invalid MD id=%d\n", md_id);
+		((void)0);
 		return -EINVAL;
 	}
 
@@ -358,12 +353,12 @@ int ccmni_send_mbim_skb(int md_id, struct sk_buff *skb)
 void ccmni_update_mbim_interface(int md_id, int id)
 {
 	if (md_id < 0 || md_id >= MAX_MD_NUM) {
-		CCCI_ERROR_LOG(md_id, NET, "invalid MD id=%d\n", md_id);
+		((void)0);
 		return;
 	}
 
 	atomic_set(&mbim_ccmni_index[md_id], id);
-	CCCI_NORMAL_LOG(md_id, NET, "MBIM interface id=%d\n", id);
+	((void)0);
 }
 
 static int port_net_init(struct port_t *port)
@@ -372,7 +367,7 @@ static int port_net_init(struct port_t *port)
 	struct ccci_per_md *per_md_data = ccci_get_per_md_data(md_id);
 
 	if (port->md_id < 0 || port->md_id >= MAX_MD_NUM) {
-		CCCI_ERROR_LOG(-1, NET, "invalid MD id=%d\n", port->md_id);
+		((void)0);
 		return -EINVAL;
 	}
 	port->minor += CCCI_NET_MINOR_BASE;
@@ -381,8 +376,7 @@ static int port_net_init(struct port_t *port)
 
 		eccci_ccmni_ops.md_ability |= per_md_data->md_capability;
 #if defined CONFIG_MTK_MD3_SUPPORT
-		CCCI_INIT_LOG(port->md_id, NET,
-			"clear MODEM_CAP_SGIO flag for IRAT enable\n");
+		((void)0);
 		eccci_ccmni_ops.md_ability &= (~(MODEM_CAP_SGIO));
 #endif
 		if (port->md_id == MD_SYS1)
@@ -418,27 +412,17 @@ static int port_net_recv_skb(struct port_t *port, struct sk_buff *skb)
 	total_time = sched_clock();
 #endif
 	if (port->md_id < 0 || port->md_id >= MAX_MD_NUM) {
-		CCCI_ERROR_LOG(-1, NET, "invalid MD id=%d\n", port->md_id);
+		((void)0);
 		return -EINVAL;
 	}
 	if (port->hif_id == MD1_NET_HIF) {
 		skb_pull(skb, sizeof(struct lhif_header));
-		CCCI_DEBUG_LOG(port->md_id, NET,
-			"port %s recv: 0x%08X, 0x%08X, %08X, 0x%08X\n",
-			port->name,
-			lhif_h->netif,
-			lhif_h->f,
-			lhif_h->flow,
-			lhif_h->pdcp_count);
+		((void)0);
 	} else {
 		struct ccci_header *ccci_h = (struct ccci_header *)skb->data;
 
 		skb_pull(skb, sizeof(struct ccci_header));
-		CCCI_DEBUG_LOG(port->md_id, NET,
-			"port %s recv: 0x%08X, 0x%08X, %08X, 0x%08X\n",
-			port->name,
-			ccci_h->data[0], ccci_h->data[1], ccci_h->channel,
-			ccci_h->reserved);
+		((void)0);
 	}
 
 	mbim_ccmni_current = atomic_read(&mbim_ccmni_index[port->md_id]);
@@ -514,12 +498,11 @@ static void port_net_md_state_notify(struct port_t *port, unsigned int state)
 void port_net_md_dump_info(struct port_t *port, unsigned int flag)
 {
 	if (port == NULL) {
-		CCCI_ERROR_LOG(0, NET, "%s: port==NULL\n", __func__);
+		((void)0);
 		return;
 	}
 	if (ccmni_ops.dump == NULL) {
-		CCCI_ERROR_LOG(port->md_id, NET,
-			"%s: ccmni_ops.dump== null\n", __func__);
+		((void)0);
 		return;
 	}
 	ccmni_ops.dump(port->md_id, GET_CCMNI_IDX(port), 0);

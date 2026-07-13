@@ -36,7 +36,7 @@ static int md_clk_probe(struct platform_device *pdev)
 		name = md_ao_clk_tbl[i].clk_name;
 		clk = devm_clk_get(&pdev->dev, name);
 		if (IS_ERR(clk)) {
-			CCCI_ERROR_LOG(-1, TAG, "%s n/a\r\n", name);
+			((void)0);
 			continue;
 		}
 		md_ao_clk_tbl[i].clk_ref = clk;
@@ -44,17 +44,17 @@ static int md_clk_probe(struct platform_device *pdev)
 
 	for (i = 0; i < ARRAY_SIZE(md_ao_clk_tbl); i++) {
 		if (!md_ao_clk_tbl[i].clk_ref) {
-			CCCI_ERROR_LOG(-1, TAG, "%s skip\r\n", name);
+			((void)0);
 			continue;
 		}
 
 		ret = clk_prepare_enable(md_ao_clk_tbl[i].clk_ref);
 		if (ret) {
 			name = md_ao_clk_tbl[i].clk_name;
-			CCCI_ERROR_LOG(-1, TAG, "%s fail:%d\r\n", name, ret);
+			((void)0);
 		} else {
 			name = md_ao_clk_tbl[i].clk_name;
-			CCCI_ERROR_LOG(-1, TAG, "en %s success\r\n", name);
+			((void)0);
 		}
 
 		return ret;
@@ -86,7 +86,7 @@ static int __init md_clk_init(void)
 
 	ret = platform_driver_register(&md_clk_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG, "%s fail %d", __func__, ret);
+		((void)0);
 		return ret;
 	}
 	return 0;

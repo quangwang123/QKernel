@@ -52,10 +52,9 @@ static irqreturn_t md_cd_wdt_isr(int irq, void *data)
 
 	state = ccif_read32(md->md_rgu_base, C2K_WDT_MD_STA);
 	ccif_write32(md->md_rgu_base, C2K_WDT_MD_MODE, C2K_WDT_MD_MODE_KEY);
-	CCCI_NORMAL_LOG(md->index, TAG,
-		"WDT IRQ disabled for debug, state=%X\n", state);
+	((void)0);
 #endif
-	CCCI_NORMAL_LOG(md->index, TAG, "MD WDT IRQ\n");
+	((void)0);
 	pr_err("ccci%d: modem watchdog interrupt\n", md->index + 1);
 
 	ccci_fsm_recv_md_interrupt(md->index, MD_IRQ_WDT);
@@ -64,7 +63,7 @@ static irqreturn_t md_cd_wdt_isr(int irq, void *data)
 
 static void md_ccif_exception(struct ccci_modem *md, enum HIF_EX_STAGE stage)
 {
-	CCCI_NORMAL_LOG(md->index, TAG, "MD exception HIF %d\n", stage);
+	((void)0);
 	switch (stage) {
 	case HIF_EX_INIT:
 		/* Rx dispatch does NOT depend on queue index
@@ -109,7 +108,7 @@ static int md_ccif_ee_handshake(struct ccci_modem *md, int timeout)
 
 static int md_ccif_op_init(struct ccci_modem *md)
 {
-	CCCI_NORMAL_LOG(md->index, TAG, "CCIF modem is initializing\n");
+	((void)0);
 
 	return 0;
 }
@@ -124,7 +123,7 @@ static int md_ccif_op_start(struct ccci_modem *md)
 
 	/*something do once*/
 	if (md->per_md_data.config.setting & MD_SETTING_FIRST_BOOT) {
-		CCCI_BOOTUP_LOG(md->index, TAG, "CCIF modem is first boot\n");
+		((void)0);
 		ccci_md_clear_smem(md->index, 1);
 		md1 = ccci_md_get_modem_by_id(MD_SYS1);
 		if (md1) {
@@ -132,20 +131,15 @@ static int md_ccif_op_start(struct ccci_modem *md)
 					MD_SETTING_FIRST_BOOT) {
 				msleep(20);
 				if (retry_cnt++ > 1000) {
-					CCCI_ERROR_LOG(md->index, TAG,
-					"wait MD1 start time out\n");
+					((void)0);
 					break;
 				}
 			}
-			CCCI_BOOTUP_LOG(md->index, TAG,
-				"wait for MD1 starting done\n");
+			((void)0);
 		} else
-			CCCI_ERROR_LOG(md->index, TAG,
-				"get MD1 modem struct fail\n");
+			((void)0);
 		md_ccif_ring_buf_init(CCIF_HIF_ID);
-		CCCI_BOOTUP_LOG(md->index, TAG,
-			"modem capability 0x%x\n",
-			md->per_md_data.md_capability);
+		((void)0);
 		md->per_md_data.config.setting &= ~MD_SETTING_FIRST_BOOT;
 	} else {
 		ccci_md_clear_smem(md->index, 0);
@@ -166,7 +160,7 @@ static int md_ccif_op_start(struct ccci_modem *md)
 	per_md_data->data_usb_bypass = 0;
 	md->per_md_data.is_in_ee_dump = 0;
 	md->is_force_asserted = 0;
-	CCCI_NORMAL_LOG(md->index, TAG, "CCIF modem is starting\n");
+	((void)0);
 	/*1. load modem image */
 	if (!modem_run_env_ready(md->index)) {
 		if (md->per_md_data.config.setting & MD_SETTING_FIRST_BOOT
@@ -177,9 +171,7 @@ static int md_ccif_op_start(struct ccci_modem *md)
 				img_err_str, md->per_md_data.img_post_fix,
 				&md->plat_dev->dev);
 			if (ret < 0) {
-				CCCI_ERROR_LOG(md->index, TAG,
-					"load firmware fail, %s\n",
-					img_err_str);
+				((void)0);
 				goto out;
 			}
 			/*load_std_firmware returns MD image size */
@@ -187,18 +179,15 @@ static int md_ccif_op_start(struct ccci_modem *md)
 			md->per_md_data.config.setting &= ~MD_SETTING_RELOAD;
 		}
 	} else {
-		CCCI_NORMAL_LOG(md->index, TAG,
-			"C2K modem image ready, bypass load\n");
+		((void)0);
 		ret = ccci_get_md_check_hdr_inf(md->index,
 				&md->per_md_data.img_info[IMG_MD],
 			md->per_md_data.img_post_fix);
 		if (ret < 0) {
-			CCCI_NORMAL_LOG(md->index, TAG,
-				"partition read fail(%d)\n", ret);
+			((void)0);
 			/*goto out; */
 		} else
-			CCCI_BOOTUP_LOG(md->index, TAG,
-				"partition read success\n");
+			((void)0);
 	}
 	md->per_md_data.config.setting &= ~MD_SETTING_FIRST_BOOT;
 
@@ -207,7 +196,7 @@ static int md_ccif_op_start(struct ccci_modem *md)
 	/*3. power on modem, do NOT touch MD register before this */
 	ret = md_ccif_power_on(md);
 	if (ret) {
-		CCCI_ERROR_LOG(md->index, TAG, "power on MD fail %d\n", ret);
+		((void)0);
 		goto out;
 	}
 	/*4. update mutex */
@@ -217,7 +206,7 @@ static int md_ccif_op_start(struct ccci_modem *md)
 	md_ccif_let_md_go(md);
 	enable_irq(md->md_wdt_irq_id);
  out:
-	CCCI_NORMAL_LOG(md->index, TAG, "ccif modem started %d\n", ret);
+	((void)0);
 	/*used for throttling feature - start */
 	/*ccci_modem_boot_count[md->index]++;*/
 	/*used for throttling feature - end */
@@ -228,12 +217,10 @@ static int md_ccif_op_stop(struct ccci_modem *md, unsigned int stop_type)
 {
 	int ret = 0;
 
-	CCCI_NORMAL_LOG(md->index, TAG,
-		"ccif modem is power off, stop_type=%d\n", stop_type);
+	((void)0);
 	ret = md_ccif_power_off(md,
 			stop_type == MD_FLIGHT_MODE_ENTER ? 100 : 0);
-	CCCI_NORMAL_LOG(md->index, TAG,
-		"ccif modem is power off done, %d\n", ret);
+	((void)0);
 
 	/*disable ccif clk*/
 	md->hw_info->plat_ptr->set_clk_cg(md, 0);
@@ -249,11 +236,11 @@ static int md_ccif_op_pre_stop(struct ccci_modem *md, unsigned int stop_type)
 {
 	/*1. mutex check */
 	if (atomic_inc_return(&md->reset_on_going) > 1) {
-		CCCI_NORMAL_LOG(md->index, TAG, "One reset flow is on-going\n");
+		((void)0);
 		return -CCCI_ERR_MD_IN_RESET;
 	}
 
-	CCCI_NORMAL_LOG(md->index, TAG, "ccif modem is resetting\n");
+	((void)0);
 	/*2. disable IRQ (use nosync) */
 	disable_irq_nosync(md->md_wdt_irq_id);
 
@@ -265,39 +252,19 @@ static void dump_runtime_data(struct ccci_modem *md,
 {
 	u8 i = 0;
 
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"head_pattern 0x%x\n", ap_feature->head_pattern);
+	((void)0);
 
 	for (i = AT_CHANNEL_NUM; i < AP_RUNTIME_FEATURE_ID_MAX; i++) {
-		CCCI_BOOTUP_LOG(md->index, TAG,
-			"ap query md feature %u: mask %u, version %u\n",
-			i, ap_feature->feature_set[i].support_mask,
-			ap_feature->feature_set[i].version);
+		((void)0);
 	}
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"share_memory_support 0x%x\n",
-		ap_feature->share_memory_support);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"ap_runtime_data_addr 0x%x\n",
-		ap_feature->ap_runtime_data_addr);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"ap_runtime_data_size 0x%x\n",
-		ap_feature->ap_runtime_data_size);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"md_runtime_data_addr 0x%x\n",
-		ap_feature->md_runtime_data_addr);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"md_runtime_data_size 0x%x\n",
-		ap_feature->md_runtime_data_size);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"set_md_mpu_start_addr 0x%x\n",
-		ap_feature->set_md_mpu_start_addr);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"set_md_mpu_total_size 0x%x\n",
-		ap_feature->set_md_mpu_total_size);
-	CCCI_BOOTUP_LOG(md->index, TAG,
-		"tail_pattern 0x%x\n",
-		ap_feature->tail_pattern);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
+	((void)0);
 }
 
 static void md_ccif_smem_sub_region_init(struct ccci_modem *md)
@@ -406,7 +373,7 @@ static int md_ccif_op_send_runtime_data(struct ccci_modem *md,
 static int md_ccif_op_force_assert(struct ccci_modem *md,
 	enum MD_COMM_TYPE type)
 {
-	CCCI_NORMAL_LOG(md->index, TAG, "force assert MD using %d\n", type);
+	((void)0);
 	if (type == CCIF_INTERRUPT)
 		md_ccif_send(CCIF_HIF_ID, AP_MD_SEQ_ERROR);
 	return 0;
@@ -417,11 +384,11 @@ static inline void clear_md1_md3_smem(struct ccci_modem *md)
 {
 	struct ccci_smem_region *region;
 
-	CCCI_NORMAL_LOG(md->index, TAG, "%s start\n", __func__);
+	((void)0);
 	region = ccci_md_get_smem_by_user_id(md->index, SMEM_USER_RAW_MD2MD);
 
 	if (!region) {
-		CCCI_NORMAL_LOG(md->index, TAG, "%s error\n", __func__);
+		((void)0);
 		return;
 	}
 	memset_io(region->base_ap_view_vir, 0, region->size);
@@ -484,9 +451,7 @@ static void md_ccif_hw_init(struct ccci_modem *md)
 	ret = request_irq(md->md_wdt_irq_id, md_cd_wdt_isr,
 			md->md_wdt_irq_flags, "MD2_WDT", md);
 	if (ret) {
-		CCCI_ERROR_LOG(md->index, TAG,
-			"request MD_WDT IRQ(%d) error %d\n",
-			md->md_wdt_irq_id, ret);
+		((void)0);
 		return;
 	}
 	/*to balance the first start */
@@ -503,23 +468,20 @@ static int md_ccif_probe(struct platform_device *dev)
 	/*Allocate modem hardware info structure memory */
 	md_hw = kzalloc(sizeof(struct md_hw_info), GFP_KERNEL);
 	if (md_hw == NULL) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:alloc md hw mem fail\n", __func__);
+		((void)0);
 		return -1;
 	}
 
 	ret = md_ccif_get_modem_hw_info(dev, &dev_cfg, md_hw);
 	if (ret != 0) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:get hw info fail(%d)\n", __func__, ret);
+		((void)0);
 		kfree(md_hw);
 		md_hw = NULL;
 		return -1;
 	}
 
 	if (!get_modem_is_enabled(dev_cfg.index)) {
-		CCCI_ERROR_LOG(dev_cfg.index, TAG,
-			"modem %d not enable\n", dev_cfg.index + 1);
+		((void)0);
 		kfree(md_hw);
 		md_hw = NULL;
 		return -1;
@@ -528,8 +490,7 @@ static int md_ccif_probe(struct platform_device *dev)
 	/*Allocate md ctrl memory and do initialize */
 	md = ccci_md_alloc(sizeof(struct md_sys3_info));
 	if (md == NULL) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"%s:alloc modem ctrl mem fail\n", __func__);
+		((void)0);
 		kfree(md_hw);
 		md_hw = NULL;
 		return -1;
@@ -540,23 +501,19 @@ static int md_ccif_probe(struct platform_device *dev)
 	md->plat_dev = dev;
 	md->hw_info = md_hw;
 
-	CCCI_INIT_LOG(md_id, TAG, "modem ccif module probe...\n");
+	((void)0);
 	snprintf(md->trm_wakelock_name, sizeof(md->trm_wakelock_name),
 		"md%d_ccif_trm", md->index + 1);
 	md->trm_wake_lock = wakeup_source_register(NULL, md->trm_wakelock_name);
 	if (!md->trm_wake_lock) {
-		CCCI_ERROR_LOG(md_id, TAG,
-			"%s %d: init wakeup source fail",
-			__func__, __LINE__);
+		((void)0);
 		return -1;
 	}
 
 
 	/*init modem structure */
 	md->ops = &md_ccif_ops;
-	CCCI_INIT_LOG(md_id, TAG,
-		"%s:md_ccif=%p,md_ctrl=%p\n", __func__,
-		md, md->private_data);
+	((void)0);
 
 	/*register modem */
 	ccci_md_register(md);
@@ -605,7 +562,7 @@ int md_ccif_pm_suspend(struct device *device)
 	struct platform_device *pdev = to_platform_device(device);
 
 	if (pdev == NULL) {
-		CCCI_ERROR_LOG(MD_SYS3, TAG, "%s pdev == NULL\n", __func__);
+		((void)0);
 		return -1;
 	}
 	return md_ccif_suspend(pdev, PMSG_SUSPEND);
@@ -616,7 +573,7 @@ int md_ccif_pm_resume(struct device *device)
 	struct platform_device *pdev = to_platform_device(device);
 
 	if (pdev == NULL) {
-		CCCI_ERROR_LOG(MD_SYS3, TAG, "%s pdev == NULL\n", __func__);
+		((void)0);
 		return -1;
 	}
 	return md_ccif_resume(pdev);
@@ -627,7 +584,7 @@ int md_ccif_pm_restore_noirq(struct device *device)
 	int ret = 0;
 	struct ccci_modem *md = (struct ccci_modem *)device->platform_data;
 
-	CCCI_DEBUG_LOG(md->index, TAG, "%s\n", __func__);
+	((void)0);
 	return ret;
 }
 
@@ -675,12 +632,10 @@ static int __init md_ccif_init(void)
 
 	ret = platform_driver_register(&modem_ccif_driver);
 	if (ret) {
-		CCCI_ERROR_LOG(-1, TAG,
-			"CCIF modem platform driver register fail(%d)\n", ret);
+		((void)0);
 		return ret;
 	}
-	CCCI_INIT_LOG(-1, TAG,
-		"CCIF C2K modem platform driver register success\n");
+	((void)0);
 	return 0;
 }
 

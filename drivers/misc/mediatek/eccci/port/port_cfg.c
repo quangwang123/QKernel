@@ -414,7 +414,7 @@ int port_get_cfg(int md_id, struct port_t **ports)
 	default:
 		*ports = NULL;
 		port_number = 0;
-		CCCI_ERROR_LOG(md_id, PORT, "md_port_cfg:no md enable\n");
+		((void)0);
 		break;
 	}
 	return port_number;
