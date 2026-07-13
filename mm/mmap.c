@@ -1403,9 +1403,8 @@ static inline int mlock_future_check(struct mm_struct *mm,
 	if (flags & VM_LOCKED) {
 		locked = len >> PAGE_SHIFT;
 		locked += mm->locked_vm;
-		lock_limit = rlimit(RLIMIT_MEMLOCK);
-		lock_limit >>= PAGE_SHIFT;
-		if (locked > lock_limit && !capable(CAP_IPC_LOCK))
+		lock_limit = mlock_limit_pages();
+		if (locked > lock_limit)
 			return -EAGAIN;
 	}
 	return 0;
@@ -2389,9 +2388,8 @@ static int acct_stack_growth(struct vm_area_struct *vma,
 		unsigned long locked;
 		unsigned long limit;
 		locked = mm->locked_vm + grow;
-		limit = rlimit(RLIMIT_MEMLOCK);
-		limit >>= PAGE_SHIFT;
-		if (locked > limit && !capable(CAP_IPC_LOCK))
+		limit = mlock_limit_pages();
+		if (locked > limit)
 			return -ENOMEM;
 	}
 
