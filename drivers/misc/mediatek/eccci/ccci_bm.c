@@ -249,9 +249,6 @@ struct sk_buff *ccci_skb_dequeue(struct ccci_skb_queue *queue)
 
 	spin_lock_irqsave(&queue->skb_list.lock, flags);
 	result = __skb_dequeue(&queue->skb_list);
-	if (queue->max_occupied < queue->max_len - queue->skb_list.qlen)
-		queue->max_occupied = queue->max_len - queue->skb_list.qlen;
-	queue->deq_count++;
 	if (queue->pre_filled && queue->skb_list.qlen <
 		queue->max_len / RELOAD_TH)
 		queue_work(pool_reload_work_queue, &queue->reload_work);
@@ -267,11 +264,7 @@ void ccci_skb_enqueue(struct ccci_skb_queue *queue, struct sk_buff *newsk)
 
 	spin_lock_irqsave(&queue->skb_list.lock, flags);
 	if (queue->skb_list.qlen < queue->max_len) {
-		queue->enq_count++;
 		__skb_queue_tail(&queue->skb_list, newsk);
-		if (queue->skb_list.qlen > queue->max_history)
-			queue->max_history = queue->skb_list.qlen;
-
 	} else {
 		dev_kfree_skb_any(newsk);
 	}
@@ -305,7 +298,6 @@ void ccci_skb_queue_init(struct ccci_skb_queue *queue, unsigned int skb_size,
 	} else {
 		queue->pre_filled = 0;
 	}
-	queue->max_history = 0;
 }
 EXPORT_SYMBOL(ccci_skb_queue_init);
 
@@ -401,18 +393,6 @@ void ccci_free_skb(struct sk_buff *skb)
 	};
 }
 EXPORT_SYMBOL(ccci_free_skb);
-
-void ccci_dump_skb_pool_usage(int md_id)
-{
-	((void)0);
-	((void)0);
-	skb_pool_4K.max_occupied = 0;
-	skb_pool_4K.enq_count = 0;
-	skb_pool_4K.deq_count = 0;
-	skb_pool_16.max_occupied = 0;
-	skb_pool_16.enq_count = 0;
-	skb_pool_16.deq_count = 0;
-}
 
 static void __4K_reload_work(struct work_struct *work)
 {

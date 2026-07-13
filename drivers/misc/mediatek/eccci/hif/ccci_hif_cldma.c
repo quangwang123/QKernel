@@ -465,7 +465,6 @@ void md_cd_traffic_monitor_func(struct timer_list *t)
 	((void)0);
 #endif
 	ccci_channel_dump_packet_counter(md_ctrl->md_id, tinfo);
-	ccci_dump_skb_pool_usage(md_ctrl->md_id);
 
 	if ((jiffies - md_ctrl->traffic_stamp) / HZ <=
 		TRAFFIC_MONITOR_INTERVAL * 2)
@@ -3017,4 +3016,3 @@ module_exit(ccci_cldma_exit);
 MODULE_AUTHOR("ccci");
 MODULE_DESCRIPTION("ccci hif ccif driver");
 MODULE_LICENSE("GPL");
-

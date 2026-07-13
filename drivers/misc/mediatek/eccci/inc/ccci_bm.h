@@ -65,10 +65,6 @@ struct ccci_skb_queue {
 	unsigned int max_len;
 	struct work_struct reload_work;
 	unsigned char pre_filled;
-	unsigned int max_history;
-	unsigned int max_occupied;
-	unsigned int enq_count;
-	unsigned int deq_count;
 	unsigned int magic_footer;
 };
 
@@ -82,7 +78,6 @@ struct sk_buff *ccci_skb_dequeue(struct ccci_skb_queue *queue);
 void ccci_skb_enqueue(struct ccci_skb_queue *queue, struct sk_buff *newsk);
 void ccci_skb_queue_init(struct ccci_skb_queue *queue,
 	unsigned int skb_size, unsigned int max_len, char fill_now);
-void ccci_dump_skb_pool_usage(int md_id);
 void ccci_error_dump(int md_id, void *start_addr, int len);
 void ccci_mem_dump(int md_id, void *start_addr, int len);
 void ccci_cmpt_mem_dump(int md_id, void *start_addr, int len);
