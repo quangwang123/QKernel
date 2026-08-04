@@ -67,9 +67,9 @@ static const unsigned int kyber_depth[] = {
  * Scheduling domain batch sizes. We favor reads.
  */
 static const unsigned int kyber_batch_size[] = {
-	[KYBER_READ] = 16,
-	[KYBER_SYNC_WRITE] = 8,
-	[KYBER_OTHER] = 8,
+	[KYBER_READ] = 24,
+	[KYBER_SYNC_WRITE] = 6,
+	[KYBER_OTHER] = 2,
 };
 
 /*
