@@ -251,9 +251,6 @@ static bool swap_sched_async_compress(struct page *page)
 	if (!current_is_kswapd())
 		return false;
 
-	if (!PageAnon(page) && !PageSwapBacked(page))
-		return false;
-
 	start_hid = (unsigned int)atomic_inc_return(&rr_cursor) % MAX_KCOMPRESSD_THREADS;
 
 	sis = page_swap_info(page);
