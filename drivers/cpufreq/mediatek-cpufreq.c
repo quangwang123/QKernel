@@ -27,8 +27,8 @@
 
 #define MIN_VOLT_SHIFT		(100000)
 #define MAX_VOLT_SHIFT		(200000)
-#define MAX_VOLT_LIMIT		(1850000)
-#define VOLT_TOL		(18000)
+#define MAX_VOLT_LIMIT		(1150000)
+#define VOLT_TOL		(10000)
 
 /*
  * The struct mtk_cpu_dvfs_info holds necessary information for doing CPU DVFS
@@ -551,13 +551,9 @@ static const struct of_device_id mtk_cpufreq_machines[] __initconst = {
 	{ .compatible = "mediatek,mt817x", },
 	{ .compatible = "mediatek,mt8173", },
 	{ .compatible = "mediatek,mt8176", },
-	{ .compatible = "mediatek,mt6765", },
-	{ .compatible = "mediatek,mt6762g", },
-	{ .compatible = "mediatek,mt676x", },
 
 	{ }
 };
-MODULE_DEVICE_TABLE(of, mtk_cpufreq_machines);
 
 static int __init mtk_cpufreq_driver_init(void)
 {
