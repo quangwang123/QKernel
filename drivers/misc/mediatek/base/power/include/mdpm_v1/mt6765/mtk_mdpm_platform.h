@@ -12,7 +12,7 @@
 /* #define MD_POWER_UT */
 #endif
 
-#define MAX_MD1_POWER	4000	/* mW */
+#define MAX_MD1_POWER	5500	/* mW */
 #define MAX_DBM_POWER	\
 	(MAX_PW_MD1_PA_4G_upL1_SECTION_1 + MAX_PW_MD1_RF_4G_upL1_SECTION_1)
 
