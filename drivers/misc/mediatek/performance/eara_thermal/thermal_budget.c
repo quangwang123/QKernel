@@ -634,70 +634,70 @@ static int cal_xpu_time(int xpu_time, int xpu_freq, int new_freq)
 
 static void eara_thrm_cpu_power_limit(int limit)
 {
-	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	// int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
 
-	if (!is_enable && limit)
-		return;
+	// if (!is_enable && limit)
+	// 	return;
 
-	if (final_limit != cur_cpu_pb && final_limit > 0) {
-		EARA_THRM_LOGE("cpu budget %d <- %d\n",
-				final_limit, cur_cpu_pb);
-		eara_thrm_systrace(cur_max_pid, final_limit, "cpu_limit");
-		cur_cpu_pb = final_limit;
-		apthermolmt_set_cpu_power_limit(&ap_eara, final_limit);
-	}
+	// if (final_limit != cur_cpu_pb && final_limit > 0) {
+	// 	EARA_THRM_LOGE("cpu budget %d <- %d\n",
+	// 			final_limit, cur_cpu_pb);
+	// 	eara_thrm_systrace(cur_max_pid, final_limit, "cpu_limit");
+	// 	cur_cpu_pb = final_limit;
+	// 	apthermolmt_set_cpu_power_limit(&ap_eara, final_limit);
+	// }
 }
 
 static void eara_thrm_gpu_power_limit(int limit)
 {
-	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+	// int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
 
-	if (!is_enable && limit)
-		return;
+	// if (!is_enable && limit)
+	// 	return;
 
-	if (final_limit != cur_gpu_pb && final_limit > 0) {
-		EARA_THRM_LOGE("gpu budget %d <- %d\n",
-				final_limit, cur_gpu_pb);
-		eara_thrm_systrace(cur_max_pid, final_limit, "gpu_limit");
-		cur_gpu_pb = final_limit;
-		apthermolmt_set_gpu_power_limit(&ap_eara, final_limit);
-	}
+	// if (final_limit != cur_gpu_pb && final_limit > 0) {
+	// 	EARA_THRM_LOGE("gpu budget %d <- %d\n",
+	// 			final_limit, cur_gpu_pb);
+	// 	eara_thrm_systrace(cur_max_pid, final_limit, "gpu_limit");
+	// 	cur_gpu_pb = final_limit;
+	// 	apthermolmt_set_gpu_power_limit(&ap_eara, final_limit);
+	// }
 }
 
 static void eara_thrm_vpu_power_limit(int limit)
 {
-#ifdef EARA_THERMAL_VPU_SUPPORT
-	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+// #ifdef EARA_THERMAL_VPU_SUPPORT
+// 	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
 
-	if (!is_enable && limit)
-		return;
+// 	if (!is_enable && limit)
+// 		return;
 
-	if (final_limit != cur_vpu_pb && final_limit > 0) {
-		EARA_THRM_LOGE("vpu budget %d <- %d\n",
-				final_limit, cur_vpu_pb);
-		eara_thrm_systrace(cur_max_pid, final_limit, "vpu_limit");
-		cur_vpu_pb = final_limit;
-		apthermolmt_set_vpu_power_limit(&ap_eara, final_limit);
-	}
-#endif
+// 	if (final_limit != cur_vpu_pb && final_limit > 0) {
+// 		EARA_THRM_LOGE("vpu budget %d <- %d\n",
+// 				final_limit, cur_vpu_pb);
+// 		eara_thrm_systrace(cur_max_pid, final_limit, "vpu_limit");
+// 		cur_vpu_pb = final_limit;
+// 		apthermolmt_set_vpu_power_limit(&ap_eara, final_limit);
+// 	}
+// #endif
 }
 
 static void eara_thrm_mdla_power_limit(int limit)
 {
-#ifdef EARA_THERMAL_MDLA_SUPPORT
-	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+// #ifdef EARA_THERMAL_MDLA_SUPPORT
+// 	int final_limit = (limit != 0) ? limit : 0x7FFFFFFF;
 
-	if (!is_enable && limit)
-		return;
+// 	if (!is_enable && limit)
+// 		return;
 
-	if (final_limit != cur_mdla_pb && final_limit > 0) {
-		EARA_THRM_LOGE("mdla budget %d <- %d\n",
-				final_limit, cur_mdla_pb);
-		eara_thrm_systrace(cur_max_pid, final_limit, "mdla_limit");
-		cur_mdla_pb = final_limit;
-		apthermolmt_set_mdla_power_limit(&ap_eara, final_limit);
-	}
-#endif
+// 	if (final_limit != cur_mdla_pb && final_limit > 0) {
+// 		EARA_THRM_LOGE("mdla budget %d <- %d\n",
+// 				final_limit, cur_mdla_pb);
+// 		eara_thrm_systrace(cur_max_pid, final_limit, "mdla_limit");
+// 		cur_mdla_pb = final_limit;
+// 		apthermolmt_set_mdla_power_limit(&ap_eara, final_limit);
+// 	}
+// #endif
 }
 
 static void eara_thrm_set_power_limit(
