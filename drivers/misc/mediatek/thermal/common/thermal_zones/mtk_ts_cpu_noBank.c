@@ -1690,8 +1690,8 @@ static int ktp_thread(void *arg)
 			/* freq/volt down or cpu down or backlight down
 			 * or charging down...
 			 */
-			apthermolmt_set_general_cpu_power_limit(600);
-			apthermolmt_set_general_gpu_power_limit(600);
+			apthermolmt_set_general_cpu_power_limit(0);
+			apthermolmt_set_general_gpu_power_limit(0);
 			ktp_limited = temp_tc_mid_trip;
 
 			msleep(20 * 1000);
