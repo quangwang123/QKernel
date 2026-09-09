@@ -75,8 +75,6 @@
  */
 static int print_cunt;
 static int adaptive_limit[5][2];
-static struct apthermolmt_user ap_atm;
-static char *ap_atm_log = "ap_atm";
 
 static kuid_t uid = KUIDT_INIT(0);
 static kgid_t gid = KGIDT_INIT(1000);
@@ -3513,10 +3511,6 @@ static int __init mtk_cooler_atm_init(void)
 
 	tscpu_dprintk("%s: start\n", __func__);
 
-	err = apthermolmt_register_user(&ap_atm, ap_atm_log);
-	if (err < 0)
-		return err;
-
 #if CPT_ADAPTIVE_AP_COOLER
 	/* default use old version */
 	_adaptive_power_calc = _adaptive_power;
@@ -3605,7 +3599,6 @@ static void __exit mtk_cooler_atm_exit(void)
 	}
 #endif
 
-	apthermolmt_unregister_user(&ap_atm);
 }
 
 module_init(mtk_cooler_atm_init);
