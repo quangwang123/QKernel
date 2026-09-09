@@ -771,211 +771,211 @@ static void atm_profile_gpu_power_limit(s64 latest_latency)
 
 static void set_adaptive_cpu_power_limit(unsigned int limit)
 {
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	mutex_lock(&atm_cpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	mutex_lock(&atm_cpu_lmt_mutex);
+// #endif
+// #endif
 
-	prv_adp_cpu_pwr_lim = adaptive_cpu_power_limit;
-	adaptive_cpu_power_limit = 0x7FFFFFFF;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	if (atm_sspm_enabled)
-		adaptive_cpu_power_limit = 0x7FFFFFFF;
-#endif
-#endif
+// 	prv_adp_cpu_pwr_lim = adaptive_cpu_power_limit;
+// 	adaptive_cpu_power_limit = 0x7FFFFFFF;
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	if (atm_sspm_enabled)
+// 		adaptive_cpu_power_limit = 0x7FFFFFFF;
+// #endif
+// #endif
 
-	if (prv_adp_cpu_pwr_lim != adaptive_cpu_power_limit) {
-#ifdef ATM_CFG_PROFILING
-		ktime_t now, delta;
-#endif
+// 	if (prv_adp_cpu_pwr_lim != adaptive_cpu_power_limit) {
+// #ifdef ATM_CFG_PROFILING
+// 		ktime_t now, delta;
+// #endif
 
-		/* print debug log */
-		adaptive_limit[print_cunt][0] =
-			(int) (adaptive_cpu_power_limit != 0x7FFFFFFF) ?
-						adaptive_cpu_power_limit : 0;
+// 		/* print debug log */
+// 		adaptive_limit[print_cunt][0] =
+// 			(int) (adaptive_cpu_power_limit != 0x7FFFFFFF) ?
+// 						adaptive_cpu_power_limit : 0;
 
-#ifdef FAST_RESPONSE_ATM
-		adaptive_limit[print_cunt][1] = krtatm_curr_maxtj;
-#else
-		adaptive_limit[print_cunt][1] = tscpu_get_curr_temp();
-#endif
-		print_cunt++;
-		if (print_cunt == 5) {
-			tscpu_warn(
-				"%s %d T=%d, %d T=%d, %d T=%d, %d T=%d, %d T=%d\n",
-				__func__,
-				adaptive_limit[4][0], adaptive_limit[4][1],
-				adaptive_limit[3][0], adaptive_limit[3][1],
-				adaptive_limit[2][0], adaptive_limit[2][1],
-				adaptive_limit[1][0], adaptive_limit[1][1],
-				adaptive_limit[0][0], adaptive_limit[0][1]);
+// #ifdef FAST_RESPONSE_ATM
+// 		adaptive_limit[print_cunt][1] = krtatm_curr_maxtj;
+// #else
+// 		adaptive_limit[print_cunt][1] = tscpu_get_curr_temp();
+// #endif
+// 		print_cunt++;
+// 		if (print_cunt == 5) {
+// 			tscpu_warn(
+// 				"%s %d T=%d, %d T=%d, %d T=%d, %d T=%d, %d T=%d\n",
+// 				__func__,
+// 				adaptive_limit[4][0], adaptive_limit[4][1],
+// 				adaptive_limit[3][0], adaptive_limit[3][1],
+// 				adaptive_limit[2][0], adaptive_limit[2][1],
+// 				adaptive_limit[1][0], adaptive_limit[1][1],
+// 				adaptive_limit[0][0], adaptive_limit[0][1]);
 
-			print_cunt = 0;
-		} else {
-#ifdef FAST_RESPONSE_ATM
-			if ((prv_adp_cpu_pwr_lim != 0x7FFFFFFF) &&
-				((adaptive_cpu_power_limit + 1000)
-				< prv_adp_cpu_pwr_lim))
-				tscpu_warn(
-					"%s Big delta power %u curr_T=%d, %u prev_T=%d\n",
-					__func__, adaptive_cpu_power_limit,
-					krtatm_curr_maxtj, prv_adp_cpu_pwr_lim,
-					krtatm_prev_maxtj);
-#endif
-		}
+// 			print_cunt = 0;
+// 		} else {
+// #ifdef FAST_RESPONSE_ATM
+// 			if ((prv_adp_cpu_pwr_lim != 0x7FFFFFFF) &&
+// 				((adaptive_cpu_power_limit + 1000)
+// 				< prv_adp_cpu_pwr_lim))
+// 				tscpu_warn(
+// 					"%s Big delta power %u curr_T=%d, %u prev_T=%d\n",
+// 					__func__, adaptive_cpu_power_limit,
+// 					krtatm_curr_maxtj, prv_adp_cpu_pwr_lim,
+// 					krtatm_prev_maxtj);
+// #endif
+// 		}
 
-#ifdef ATM_CFG_PROFILING
-		now = ktime_get();
-#endif
-		apthermolmt_set_cpu_power_limit(&ap_atm,
-					adaptive_cpu_power_limit);
+// #ifdef ATM_CFG_PROFILING
+// 		now = ktime_get();
+// #endif
+// 		apthermolmt_set_cpu_power_limit(&ap_atm,
+// 					adaptive_cpu_power_limit);
 
-#ifdef ATM_CFG_PROFILING
-		delta = ktime_get();
-		if (ktime_after(delta, now)) {
-			cpu_pwr_lmt_latest_delay =
-					ktime_to_us(ktime_sub(delta, now));
+// #ifdef ATM_CFG_PROFILING
+// 		delta = ktime_get();
+// 		if (ktime_after(delta, now)) {
+// 			cpu_pwr_lmt_latest_delay =
+// 					ktime_to_us(ktime_sub(delta, now));
 
-			atm_profile_cpu_power_limit(cpu_pwr_lmt_latest_delay);
-		}
-#endif
-	}
+// 			atm_profile_cpu_power_limit(cpu_pwr_lmt_latest_delay);
+// 		}
+// #endif
+// 	}
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	mutex_unlock(&atm_cpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	mutex_unlock(&atm_cpu_lmt_mutex);
+// #endif
+// #endif
 }
 
 static void set_adaptive_gpu_power_limit(unsigned int limit)
 {
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-		mutex_lock(&atm_gpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 		mutex_lock(&atm_gpu_lmt_mutex);
+// #endif
+// #endif
 
-	prv_adp_gpu_pwr_lim = adaptive_gpu_power_limit;
-	adaptive_gpu_power_limit = 0x7FFFFFFF;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	if (atm_sspm_enabled)
-		adaptive_gpu_power_limit = 0x7FFFFFFF;
-#endif
-#endif
+// 	prv_adp_gpu_pwr_lim = adaptive_gpu_power_limit;
+// 	adaptive_gpu_power_limit = 0x7FFFFFFF;
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	if (atm_sspm_enabled)
+// 		adaptive_gpu_power_limit = 0x7FFFFFFF;
+// #endif
+// #endif
 
-	if (prv_adp_gpu_pwr_lim != adaptive_gpu_power_limit) {
-#ifdef ATM_CFG_PROFILING
-		ktime_t now, delta;
-#endif
+// 	if (prv_adp_gpu_pwr_lim != adaptive_gpu_power_limit) {
+// #ifdef ATM_CFG_PROFILING
+// 		ktime_t now, delta;
+// #endif
 
-		tscpu_dprintk("%s %d\n", __func__,
-				(adaptive_gpu_power_limit != 0x7FFFFFFF) ?
-						adaptive_gpu_power_limit : 0);
-#ifdef ATM_CFG_PROFILING
-		now = ktime_get();
-#endif
-		apthermolmt_set_gpu_power_limit(&ap_atm,
-						adaptive_gpu_power_limit);
-#ifdef ATM_CFG_PROFILING
-		delta = ktime_get();
-		if (ktime_after(delta, now)) {
-			gpu_pwr_lmt_latest_delay =
-					ktime_to_us(ktime_sub(delta, now));
+// 		tscpu_dprintk("%s %d\n", __func__,
+// 				(adaptive_gpu_power_limit != 0x7FFFFFFF) ?
+// 						adaptive_gpu_power_limit : 0);
+// #ifdef ATM_CFG_PROFILING
+// 		now = ktime_get();
+// #endif
+// 		apthermolmt_set_gpu_power_limit(&ap_atm,
+// 						adaptive_gpu_power_limit);
+// #ifdef ATM_CFG_PROFILING
+// 		delta = ktime_get();
+// 		if (ktime_after(delta, now)) {
+// 			gpu_pwr_lmt_latest_delay =
+// 					ktime_to_us(ktime_sub(delta, now));
 
-			atm_profile_gpu_power_limit(gpu_pwr_lmt_latest_delay);
-		}
-#endif
+// 			atm_profile_gpu_power_limit(gpu_pwr_lmt_latest_delay);
+// 		}
+// #endif
 
-	}
+// 	}
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	mutex_unlock(&atm_gpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	mutex_unlock(&atm_gpu_lmt_mutex);
+// #endif
+// #endif
 }
 
 #if defined(THERMAL_VPU_SUPPORT)
 static void set_adaptive_vpu_power_limit(unsigned int limit)
 {
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
-		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-		mutex_lock(&atm_vpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
+// 		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 		mutex_lock(&atm_vpu_lmt_mutex);
+// #endif
+// #endif
 
-	prv_adp_vpu_pwr_lim = adaptive_vpu_power_limit;
-	adaptive_vpu_power_limit = 0x7FFFFFFF;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
-		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	if (atm_sspm_enabled)
-		adaptive_vpu_power_limit = 0x7FFFFFFF;
-#endif
-#endif
+// 	prv_adp_vpu_pwr_lim = adaptive_vpu_power_limit;
+// 	adaptive_vpu_power_limit = 0x7FFFFFFF;
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
+// 		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	if (atm_sspm_enabled)
+// 		adaptive_vpu_power_limit = 0x7FFFFFFF;
+// #endif
+// #endif
 
-	if (prv_adp_vpu_pwr_lim != adaptive_vpu_power_limit) {
-		tscpu_dprintk("%s %d\n", __func__,
-			(adaptive_vpu_power_limit != 0x7FFFFFFF) ?
-			adaptive_vpu_power_limit : 0);
-		apthermolmt_set_vpu_power_limit(&ap_atm,
-			adaptive_vpu_power_limit);
-	}
+// 	if (prv_adp_vpu_pwr_lim != adaptive_vpu_power_limit) {
+// 		tscpu_dprintk("%s %d\n", __func__,
+// 			(adaptive_vpu_power_limit != 0x7FFFFFFF) ?
+// 			adaptive_vpu_power_limit : 0);
+// 		apthermolmt_set_vpu_power_limit(&ap_atm,
+// 			adaptive_vpu_power_limit);
+// 	}
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
-		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	mutex_unlock(&atm_vpu_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER && \
+// 		PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	mutex_unlock(&atm_vpu_lmt_mutex);
+// #endif
+// #endif
 }
 #endif
 
 #if defined(THERMAL_MDLA_SUPPORT)
 static void set_adaptive_mdla_power_limit(unsigned int limit)
 {
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-		mutex_lock(&atm_mdla_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 		mutex_lock(&atm_mdla_lmt_mutex);
+// #endif
+// #endif
 
-	prv_adp_mdla_pwr_lim = adaptive_mdla_power_limit;
-	adaptive_mdla_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	if (atm_sspm_enabled)
-		adaptive_mdla_power_limit = 0x7FFFFFFF;
-#endif
-#endif
+// 	prv_adp_mdla_pwr_lim = adaptive_mdla_power_limit;
+// 	adaptive_mdla_power_limit = (limit != 0) ? limit : 0x7FFFFFFF;
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	if (atm_sspm_enabled)
+// 		adaptive_mdla_power_limit = 0x7FFFFFFF;
+// #endif
+// #endif
 
-	if (prv_adp_mdla_pwr_lim != adaptive_mdla_power_limit) {
-		tscpu_dprintk("%s %d\n", __func__,
-		     (adaptive_mdla_power_limit != 0x7FFFFFFF) ?
-						adaptive_mdla_power_limit : 0);
-		apthermolmt_set_mdla_power_limit(&ap_atm,
-			adaptive_mdla_power_limit);
-	}
+// 	if (prv_adp_mdla_pwr_lim != adaptive_mdla_power_limit) {
+// 		tscpu_dprintk("%s %d\n", __func__,
+// 		     (adaptive_mdla_power_limit != 0x7FFFFFFF) ?
+// 						adaptive_mdla_power_limit : 0);
+// 		apthermolmt_set_mdla_power_limit(&ap_atm,
+// 			adaptive_mdla_power_limit);
+// 	}
 
-#ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
-#if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
-	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
-	mutex_unlock(&atm_mdla_lmt_mutex);
-#endif
-#endif
+// #ifdef CONFIG_MTK_TINYSYS_SSPM_SUPPORT
+// #if THERMAL_ENABLE_TINYSYS_SSPM && CPT_ADAPTIVE_AP_COOLER &&	\
+// 	PRECISE_HYBRID_POWER_BUDGET && CONTINUOUS_TM
+// 	mutex_unlock(&atm_mdla_lmt_mutex);
+// #endif
+// #endif
 }
 #endif
 
