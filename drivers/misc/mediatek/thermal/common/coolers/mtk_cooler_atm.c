@@ -3505,97 +3505,6 @@ static void atm_timer_init(void)
 #define KRTATM_CFS	(2)
 #define KRTATM_SCH	KRTATM_CFS
 
-static int krtatm_thread(void *arg)
-{
-#ifdef ATM_CFG_PROFILING
-	ktime_t last, delta;
-#endif
-
-#if KRTATM_SCH == KRTATM_RT
-	struct sched_param param = {.sched_priority = 98 };
-
-	sched_setscheduler(current, SCHED_FIFO, &param);
-#elif KRTATM_SCH == KRTATM_CFS
-	set_user_nice(current, MIN_NICE);
-#endif
-	set_current_state(TASK_INTERRUPTIBLE);
-
-	tscpu_dprintk("%s 1st run\n", __func__);
-
-	schedule();
-
-	for (;;) {
-#ifdef ATM_CFG_PROFILING
-		if (atm_resumed) {
-			atm_resumed = 0;
-		} else {
-			delta = ktime_get();
-			if (ktime_after(delta, last))
-				atm_profile_atm_period(
-				ktime_to_us(ktime_sub(delta, last)));
-		}
-		last = ktime_get();
-#endif
-		tscpu_dprintk("%s awake\n", __func__);
-#if (CONFIG_THERMAL_AEE_RR_REC == 1)
-		aee_rr_rec_thermal_ATM_status(ATM_WAKEUP);
-#endif
-		if (kthread_should_stop())
-			break;
-
-		{
-#ifdef ATM_CFG_PROFILING
-			ktime_t start, end;
-#endif
-			unsigned int gpu_loading;
-
-#ifdef ATM_CFG_PROFILING
-			start = ktime_get();
-			cpu_pwr_lmt_latest_delay = 0;
-			gpu_pwr_lmt_latest_delay = 0;
-#endif
-
-			if (!mtk_get_gpu_loading(&gpu_loading))
-				gpu_loading = 0;
-
-			/* use separate prev/curr in krtatm because
-			 * krtatm may be blocked by PPM
-			 */
-			krtatm_prev_maxtj = krtatm_curr_maxtj;
-			krtatm_curr_maxtj = atm_curr_maxtj;
-			if (krtatm_prev_maxtj == 0)
-				krtatm_prev_maxtj = atm_prev_maxtj;
-
-			_adaptive_power_calc(krtatm_prev_maxtj,
-						krtatm_curr_maxtj,
-						(unsigned int) gpu_loading);
-
-			/* To confirm if krtatm kthread is really running. */
-			if (krtatm_curr_maxtj >= 100000 ||
-			(krtatm_curr_maxtj - krtatm_prev_maxtj >= 20000))
-				tscpu_warn("%s c %d p %d cl %d gl %d s %d\n",
-				__func__, krtatm_curr_maxtj,
-				krtatm_prev_maxtj,
-				adaptive_cpu_power_limit,
-				adaptive_gpu_power_limit,
-				cl_dev_adp_cpu_state_active);
-
-#ifdef ATM_CFG_PROFILING
-			end = ktime_get();
-			if (ktime_after(end, start))
-				atm_profile_atm_exec((ktime_to_us(
-					ktime_sub(end, start)) -
-					cpu_pwr_lmt_latest_delay
-					- gpu_pwr_lmt_latest_delay));
-#endif
-		}
-		set_current_state(TASK_INTERRUPTIBLE);
-		schedule();
-	}
-
-	tscpu_warn("%s stopped\n", __func__);
-	return 0;
-}
 #endif	/* FAST_RESPONSE_ATM */
 
 static int __init mtk_cooler_atm_init(void)
@@ -3653,15 +3562,6 @@ static int __init mtk_cooler_atm_init(void)
 	atm_timer_init();
 #endif
 
-	tscpu_dprintk("%s creates krtatm\n", __func__);
-	krtatm_thread_handle = kthread_create(krtatm_thread,
-						(void *)NULL, "krtatm");
-
-	if (IS_ERR(krtatm_thread_handle)) {
-		krtatm_thread_handle = NULL;
-		tscpu_printk("%s krtatm creation fails\n", __func__);
-	} else
-		wake_up_process(krtatm_thread_handle);
 #endif
 #if 0
 	reset_gpu_power_history();
@@ -3680,8 +3580,6 @@ static void __exit mtk_cooler_atm_exit(void)
 	del_timer(&atm_timer);
 #endif
 
-	if (krtatm_thread_handle)
-		kthread_stop(krtatm_thread_handle);
 #endif
 
 #if CPT_ADAPTIVE_AP_COOLER
