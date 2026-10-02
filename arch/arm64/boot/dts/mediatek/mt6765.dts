@@ -2731,7 +2731,7 @@ firmware_class.path=/vendor/firmware";
 		reg = <0 0x13000000 0 0x80000>;
 		interrupts = <GIC_SPI 259 IRQ_TYPE_LEVEL_LOW>;
 		interrupt-names = "RGX";
-		clock-frequency = <570000000>;
+		clock-frequency = <650000000>;
 		ged-supply = <&ged>;
 	};
 
