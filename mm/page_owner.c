@@ -38,12 +38,9 @@ static void init_early_allocated_pages(void);
 
 static int __init early_page_owner_param(char *buf)
 {
-	if (!buf)
-		return -EINVAL;
-
-	if (strcmp(buf, "on") == 0)
-		page_owner_disabled = false;
-
+	/* Force-disable page_owner regardless of bootloader cmdline.
+	 * LK injects "page_owner=on" on Redmi 9A, adding per-page
+	 * allocation tracking overhead on a low-end SoC. */
 	return 0;
 }
 early_param("page_owner", early_page_owner_param);
